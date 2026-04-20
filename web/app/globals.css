@@ -80,36 +80,11 @@ main {
 .mapShell {
   overflow: hidden;
   border-radius: 14px;
-  background: #0a1628;
 }
 
 .mapFrame {
   min-height: 60vh;
-  background: #0d1b2a;
-}
-
-/* Futuristic dark popup for MapLibre */
-.dark-popup .maplibregl-popup-content {
-  background: rgba(10, 22, 40, 0.95) !important;
-  border: 1px solid rgba(0, 255, 213, 0.25) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 0 20px rgba(0, 255, 213, 0.15), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
-  padding: 10px 14px !important;
-  color: #e2e8f0 !important;
-  backdrop-filter: blur(8px) !important;
-}
-
-.dark-popup .maplibregl-popup-tip {
-  border-top-color: rgba(10, 22, 40, 0.95) !important;
-}
-
-.dark-popup .maplibregl-popup-close-button {
-  color: #94a3b8 !important;
-  font-size: 18px !important;
-}
-
-.dark-popup .maplibregl-popup-close-button:hover {
-  color: #00ffd5 !important;
+  background: #f0f9ff;
 }
 
 /* ── Report Grid ───────────────────────────────────────── */

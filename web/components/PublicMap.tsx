@@ -11,16 +11,16 @@ type Props = {
   reports: ReportCard[];
 };
 
-// Dark futuristic map style using CartoDB Dark Matter tiles
-const DARK_FUTURISTIC_STYLE: StyleSpecification = {
+// Clean, colorful map style — CartoDB Voyager (Google Maps-like)
+const MAP_STYLE: StyleSpecification = {
   version: 8,
   sources: {
-    "carto-dark": {
+    "carto-voyager": {
       type: "raster",
       tiles: [
-        "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+        "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+        "https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+        "https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
       ],
       tileSize: 256,
       attribution:
@@ -29,22 +29,30 @@ const DARK_FUTURISTIC_STYLE: StyleSpecification = {
   },
   layers: [
     {
-      id: "carto-dark-layer",
+      id: "carto-voyager-layer",
       type: "raster",
-      source: "carto-dark",
+      source: "carto-voyager",
     },
   ],
 };
 
-// Neon color palette for the futuristic look
-const NEON = {
-  cyan: "#00ffd5",
-  cyanDim: "#0d9488",
-  magenta: "#ff2d95",
-  orange: "#ff9f1c",
-  blue: "#3b82f6",
-  glow: "rgba(0, 255, 213, 0.35)",
-  glowStrong: "rgba(0, 255, 213, 0.55)",
+// Kerala bounding box — restricts map to Kerala only
+const KERALA_BOUNDS: [[number, number], [number, number]] = [
+  [74.85, 8.18],   // Southwest corner (bottom-left)
+  [77.42, 12.82],  // Northeast corner (top-right)
+];
+
+// Kerala center
+const KERALA_CENTER: [number, number] = [76.27, 10.85];
+
+// Marker colors for light map
+const COLORS = {
+  primary: "#dc2626",      // Red — stands out on light map
+  primaryGlow: "rgba(220, 38, 38, 0.25)",
+  cluster10: "#ea580c",    // Orange
+  cluster30: "#dc2626",    // Red
+  clusterBig: "#9333ea",   // Purple
+  text: "#ffffff",
 };
 
 export default function PublicMap({ reports }: Props) {
@@ -78,19 +86,21 @@ export default function PublicMap({ reports }: Props) {
         }
         loadedMap = new maplibregl.Map({
           container: mapContainerRef.current,
-          style: DARK_FUTURISTIC_STYLE,
-          center: [76.2711, 10.8505],
-          zoom: 7,
-          pitch: 20,
-          maxPitch: 60,
+          style: MAP_STYLE,
+          center: KERALA_CENTER,
+          zoom: 7.2,
+          minZoom: 6.5,
+          maxZoom: 18,
+          maxBounds: [
+            [73.5, 7.5],    // Allow slight padding beyond Kerala
+            [78.5, 13.5],
+          ],
         });
         loadedMap.addControl(
-          new maplibregl.NavigationControl({ showCompass: true, visualizePitch: true }),
+          new maplibregl.NavigationControl({ showCompass: false }),
           "top-right",
         );
         loadedMap.on("error", (e) => {
-          // Only mark unavailable for critical errors (WebGL, style load)
-          // Ignore individual tile load failures
           if (e?.error?.message?.includes("Failed to initialize")) {
             setMapUnavailable(true);
           }
@@ -149,20 +159,20 @@ export default function PublicMap({ reports }: Props) {
           clusterRadius: 50,
         });
 
-        // Outer glow ring for clusters
+        // Soft glow behind clusters
         map.addLayer({
           id: "cluster-glow",
           type: "circle",
           source: SOURCE_ID,
           filter: ["has", "point_count"],
           paint: {
-            "circle-color": NEON.glow,
-            "circle-radius": ["step", ["get", "point_count"], 30, 10, 40, 30, 55],
-            "circle-blur": 0.7,
+            "circle-color": COLORS.primaryGlow,
+            "circle-radius": ["step", ["get", "point_count"], 28, 10, 36, 30, 48],
+            "circle-blur": 0.6,
           },
         });
 
-        // Solid cluster circle
+        // Cluster circles
         map.addLayer({
           id: "clusters",
           type: "circle",
@@ -171,11 +181,11 @@ export default function PublicMap({ reports }: Props) {
           paint: {
             "circle-color": [
               "step", ["get", "point_count"],
-              NEON.cyan, 10, NEON.orange, 30, NEON.magenta,
+              COLORS.cluster10, 10, COLORS.cluster30, 30, COLORS.clusterBig,
             ],
             "circle-radius": ["step", ["get", "point_count"], 16, 10, 22, 30, 28],
-            "circle-stroke-width": 2,
-            "circle-stroke-color": "rgba(255,255,255,0.3)",
+            "circle-stroke-width": 3,
+            "circle-stroke-color": "#ffffff",
           },
         });
 
@@ -190,40 +200,40 @@ export default function PublicMap({ reports }: Props) {
             "text-size": 13,
           },
           paint: {
-            "text-color": "#0a0a0a",
-            "text-halo-color": "rgba(255,255,255,0.6)",
+            "text-color": COLORS.text,
+            "text-halo-color": "rgba(0,0,0,0.2)",
             "text-halo-width": 1,
           },
         });
 
-        // Outer glow for individual points
+        // Glow behind individual points
         map.addLayer({
           id: "point-glow",
           type: "circle",
           source: SOURCE_ID,
           filter: ["!", ["has", "point_count"]],
           paint: {
-            "circle-color": NEON.glowStrong,
-            "circle-radius": 16,
-            "circle-blur": 0.6,
+            "circle-color": COLORS.primaryGlow,
+            "circle-radius": 14,
+            "circle-blur": 0.5,
           },
         });
 
-        // Individual point
+        // Individual report markers
         map.addLayer({
           id: "unclustered-point",
           type: "circle",
           source: SOURCE_ID,
           filter: ["!", ["has", "point_count"]],
           paint: {
-            "circle-color": NEON.cyan,
-            "circle-radius": 6,
-            "circle-stroke-width": 2,
-            "circle-stroke-color": "rgba(255,255,255,0.5)",
+            "circle-color": COLORS.primary,
+            "circle-radius": 7,
+            "circle-stroke-width": 2.5,
+            "circle-stroke-color": "#ffffff",
           },
         });
 
-        // Zoom into cluster on click
+        // Click cluster to zoom
         map.on("click", "clusters", (e) => {
           const features = map.queryRenderedFeatures(e.point, { layers: ["clusters"] });
           if (!features.length) return;
@@ -237,7 +247,7 @@ export default function PublicMap({ reports }: Props) {
           });
         });
 
-        // Popup on individual point click
+        // Click point for popup
         map.on("click", "unclustered-point", (e) => {
           const features = map.queryRenderedFeatures(e.point, { layers: ["unclustered-point"] });
           if (!features.length) return;
@@ -246,24 +256,21 @@ export default function PublicMap({ reports }: Props) {
           if (geom.type !== "Point" || !props) return;
 
           const popupContent = document.createElement("div");
-          popupContent.style.cssText = "font-family:system-ui;font-size:13px;";
+          popupContent.style.cssText = "font-family:system-ui;font-size:13px;padding:2px;";
           const titleEl = document.createElement("strong");
           titleEl.textContent = props.title;
-          titleEl.style.cssText = "color:#00ffd5;text-transform:capitalize;";
+          titleEl.style.cssText = "text-transform:capitalize;color:#0f172a;";
           const br = document.createElement("br");
           const linkEl = document.createElement("a");
           linkEl.href = `/reports/${encodeURIComponent(props.publicId)}`;
           linkEl.textContent = "View report \u2192";
-          linkEl.style.cssText = "color:#3b82f6;font-weight:600;text-decoration:none;";
+          linkEl.style.cssText = "color:#0d9488;font-weight:600;text-decoration:none;font-size:12px;";
           popupContent.appendChild(titleEl);
           popupContent.appendChild(br);
           popupContent.appendChild(linkEl);
 
           popupInstance?.remove();
-          popupInstance = new maplibregl.Popup({
-            offset: 12,
-            className: "dark-popup",
-          })
+          popupInstance = new maplibregl.Popup({ offset: 14, closeButton: false })
             .setLngLat(geom.coordinates as [number, number])
             .setDOMContent(popupContent)
             .addTo(map);
@@ -306,56 +313,18 @@ export default function PublicMap({ reports }: Props) {
           placeItems: "center",
           padding: 32,
           textAlign: "center",
-          background: "linear-gradient(145deg, #0a1628 0%, #0d2137 40%, #0a1a2e 100%)",
+          background: "linear-gradient(145deg, #ecfdf5 0%, #f0f9ff 50%, #f0fdf4 100%)",
           minHeight: "50vh",
-          position: "relative",
-          overflow: "hidden",
         }}
       >
-        {/* Animated grid background */}
-        <div style={{
-          position: "absolute", inset: 0, opacity: 0.08,
-          backgroundImage: `
-            linear-gradient(rgba(0,255,213,0.4) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,255,213,0.4) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-        }} />
-        {/* Glow orb */}
-        <div style={{
-          position: "absolute", top: "20%", left: "50%", transform: "translate(-50%, -50%)",
-          width: 300, height: 300, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,255,213,0.12) 0%, transparent 70%)",
-        }} />
-        <div style={{ maxWidth: 360, display: "grid", gap: 14, position: "relative", zIndex: 1 }}>
-          <div style={{
-            fontSize: 56, filter: "drop-shadow(0 0 20px rgba(0,255,213,0.6))",
-          }}>&#x1F30D;</div>
-          <strong style={{
-            fontSize: 20, color: "#00ffd5",
-            textShadow: "0 0 20px rgba(0,255,213,0.4)",
-            letterSpacing: "0.05em",
-          }}>
-            ENTE NADU
-          </strong>
-          <p style={{
-            margin: 0, fontSize: 13, color: "#94a3b8", lineHeight: 1.6,
-          }}>
-            Interactive map powered by AI issue detection.
-            Report a civic issue to see it appear in real-time.
+        <div style={{ maxWidth: 340, display: "grid", gap: 14 }}>
+          <div style={{ fontSize: 48 }}>&#x1F30D;</div>
+          <strong style={{ fontSize: 18, color: "#0f766e" }}>Kerala Civic Map</strong>
+          <p style={{ margin: 0, fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+            Interactive map showing civic issues across Kerala.
+            Report an issue to see it appear on the map!
           </p>
-          <a
-            href="/report"
-            style={{
-              justifySelf: "center", marginTop: 8,
-              padding: "12px 28px", borderRadius: 10,
-              background: "linear-gradient(135deg, #00ffd5, #0d9488)",
-              color: "#0a0a0a", fontWeight: 700, fontSize: 14,
-              textDecoration: "none",
-              boxShadow: "0 0 20px rgba(0,255,213,0.3), 0 4px 12px rgba(0,0,0,0.3)",
-              transition: "transform 0.15s ease, box-shadow 0.15s ease",
-            }}
-          >
+          <a href="/report" className="button" style={{ justifySelf: "center", marginTop: 4 }}>
             Report an Issue
           </a>
         </div>
@@ -365,9 +334,9 @@ export default function PublicMap({ reports }: Props) {
 
   return (
     <div ref={mapContainerRef} className="mapFrame" aria-label="Public issue map" style={{
-      border: "1px solid rgba(0,255,213,0.15)",
       borderRadius: 14,
-      boxShadow: "0 0 30px rgba(0,255,213,0.05), 0 8px 32px rgba(0,0,0,0.2)",
+      border: "1px solid #e2e8f0",
+      boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
     }} />
   );
 }
