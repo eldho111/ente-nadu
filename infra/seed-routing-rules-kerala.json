@@ -1,0 +1,98 @@
+[
+  {
+    "category": "pothole",
+    "department_name": "PWD Kerala (Public Works Department)",
+    "email_to": ["eeit.pwd@kerala.gov.in"],
+    "email_cc": ["splsecy.lsgd@kerala.gov.in"]
+  },
+  {
+    "category": "waterlogging",
+    "department_name": "Kerala Water Authority (KWA)",
+    "email_to": ["1916cckwa@gmail.com"],
+    "email_cc": ["splsecy.lsgd@kerala.gov.in"]
+  },
+  {
+    "category": "garbage_dumping",
+    "department_name": "Suchitwa Mission / Local Body",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": ["min.lsgd@kerala.gov.in"]
+  },
+  {
+    "category": "streetlight_outage",
+    "department_name": "KSEB (Kerala State Electricity Board)",
+    "email_to": ["ccc@kseb.in"],
+    "email_cc": []
+  },
+  {
+    "category": "traffic_hotspot",
+    "department_name": "Kerala Police (Traffic Division)",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "illegal_parking",
+    "department_name": "Kerala Police (Traffic Division)",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "footpath_obstruction",
+    "department_name": "LSGD / Local Body",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "signal_malfunction",
+    "department_name": "KSEB / PWD Kerala",
+    "email_to": ["ccc@kseb.in", "eeit.pwd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "open_manhole",
+    "department_name": "Kerala Water Authority / Local Body",
+    "email_to": ["1916cckwa@gmail.com", "splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "construction_debris",
+    "department_name": "LSGD / Local Body",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "canal_blockage",
+    "department_name": "Kerala Water Authority / Irrigation Dept",
+    "email_to": ["1916cckwa@gmail.com"],
+    "email_cc": ["splsecy.lsgd@kerala.gov.in"]
+  },
+  {
+    "category": "stray_animal_menace",
+    "department_name": "Local Body / Animal Husbandry",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "tree_fall_risk",
+    "department_name": "KSEB / Forest Dept / Local Body",
+    "email_to": ["ccc@kseb.in", "splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "flood_drainage",
+    "department_name": "Kerala Water Authority / Irrigation Dept",
+    "email_to": ["1916cckwa@gmail.com"],
+    "email_cc": ["splsecy.lsgd@kerala.gov.in"]
+  },
+  {
+    "category": "public_toilet",
+    "department_name": "Suchitwa Mission / Local Body",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": []
+  },
+  {
+    "category": "other",
+    "department_name": "LSGD Kerala",
+    "email_to": ["splsecy.lsgd@kerala.gov.in"],
+    "email_cc": ["min.lsgd@kerala.gov.in"]
+  }
+]

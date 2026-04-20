@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "ward_id": "W001",
+        "ward_name": "Sample Ward",
+        "zone_id": "Z1",
+        "zone_name": "Sample Zone"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [77.58, 12.96],
+              [77.60, 12.96],
+              [77.60, 12.98],
+              [77.58, 12.98],
+              [77.58, 12.96]
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

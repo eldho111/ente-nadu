@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+
+# Env (keep .env.example, ignore actual secrets)
+.env
+.env.local
+web/.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local storage and uploads
+storage/
+logs/
+
+# Next.js dev builds
+.next-dev/
+.next-prod/
+
+# Docker volumes
+postgres_data/
+redis_data/
+minio_data/
+
+# Claude Code
+.claude/
+
+# UI evidence / diagnostics
+ui-evidence.json

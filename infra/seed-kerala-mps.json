@@ -1,0 +1,22 @@
+[
+  {"name": "Rajmohan Unnithan", "name_ml": "രാജ്മോഹന്‍ ഉണ്ണിത്താന്‍", "role": "mp", "constituency_name": "Kasaragod", "constituency_name_ml": "കാസര്‍ഗോഡ്", "district": "Kasaragod", "party": "INC"},
+  {"name": "K. Sudhakaran", "name_ml": "കെ. സുധാകരന്‍", "role": "mp", "constituency_name": "Kannur", "constituency_name_ml": "കണ്ണൂര്‍", "district": "Kannur", "party": "INC"},
+  {"name": "Shafi Parambil", "name_ml": "ഷാഫി പറമ്പില്‍", "role": "mp", "constituency_name": "Vatakara", "constituency_name_ml": "വടകര", "district": "Kozhikode", "party": "INC"},
+  {"name": "Priyanka Gandhi Vadra", "name_ml": "പ്രിയങ്ക ഗാന്ധി വദ്ര", "role": "mp", "constituency_name": "Wayanad", "constituency_name_ml": "വയനാട്", "district": "Wayanad", "party": "INC"},
+  {"name": "M. K. Raghavan", "name_ml": "എം.കെ. രാഘവന്‍", "role": "mp", "constituency_name": "Kozhikode", "constituency_name_ml": "കോഴിക്കോട്", "district": "Kozhikode", "party": "INC"},
+  {"name": "M. P. Abdussamad Samadani", "name_ml": "എം.പി. അബ്ദുസ്സമദ് സമദാനി", "role": "mp", "constituency_name": "Ponnani", "constituency_name_ml": "പൊന്നാനി", "district": "Malappuram", "party": "IUML"},
+  {"name": "E. T. Muhammed Basheer", "name_ml": "ഇ.ടി. മുഹമ്മദ് ബഷീര്‍", "role": "mp", "constituency_name": "Malappuram", "constituency_name_ml": "മലപ്പുറം", "district": "Malappuram", "party": "IUML"},
+  {"name": "V. K. Sreekandan", "name_ml": "വി.കെ. ശ്രീകണ്ഠന്‍", "role": "mp", "constituency_name": "Palakkad", "constituency_name_ml": "പാലക്കാട്", "district": "Palakkad", "party": "INC"},
+  {"name": "K. Radhakrishnan", "name_ml": "കെ. രാധാകൃഷ്ണന്‍", "role": "mp", "constituency_name": "Alathur", "constituency_name_ml": "ആലത്തൂര്‍", "district": "Palakkad", "party": "CPI(M)"},
+  {"name": "Suresh Gopi", "name_ml": "സുരേഷ് ഗോപി", "role": "mp", "constituency_name": "Thrissur", "constituency_name_ml": "തൃശ്ശൂര്‍", "district": "Thrissur", "party": "BJP"},
+  {"name": "Benny Behanan", "name_ml": "ബെന്നി ബഹനാന്‍", "role": "mp", "constituency_name": "Chalakudy", "constituency_name_ml": "ചാലക്കുടി", "district": "Thrissur", "party": "INC"},
+  {"name": "Hibi Eden", "name_ml": "ഹിബി ഈഡന്‍", "role": "mp", "constituency_name": "Ernakulam", "constituency_name_ml": "എറണാകുളം", "district": "Ernakulam", "party": "INC"},
+  {"name": "Dean Kuriakose", "name_ml": "ഡീന്‍ കുരിയാക്കോസ്", "role": "mp", "constituency_name": "Idukki", "constituency_name_ml": "ഇടുക്കി", "district": "Idukki", "party": "INC"},
+  {"name": "K. Francis George", "name_ml": "കെ. ഫ്രാന്‍സിസ് ജോര്‍ജ്", "role": "mp", "constituency_name": "Kottayam", "constituency_name_ml": "കോട്ടയം", "district": "Kottayam", "party": "KC"},
+  {"name": "K. C. Venugopal", "name_ml": "കെ.സി. വേണുഗോപാല്‍", "role": "mp", "constituency_name": "Alappuzha", "constituency_name_ml": "ആലപ്പുഴ", "district": "Alappuzha", "party": "INC"},
+  {"name": "Kodikunnil Suresh", "name_ml": "കൊടിക്കുന്നില്‍ സുരേഷ്", "role": "mp", "constituency_name": "Mavelikkara", "constituency_name_ml": "മാവേലിക്കര", "district": "Alappuzha", "party": "INC"},
+  {"name": "Anto Antony", "name_ml": "ആന്റോ ആന്റണി", "role": "mp", "constituency_name": "Pathanamthitta", "constituency_name_ml": "പത്തനംതിട്ട", "district": "Pathanamthitta", "party": "INC"},
+  {"name": "N. K. Premachandran", "name_ml": "എന്‍.കെ. പ്രേമചന്ദ്രന്‍", "role": "mp", "constituency_name": "Kollam", "constituency_name_ml": "കൊല്ലം", "district": "Kollam", "party": "RSP"},
+  {"name": "Adoor Prakash", "name_ml": "ആറ്റൂര്‍ പ്രകാശ്", "role": "mp", "constituency_name": "Attingal", "constituency_name_ml": "ആറ്റിങ്ങല്‍", "district": "Thiruvananthapuram", "party": "INC"},
+  {"name": "Shashi Tharoor", "name_ml": "ശശി തരൂര്‍", "role": "mp", "constituency_name": "Thiruvananthapuram", "constituency_name_ml": "തിരുവനന്തപുരം", "district": "Thiruvananthapuram", "party": "INC"}
+]

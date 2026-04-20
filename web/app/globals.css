@@ -1,0 +1,399 @@
+:root {
+  --bg-0: #f0f4f8;
+  --bg-1: #e2e8f0;
+  --ink-0: #0f172a;
+  --ink-1: #475569;
+  --accent: #0d9488;
+  --accent-soft: #ccfbf1;
+  --accent-dark: #0f766e;
+  --danger: #dc2626;
+  --warning: #d97706;
+  --success: #16a34a;
+  --card: #ffffffee;
+  --border: #e2e8f0;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 20px 40px rgba(0,0,0,0.06);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+  color: var(--ink-0);
+  background: var(--bg-0);
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 20px 56px;
+}
+
+/* ── Hero ──────────────────────────────────────────────── */
+
+.hero {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  margin: 0;
+  color: var(--ink-1);
+  max-width: 62ch;
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+/* ── Cards ─────────────────────────────────────────────── */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.mapShell {
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0a1628;
+}
+
+.mapFrame {
+  min-height: 60vh;
+  background: #0d1b2a;
+}
+
+/* Futuristic dark popup for MapLibre */
+.dark-popup .maplibregl-popup-content {
+  background: rgba(10, 22, 40, 0.95) !important;
+  border: 1px solid rgba(0, 255, 213, 0.25) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 0 20px rgba(0, 255, 213, 0.15), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  padding: 10px 14px !important;
+  color: #e2e8f0 !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.dark-popup .maplibregl-popup-tip {
+  border-top-color: rgba(10, 22, 40, 0.95) !important;
+}
+
+.dark-popup .maplibregl-popup-close-button {
+  color: #94a3b8 !important;
+  font-size: 18px !important;
+}
+
+.dark-popup .maplibregl-popup-close-button:hover {
+  color: #00ffd5 !important;
+}
+
+/* ── Report Grid ───────────────────────────────────────── */
+
+.reportGrid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.reportCard {
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--ink-0);
+  box-shadow: var(--shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.reportCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.reportCard:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── Chips & Tags ──────────────────────────────────────── */
+
+.chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  letter-spacing: 0.01em;
+}
+
+.muted {
+  color: var(--ink-1);
+  font-size: 14px;
+}
+
+/* ── Buttons ───────────────────────────────────────────── */
+
+.button {
+  appearance: none;
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  padding: 11px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+}
+
+.button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button.secondary {
+  background: #fff;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  box-shadow: none;
+}
+
+.button.secondary:hover {
+  background: var(--accent-soft);
+  opacity: 1;
+}
+
+/* ── Layout helpers ────────────────────────────────────── */
+
+.detail {
+  display: grid;
+  gap: 16px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.backLink {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.metaList {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* ── Loading skeleton ──────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Report Detail ─────────────────────────────────────── */
+
+.reportDetailGrid {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.reportDetailSidebar {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.detailMeta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metaLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-1);
+  font-weight: 600;
+}
+
+.metaValue {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mediaGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.mediaPending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 10px;
+}
+
+/* ── Timeline ──────────────────────────────────────────── */
+
+.timeline {
+  display: grid;
+  gap: 0;
+}
+
+.timelineItem {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  position: relative;
+  min-height: 40px;
+}
+
+.timelineDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 5px;
+  justify-self: center;
+}
+
+.timelineLine {
+  position: absolute;
+  left: 8px;
+  top: 18px;
+  bottom: 0;
+  width: 2px;
+  background: var(--border);
+}
+
+.timelineContent {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding-bottom: 12px;
+}
+
+.timelineEvent {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.timelineDate {
+  font-size: 12px;
+  color: var(--ink-1);
+  white-space: nowrap;
+}
+
+.timelineActor {
+  font-size: 12px;
+  color: var(--ink-1);
+  font-weight: 400;
+  width: 100%;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .reportDetailGrid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  main {
+    padding: 18px 14px 40px;
+  }
+
+  .mapFrame {
+    min-height: 48vh;
+  }
+}
+
+@media (max-width: 600px) {
+  .detailMeta {
+    grid-template-columns: 1fr;
+  }
+}

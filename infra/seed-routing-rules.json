@@ -1,0 +1,29 @@
+[
+  {
+    "category": "pothole",
+    "ward_id": null,
+    "zone_id": null,
+    "department_name": "BBMP Roads",
+    "email_to": ["roads@example.org"],
+    "email_cc": ["bbmp.control@example.org"],
+    "metadata": {"priority": "medium"}
+  },
+  {
+    "category": "waterlogging",
+    "ward_id": null,
+    "zone_id": null,
+    "department_name": "BWSSB Drainage",
+    "email_to": ["drainage@example.org"],
+    "email_cc": ["stormwater@example.org"],
+    "metadata": {"priority": "high"}
+  },
+  {
+    "category": "streetlight_outage",
+    "ward_id": null,
+    "zone_id": null,
+    "department_name": "BESCOM",
+    "email_to": ["lights@example.org"],
+    "email_cc": [],
+    "metadata": {"priority": "medium"}
+  }
+]

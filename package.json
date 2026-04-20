@@ -1,0 +1,16 @@
+{
+  "name": "civic-pulse-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "node web/dev-server.js",
+    "preview:web": "node web/dev-server.js",
+    "start:full": "powershell -ExecutionPolicy Bypass -File ./start-full.ps1",
+    "start:full:dev": "powershell -ExecutionPolicy Bypass -File ./start-full.ps1 -Dev",
+    "run:local:stable": "powershell -ExecutionPolicy Bypass -File ./run-local-stable.ps1",
+    "recover:local": "powershell -ExecutionPolicy Bypass -File ./recover-local.ps1",
+    "start:ui": "powershell -ExecutionPolicy Bypass -File ./start-ui.ps1",
+    "repair:web": "powershell -ExecutionPolicy Bypass -File ./repair-web.ps1",
+    "diagnose:ui": "powershell -ExecutionPolicy Bypass -File ./diagnose-ui.ps1",
+    "collect:ui": "powershell -ExecutionPolicy Bypass -File ./collect-ui-evidence.ps1"
+  }
+}
