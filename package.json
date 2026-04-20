@@ -1,8 +1,10 @@
 {
-  "name": "civic-pulse-monorepo",
+  "name": "ente-nadu",
   "private": true,
   "scripts": {
-    "dev": "node web/dev-server.js",
+    "dev": "cd web && npm run dev",
+    "build": "cd web && npm install && npm run build",
+    "start": "cd web && npm run start",
     "preview:web": "node web/dev-server.js",
     "start:full": "powershell -ExecutionPolicy Bypass -File ./start-full.ps1",
     "start:full:dev": "powershell -ExecutionPolicy Bypass -File ./start-full.ps1 -Dev",
