@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 
 import CheckInButton from "@/components/CheckInButton";
 import NotifyActions from "@/components/NotifyActions";
+import RepresentativeCard from "@/components/RepresentativeCard";
+import ResponsibilityTree from "@/components/ResponsibilityTree";
 import { fetchReportByPublicId } from "@/lib/api";
 import { STATUS_COLORS, STATUS_LABELS, CATEGORY_ICONS, EVENT_LABELS } from "@/lib/reportConstants";
 
@@ -191,6 +193,14 @@ export default async function ReportPage({ params }: { params: { publicId: strin
                 ))}
               </div>
             </section>
+          )}
+
+          {/* Responsibility tree — who handles this type of issue */}
+          <ResponsibilityTree category={report.category_final} />
+
+          {/* Elected representatives for this ward */}
+          {report.elected_representatives && report.elected_representatives.length > 0 && (
+            <RepresentativeCard representatives={report.elected_representatives} />
           )}
         </div>
       </div>
