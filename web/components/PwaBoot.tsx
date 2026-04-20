@@ -84,7 +84,7 @@ export default function PwaBoot() {
           gap: 8,
         }}
       >
-        <strong style={{ fontSize: 14 }}>Install Civic Pulse</strong>
+        <strong style={{ fontSize: 14 }}>Install Ente Nadu</strong>
         <span style={{ fontSize: 13, opacity: 0.9 }}>Add this app to your home screen for faster reporting.</span>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="button" onClick={install}>

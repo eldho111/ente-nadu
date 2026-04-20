@@ -9,7 +9,7 @@ export default function Error({
 }) {
   return (
     <main style={{ maxWidth: 760, margin: "0 auto", padding: "24px 16px", display: "grid", gap: 12 }}>
-      <h1 style={{ margin: 0 }}>Civic Pulse UI Error</h1>
+      <h1 style={{ margin: 0 }}>Ente Nadu — Error</h1>
       <p className="muted" style={{ margin: 0 }}>
         A runtime error occurred while rendering this page.
       </p>

@@ -100,7 +100,7 @@ export default function DoctorPage() {
 
   return (
     <main style={{ maxWidth: 760, margin: "0 auto", padding: "24px 16px", display: "grid", gap: 14 }}>
-      <h1 style={{ margin: 0 }}>Civic Pulse UI Doctor</h1>
+      <h1 style={{ margin: 0 }}>Ente Nadu — Diagnostics</h1>
       <p className="muted" style={{ margin: 0 }}>
         Use this page to quickly isolate why UI appears blank.
       </p>

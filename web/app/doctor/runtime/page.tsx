@@ -213,7 +213,7 @@ export default function RuntimeDoctorPage() {
 
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "24px 16px", display: "grid", gap: 12 }}>
-      <h1 style={{ margin: 0 }}>Civic Pulse Runtime Doctor</h1>
+      <h1 style={{ margin: 0 }}>Ente Nadu — Runtime Diagnostics</h1>
       <p className="muted" style={{ margin: 0 }}>
         Browser-side diagnostics for white-screen issues when server routes still return 200.
       </p>

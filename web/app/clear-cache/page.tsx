@@ -29,7 +29,7 @@ export default function ClearCachePage() {
 
   return (
     <main style={{ maxWidth: 680, margin: "0 auto", padding: "28px 16px", display: "grid", gap: 12 }}>
-      <h1 style={{ margin: 0 }}>Civic Pulse Cache Reset</h1>
+      <h1 style={{ margin: 0 }}>Ente Nadu — Cache Reset</h1>
       <p className="muted" style={{ margin: 0 }}>{status}</p>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
         <Link className="button" href="/app?safe=1">

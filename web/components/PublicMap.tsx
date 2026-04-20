@@ -328,12 +328,14 @@ export default function PublicMap({ reports }: Props) {
     return () => {
       if (pulseFrame) cancelAnimationFrame(pulseFrame);
       popupInstance?.remove();
-      if (map.getSource(SRC)) {
-        ["pulse-ring", "cluster-glow", "clusters", "cluster-count", "point-glow", "points"].forEach((id) => {
-          if (map.getLayer(id)) map.removeLayer(id);
-        });
-        map.removeSource(SRC);
-      }
+      try {
+        if (map && map.getSource && map.getSource(SRC)) {
+          ["pulse-ring", "cluster-glow", "clusters", "cluster-count", "point-glow", "points"].forEach((id) => {
+            try { if (map.getLayer(id)) map.removeLayer(id); } catch {}
+          });
+          try { map.removeSource(SRC); } catch {}
+        }
+      } catch {}
     };
   }, [mapReady, mapUnavailable, geojsonData]);
 

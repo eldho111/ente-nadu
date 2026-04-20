@@ -101,7 +101,7 @@ export default function AppSettingsClient({ locale: serverLocale }: Props) {
       <section className="card" style={{ padding: 14, display: "grid", gap: 6 }}>
         <strong>{text.about}</strong>
         <span className="muted">
-          {branding ? `${branding.app_name} - ${branding.region_label}` : "Civic Pulse"}
+          {branding ? `${branding.app_name} - ${branding.region_label}` : "Ente Nadu"}
         </span>
         <span className="muted" style={{ fontSize: 12 }}>
           {text.installTip}

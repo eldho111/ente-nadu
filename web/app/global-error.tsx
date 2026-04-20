@@ -11,9 +11,9 @@ export default function GlobalError({
     <html lang="en">
       <body style={{ margin: 0, fontFamily: "Arial, sans-serif", background: "#f8f6f0", color: "#102120" }}>
         <main style={{ maxWidth: 760, margin: "0 auto", padding: "24px 16px", display: "grid", gap: 12 }}>
-          <h1 style={{ margin: 0 }}>Civic Pulse Global Render Error</h1>
+          <h1 style={{ margin: 0 }}>Ente Nadu — Something went wrong</h1>
           <p style={{ margin: 0 }}>
-            The app shell crashed during render. Use the details below to debug quickly.
+            An error occurred while loading the page. Please try again.
           </p>
           <pre
             style={{

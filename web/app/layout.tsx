@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             lineHeight: 1.4,
           }}
         >
-          Civic Pulse is starting. If this screen stays blank, open <a href="/doctor/runtime">runtime doctor</a>.
+          Ente Nadu is starting. If this screen stays blank, open <a href="/doctor/runtime">runtime doctor</a>.
         </div>
         <Header />
         {children}
