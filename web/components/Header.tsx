@@ -44,7 +44,6 @@ export default function Header() {
       { href: "/report", label: messages.navReport },
       { href: "/accountability", label: messages.navAccountability || "Accountability" },
       { href: "/dashboard", label: messages.navDashboard },
-      { href: "/ops", label: messages.navOps },
     ],
     [messages],
   );

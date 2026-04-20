@@ -1,9 +1,9 @@
 export const STATUS_COLORS: Record<string, string> = {
-  open: "#e67700",
-  acknowledged: "#1971c2",
-  in_progress: "#5c7cfa",
-  fixed: "#0c7a5f",
-  rejected: "#c92a2a",
+  open: "#dc2626",
+  acknowledged: "#ea580c",
+  in_progress: "#d97706",
+  fixed: "#16a34a",
+  rejected: "#6b7280",
 };
 
 export const STATUS_LABELS: Record<string, string> = {
@@ -30,6 +30,7 @@ export const CATEGORY_ICONS: Record<string, string> = {
   tree_fall_risk: "\u{1F333}",
   flood_drainage: "\u{1F4A7}",
   public_toilet: "\u{1F6BB}",
+  other: "\u{1F4CB}",
 };
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -48,6 +49,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   tree_fall_risk: "Tree Fall Risk",
   flood_drainage: "Flood Drainage",
   public_toilet: "Public Toilet Issue",
+  other: "Other Issue",
 };
 
 export const EVENT_LABELS: Record<string, string> = {

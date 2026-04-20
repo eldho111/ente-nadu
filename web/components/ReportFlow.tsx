@@ -274,8 +274,8 @@ export default function ReportFlow() {
       setGpsAccuracyM(pos.coords.accuracy);
       setLocationStatus(`GPS: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`);
     } catch {
-      setLat(12.9716);
-      setLon(77.5946);
+      setLat(10.8505);
+      setLon(76.2711);
       setLocationStatus(t.gpsFallback);
     }
   }, [t.fetchingGps, t.gpsFallback, t.gpsNotSupported]);
@@ -395,8 +395,8 @@ export default function ReportFlow() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lat: lat ?? 12.9716,
-          lon: lon ?? 77.5946,
+          lat: lat ?? 10.8505,
+          lon: lon ?? 76.2711,
           category_final: selected,
           capture_origin: "camera",
           captured_at: capturedAt ?? new Date().toISOString(),
