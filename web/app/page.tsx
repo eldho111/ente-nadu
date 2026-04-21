@@ -52,37 +52,58 @@ export default async function HomePage({
       <MobileAppRedirect />
 
       {/* ── Hero Section ── */}
-      <section style={{
-        background: "linear-gradient(135deg, #fffdf7 0%, #faf5eb 50%, #f3ead6 100%)",
-        borderRadius: 14, padding: "28px 24px", marginBottom: 20,
-        border: "2px solid #d9c9a8",
-        borderLeft: "6px solid #0f7056",
-        boxShadow: "0 2px 4px rgba(74, 45, 10, 0.08), 0 4px 12px rgba(74, 45, 10, 0.06)",
-        position: "relative",
-      }}>
+      <section className="hero">
         <div style={{
-          position: "absolute", top: 16, right: 20,
-          fontSize: 11, fontWeight: 700, color: "#c85a1f",
-          background: "#fde6d4", padding: "4px 10px", borderRadius: 999,
-          border: "1px solid #c85a1f", letterSpacing: "0.05em",
+          display: "flex", alignItems: "center", gap: 14, marginBottom: 8,
         }}>
-          KERALA • केरळ • കേരളം
+          <img
+            src="/icons/logo.svg"
+            alt=""
+            width="72"
+            height="72"
+            style={{ flexShrink: 0, filter: "drop-shadow(0 4px 8px rgba(15,112,86,0.2))" }}
+          />
+          <div>
+            <h1 style={{
+              margin: 0,
+              fontSize: "clamp(1.6rem, 4.5vw, 2.4rem)",
+              lineHeight: 1.05,
+              letterSpacing: "-0.02em",
+            }}>
+              <span style={{
+                display: "block",
+                fontFamily: "var(--font-ml), serif",
+                color: "#c85a1f",
+                fontSize: "1em",
+                fontWeight: 700,
+              }}>എന്റെ നാട്</span>
+              <span style={{
+                display: "block",
+                fontSize: "0.6em",
+                fontWeight: 600,
+                color: "#0a4d3c",
+                letterSpacing: "0.04em",
+                marginTop: 4,
+              }}>ENTE NADU</span>
+            </h1>
+          </div>
         </div>
-        <h1 style={{
-          margin: 0, fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-          background: "linear-gradient(135deg, #0a4d3c, #c85a1f)",
-          WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          lineHeight: 1.1, letterSpacing: "-0.02em",
-        }}>
-          {messages.homeTitle}
-        </h1>
-        <p style={{ margin: "10px 0 16px", color: "#4a5a48", maxWidth: "58ch", lineHeight: 1.6, fontSize: 15 }}>
+        <span className="kerala-ribbon" style={{ alignSelf: "flex-start", marginBottom: 6 }}>
+          കേരളം • Kerala • केरल
+        </span>
+        <p style={{ margin: "8px 0 14px", color: "#3d5540", maxWidth: "58ch", lineHeight: 1.6, fontSize: 15 }}>
           {messages.homeSubtitle}
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-          <Link href="/report" className="button">{messages.homeReportCta}</Link>
-          <Link href="/accountability" className="button secondary">Accountability</Link>
-          <Link href="/app" className="button secondary">Open App Mode</Link>
+          <Link href="/report" className="button saffron">
+            <span>📸</span> {messages.homeReportCta}
+          </Link>
+          <Link href="/accountability" className="button">
+            <span>🏛️</span> Accountability
+          </Link>
+          <Link href="/app" className="button secondary">
+            <span>📱</span> App Mode
+          </Link>
         </div>
       </section>
 

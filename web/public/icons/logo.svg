@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f7056"/>
+      <stop offset="100%" stop-color="#0a4d3c"/>
+    </linearGradient>
+    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c85a1f"/>
+      <stop offset="100%" stop-color="#9a3e0f"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c89728"/>
+      <stop offset="100%" stop-color="#8f6b15"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer circle (earth/clay ring) -->
+  <circle cx="100" cy="100" r="96" fill="#fffbf0" stroke="#a68c5c" stroke-width="3"/>
+
+  <!-- Inner background (Kerala backwater green) -->
+  <circle cx="100" cy="100" r="88" fill="url(#greenGrad)"/>
+
+  <!-- Coconut tree (simplified, centered) -->
+  <!-- Trunk -->
+  <rect x="96" y="95" width="8" height="55" rx="2" fill="#8b6b3d"/>
+
+  <!-- Palm fronds -->
+  <g fill="#4ade80" opacity="0.95">
+    <!-- Left frond -->
+    <path d="M 100 95 Q 60 75 30 85 Q 45 90 55 92 Q 50 98 45 105 Q 65 98 80 95 Z" />
+    <!-- Right frond -->
+    <path d="M 100 95 Q 140 75 170 85 Q 155 90 145 92 Q 150 98 155 105 Q 135 98 120 95 Z" />
+    <!-- Top frond -->
+    <path d="M 100 95 Q 90 60 80 40 Q 95 55 98 70 Q 102 55 120 40 Q 110 60 100 95 Z" />
+    <!-- Back-left frond -->
+    <path d="M 100 95 Q 75 90 50 110 Q 70 100 85 100 Z" />
+    <!-- Back-right frond -->
+    <path d="M 100 95 Q 125 90 150 110 Q 130 100 115 100 Z" />
+  </g>
+
+  <!-- Coconuts -->
+  <circle cx="94" cy="93" r="4" fill="#8b6b3d"/>
+  <circle cx="106" cy="93" r="4" fill="#8b6b3d"/>
+  <circle cx="100" cy="88" r="3.5" fill="#8b6b3d"/>
+
+  <!-- Wave lines (backwaters) at bottom -->
+  <g stroke="#c89728" stroke-width="2" fill="none" opacity="0.8">
+    <path d="M 45 160 Q 60 155 75 160 T 105 160 T 135 160 T 155 160"/>
+    <path d="M 50 170 Q 65 165 80 170 T 110 170 T 140 170 T 150 170" opacity="0.6"/>
+  </g>
+
+  <!-- Accent star/sun (top) -->
+  <circle cx="100" cy="28" r="6" fill="url(#saffronGrad)"/>
+</svg>

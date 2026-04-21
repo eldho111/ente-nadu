@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
-import { Space_Grotesk, Fraunces } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Space_Grotesk, Fraunces, Noto_Sans_Malayalam } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import BootMarker from "@/components/BootMarker";
@@ -8,6 +8,15 @@ import { getServerLocale } from "@/lib/server-locale";
 
 const display = Fraunces({ subsets: ["latin"], variable: "--font-display" });
 const body = Space_Grotesk({ subsets: ["latin"], variable: "--font-body" });
+const malayalam = Noto_Sans_Malayalam({ subsets: ["malayalam"], variable: "--font-ml", weight: ["400", "600", "700"] });
+
+export const viewport: Viewport = {
+  themeColor: "#0a4d3c",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Ente Nadu — എന്റെ നാട്",
@@ -24,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const locale = getServerLocale();
   return (
     <html lang={locale}>
-      <body className={`${display.variable} ${body.variable}`}>
+      <body className={`${display.variable} ${body.variable} ${malayalam.variable}`}>
         <div
           id="cp-boot-fallback"
           style={{
