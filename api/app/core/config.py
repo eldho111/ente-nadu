@@ -39,7 +39,7 @@ class Settings(BaseSettings):
 
     # Groq (FREE — 14,400 requests/day, fastest inference)
     groq_api_key: str | None = Field(default=None, alias="GROQ_API_KEY")
-    groq_model: str = Field(default="llama-3.2-90b-vision-preview", alias="GROQ_MODEL")
+    groq_model: str = Field(default="meta-llama/llama-4-scout-17b-16e-instruct", alias="GROQ_MODEL")
 
     ai_confidence_threshold: float = Field(default=0.72, alias="AI_CONFIDENCE_THRESHOLD")
     ai_preview_timeout_seconds: float = Field(default=8.0, alias="AI_PREVIEW_TIMEOUT_SECONDS")
