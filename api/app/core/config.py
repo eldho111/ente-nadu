@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-4.1-mini", alias="OPENAI_MODEL")
     openai_vision_model: str = Field(default="gpt-4.1-mini", alias="OPENAI_VISION_MODEL")
 
+    # Google Gemini (FREE — 1,500 requests/day)
+    gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
+    gemini_model: str = Field(default="gemini-2.0-flash", alias="GEMINI_MODEL")
+
     ai_confidence_threshold: float = Field(default=0.72, alias="AI_CONFIDENCE_THRESHOLD")
     ai_preview_timeout_seconds: float = Field(default=8.0, alias="AI_PREVIEW_TIMEOUT_SECONDS")
     ai_circuit_failures_before_open: int = Field(default=5, alias="AI_CIRCUIT_FAILURES_BEFORE_OPEN")
