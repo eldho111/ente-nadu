@@ -27,9 +27,22 @@ from app.models import (
 
 
 def init_db() -> None:
+    import logging
+    log = logging.getLogger(__name__)
+
+    # Try to install extensions, but don't fail if unavailable
+    # (Railway's default Postgres doesn't have PostGIS)
     with engine.begin() as conn:
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
-        conn.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto"))
+        try:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+            log.info("PostGIS extension enabled")
+        except Exception as e:
+            log.warning("PostGIS not available: %s - geo queries will be limited", str(e)[:100])
+        try:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto"))
+        except Exception as e:
+            log.warning("pgcrypto not available: %s", str(e)[:100])
+
     Base.metadata.create_all(bind=engine)
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS token_no VARCHAR(32)"))

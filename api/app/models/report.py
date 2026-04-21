@@ -31,7 +31,7 @@ class Report(Base):
     gps_accuracy_m: Mapped[float | None] = mapped_column(Float, nullable=True)
     public_lat: Mapped[float] = mapped_column(Float, nullable=False, index=True)
     public_lon: Mapped[float] = mapped_column(Float, nullable=False, index=True)
-    geom: Mapped[str] = mapped_column(Geometry(geometry_type="POINT", srid=4326, spatial_index=True), nullable=False)
+    geom: Mapped[str | None] = mapped_column(Geometry(geometry_type="POINT", srid=4326, spatial_index=True), nullable=True)
     capture_origin: Mapped[str] = mapped_column(String(16), nullable=False, default="camera")
 
     address_text: Mapped[str | None] = mapped_column(Text, nullable=True)
