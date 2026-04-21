@@ -53,19 +53,30 @@ export default async function HomePage({
 
       {/* ── Hero Section ── */}
       <section style={{
-        background: "linear-gradient(135deg, #ecfdf5 0%, #f0f9ff 50%, #eff6ff 100%)",
-        borderRadius: 16, padding: "28px 24px", marginBottom: 20,
-        border: "1px solid #d1fae5",
+        background: "linear-gradient(135deg, #fffdf7 0%, #faf5eb 50%, #f3ead6 100%)",
+        borderRadius: 14, padding: "28px 24px", marginBottom: 20,
+        border: "2px solid #d9c9a8",
+        borderLeft: "6px solid #0f7056",
+        boxShadow: "0 2px 4px rgba(74, 45, 10, 0.08), 0 4px 12px rgba(74, 45, 10, 0.06)",
+        position: "relative",
       }}>
+        <div style={{
+          position: "absolute", top: 16, right: 20,
+          fontSize: 11, fontWeight: 700, color: "#c85a1f",
+          background: "#fde6d4", padding: "4px 10px", borderRadius: 999,
+          border: "1px solid #c85a1f", letterSpacing: "0.05em",
+        }}>
+          KERALA • केरळ • കേരളം
+        </div>
         <h1 style={{
           margin: 0, fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
-          background: "linear-gradient(135deg, #0f766e, #0d9488)",
+          background: "linear-gradient(135deg, #0a4d3c, #c85a1f)",
           WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           lineHeight: 1.1, letterSpacing: "-0.02em",
         }}>
           {messages.homeTitle}
         </h1>
-        <p style={{ margin: "10px 0 16px", color: "#475569", maxWidth: "58ch", lineHeight: 1.6, fontSize: 15 }}>
+        <p style={{ margin: "10px 0 16px", color: "#4a5a48", maxWidth: "58ch", lineHeight: 1.6, fontSize: 15 }}>
           {messages.homeSubtitle}
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -81,20 +92,24 @@ export default async function HomePage({
         gap: 10, marginBottom: 20,
       }}>
         {[
-          { value: totalReports, label: "Total Reports", color: "#3b82f6", icon: "\u{1F4CA}" },
-          { value: openReports, label: "Open Issues", color: "#dc2626", icon: "\u{1F534}" },
-          { value: fixedReports, label: "Fixed", color: "#16a34a", icon: "\u2705" },
-          { value: 20, label: "MPs Tracked", color: "#7c3aed", icon: "\u{1F3DB}" },
+          { value: totalReports, label: "Total Reports", color: "#0f7056", icon: "\u{1F4CA}", border: "#0f7056" },
+          { value: openReports, label: "Open Issues", color: "#b91c1c", icon: "\u{1F534}", border: "#b91c1c" },
+          { value: fixedReports, label: "Fixed", color: "#15803d", icon: "\u2705", border: "#15803d" },
+          { value: 20, label: "MPs Tracked", color: "#c85a1f", icon: "\u{1F3DB}", border: "#c85a1f" },
         ].map((stat) => (
-          <div key={stat.label} className="card" style={{
+          <div key={stat.label} style={{
             padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,
+            background: "#fffdf7", borderRadius: 12,
+            border: "1.5px solid #d9c9a8",
+            borderLeft: `4px solid ${stat.border}`,
+            boxShadow: "0 2px 4px rgba(74, 45, 10, 0.08), 0 4px 12px rgba(74, 45, 10, 0.06)",
           }}>
-            <span style={{ fontSize: 24 }}>{stat.icon}</span>
+            <span style={{ fontSize: 26 }}>{stat.icon}</span>
             <div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: stat.color, lineHeight: 1 }}>
+              <div style={{ fontSize: 24, fontWeight: 800, color: stat.color, lineHeight: 1 }}>
                 {stat.value}
               </div>
-              <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              <div style={{ fontSize: 11, color: "#4a5a48", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 2 }}>
                 {stat.label}
               </div>
             </div>
@@ -106,11 +121,12 @@ export default async function HomePage({
       <section className="card" style={{ overflow: "hidden", marginBottom: 20 }}>
         {/* Category filters — scrollable */}
         <div style={{
-          padding: "10px 14px", borderBottom: "1px solid #e2e8f0",
+          padding: "12px 14px", borderBottom: "1.5px solid #d9c9a8",
+          background: "#fffbf0",
           overflowX: "auto", WebkitOverflowScrolling: "touch",
         }}>
           <div style={{ display: "flex", gap: 6, alignItems: "center", minWidth: "max-content" }}>
-            <span className="muted" style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4, color: "#7a8878" }}>
               Category
             </span>
             {CATEGORY_FILTERS.map((item) => {
@@ -125,9 +141,10 @@ export default async function HomePage({
                     display: "inline-flex", alignItems: "center", gap: 4,
                     padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600,
                     textDecoration: "none", whiteSpace: "nowrap",
-                    background: isActive ? "#0d9488" : "#f1f5f9",
-                    color: isActive ? "#fff" : "#475569",
-                    border: isActive ? "1.5px solid #0d9488" : "1.5px solid #e2e8f0",
+                    background: isActive ? "#0f7056" : "#fffdf7",
+                    color: isActive ? "#fff" : "#4a5a48",
+                    border: isActive ? "1.5px solid #0a4d3c" : "1.5px solid #d9c9a8",
+                    boxShadow: isActive ? "0 2px 6px rgba(15, 112, 86, 0.3)" : "none",
                     transition: "all 0.15s",
                   }}
                 >
@@ -140,14 +157,14 @@ export default async function HomePage({
         </div>
 
         {/* Status filters */}
-        <div style={{ padding: "8px 14px", borderBottom: "1px solid #e2e8f0" }}>
+        <div style={{ padding: "10px 14px", borderBottom: "1.5px solid #d9c9a8", background: "#fffbf0" }}>
           <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-            <span className="muted" style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4, color: "#7a8878" }}>
               Status
             </span>
             {STATUS_FILTERS.map((item) => {
               const isActive = status === item;
-              const sColor = item ? (STATUS_COLORS[item] || "#64748b") : "#64748b";
+              const sColor = item ? (STATUS_COLORS[item] || "#7a8878") : "#7a8878";
               return (
                 <Link
                   key={item || "all-status"}
@@ -156,9 +173,10 @@ export default async function HomePage({
                     display: "inline-flex", alignItems: "center", gap: 5,
                     padding: "5px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600,
                     textDecoration: "none",
-                    background: isActive ? sColor : "#f8fafc",
+                    background: isActive ? sColor : "#fffdf7",
                     color: isActive ? "#fff" : sColor,
-                    border: `1.5px solid ${isActive ? sColor : "#e2e8f0"}`,
+                    border: `1.5px solid ${isActive ? sColor : "#d9c9a8"}`,
+                    boxShadow: isActive ? `0 2px 6px ${sColor}40` : "none",
                     transition: "all 0.15s",
                   }}
                 >
@@ -180,14 +198,19 @@ export default async function HomePage({
 
       {/* ── Report Cards Grid ── */}
       <section>
-        <h2 style={{ fontSize: 18, margin: "0 0 14px", color: "#0f172a" }}>
-          Recent Reports
+        <h2 style={{
+          fontSize: 18, margin: "0 0 14px", color: "#0a4d3c",
+          padding: "10px 14px",
+          background: "#fffdf7", border: "1.5px solid #d9c9a8", borderLeft: "4px solid #c85a1f",
+          borderRadius: 10, fontWeight: 700,
+        }}>
+          {"\u{1F4CC}"} Recent Reports
         </h2>
         <div className="reportGrid">
           {reports.slice(0, 18).map((report) => {
             const icon = CATEGORY_ICONS[report.category] || "\u{1F4CB}";
             const catLabel = CATEGORY_LABELS[report.category] || report.category.replaceAll("_", " ");
-            const sColor = STATUS_COLORS[report.status] || "#64748b";
+            const sColor = STATUS_COLORS[report.status] || "#7a8878";
             const sLabel = STATUS_LABELS[report.status] || report.status;
             return (
               <Link key={report.id} href={`/reports/${report.public_id}`} className="reportCard">
@@ -195,8 +218,9 @@ export default async function HomePage({
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 8 }}>
                   <span style={{
                     display: "inline-flex", alignItems: "center", gap: 4,
-                    fontSize: 12, fontWeight: 600, color: "#0f766e",
-                    background: "#ecfdf5", padding: "3px 10px", borderRadius: 999,
+                    fontSize: 12, fontWeight: 600, color: "#0a4d3c",
+                    background: "#d4e8dd", padding: "3px 10px", borderRadius: 999,
+                    border: "1px solid #0f7056",
                   }}>
                     <span style={{ fontSize: 13 }}>{icon}</span>
                     {catLabel}
@@ -207,26 +231,29 @@ export default async function HomePage({
                     textTransform: "uppercase", letterSpacing: "0.03em",
                   }}>
                     <span style={{
-                      width: 7, height: 7, borderRadius: "50%", background: sColor,
+                      width: 8, height: 8, borderRadius: "50%", background: sColor,
                       display: "inline-block",
-                      boxShadow: report.status === "open" ? `0 0 6px ${sColor}` : "none",
+                      boxShadow: report.status === "open" ? `0 0 0 2px #fff, 0 0 6px ${sColor}` : `0 0 0 2px #fff`,
                     }} />
                     {sLabel}
                   </span>
                 </div>
                 {/* ID + Time */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#334155" }}>
+                <div style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "baseline",
+                  paddingTop: 8, borderTop: "1px dashed #d9c9a8",
+                }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#1a2e1f", fontFamily: "monospace" }}>
                     {report.public_id}
                   </span>
-                  <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                  <span style={{ fontSize: 11, color: "#7a8878", fontWeight: 500 }}>
                     {timeAgo(report.created_at)}
                   </span>
                 </div>
                 {/* Ward info */}
                 {report.ward_id && (
-                  <p style={{ margin: "6px 0 0", fontSize: 12, color: "#64748b" }}>
-                    Ward: {report.ward_id}
+                  <p style={{ margin: "6px 0 0", fontSize: 12, color: "#4a5a48" }}>
+                    {"\u{1F4CD}"} Ward: <b>{report.ward_id}</b>
                   </p>
                 )}
               </Link>

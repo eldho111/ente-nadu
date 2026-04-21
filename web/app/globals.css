@@ -1,18 +1,51 @@
+/* ═══════════════════════════════════════════════════════════
+   Ente Nadu — Kerala-inspired palette with strong boundaries
+   Inspired by: backwaters, spice gold, palm greens, coconut wood
+═══════════════════════════════════════════════════════════ */
+
 :root {
-  --bg-0: #f0f4f8;
-  --bg-1: #e2e8f0;
-  --ink-0: #0f172a;
-  --ink-1: #475569;
-  --accent: #0d9488;
-  --accent-soft: #ccfbf1;
-  --accent-dark: #0f766e;
-  --danger: #dc2626;
-  --warning: #d97706;
-  --success: #16a34a;
-  --card: #ffffffee;
-  --border: #e2e8f0;
-  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 6px 16px rgba(0,0,0,0.04);
-  --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 20px 40px rgba(0,0,0,0.06);
+  /* Backgrounds — warm Kerala cream/sand, not cold white */
+  --bg-0: #faf5eb;            /* Warm cream (paddy grain) */
+  --bg-1: #f3ead6;            /* Soft sand */
+  --bg-surface: #fffdf7;      /* Card surface (warmer than white) */
+  --bg-elev: #fffbf0;         /* Elevated surface */
+
+  /* Ink — deep traditional Kerala ink tones */
+  --ink-0: #1a2e1f;           /* Deep palm green */
+  --ink-1: #4a5a48;           /* Muted palm */
+  --ink-soft: #7a8878;        /* Soft muted */
+
+  /* Primary — Kerala backwater green */
+  --accent: #0f7056;
+  --accent-soft: #d4e8dd;
+  --accent-dark: #0a4d3c;
+  --accent-darker: #053529;
+
+  /* Secondary — spice saffron/gold */
+  --saffron: #c85a1f;
+  --saffron-soft: #fde6d4;
+  --saffron-dark: #a6420f;
+  --gold: #c89728;
+  --gold-soft: #fef3d1;
+
+  /* Semantic */
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --warning: #b45309;
+  --warning-soft: #fef3c7;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+
+  /* Borders — warm earth tones */
+  --border: #d9c9a8;           /* Warm sand border */
+  --border-strong: #b8a37d;    /* Stronger earth border */
+  --border-accent: #0f7056;    /* Accent border */
+
+  /* Shadows — warm and subtle */
+  --shadow-sm: 0 1px 2px rgba(74, 45, 10, 0.08), 0 1px 3px rgba(74, 45, 10, 0.04);
+  --shadow: 0 2px 4px rgba(74, 45, 10, 0.08), 0 4px 12px rgba(74, 45, 10, 0.06);
+  --shadow-lg: 0 4px 8px rgba(74, 45, 10, 0.08), 0 16px 32px rgba(74, 45, 10, 0.08);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 * {
@@ -30,7 +63,13 @@ body {
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
   color: var(--ink-0);
   background: var(--bg-0);
+  background-image:
+    radial-gradient(at 10% 0%, rgba(200, 151, 40, 0.08) 0%, transparent 50%),
+    radial-gradient(at 90% 100%, rgba(15, 112, 86, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 main {
@@ -45,6 +84,12 @@ main {
   display: grid;
   gap: 12px;
   margin-bottom: 24px;
+  padding: 24px;
+  background: var(--bg-surface);
+  border: 2px solid var(--border);
+  border-left: 6px solid var(--accent);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
 }
 
 .hero h1 {
@@ -53,7 +98,7 @@ main {
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.08;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+  background: linear-gradient(135deg, var(--accent-dark), var(--saffron));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -70,21 +115,32 @@ main {
 /* ── Cards ─────────────────────────────────────────────── */
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
   box-shadow: var(--shadow);
-  backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: var(--shadow-inset);
+  pointer-events: none;
 }
 
 .mapShell {
   overflow: hidden;
   border-radius: 14px;
+  border: 2px solid var(--border-strong);
+  box-shadow: var(--shadow-lg);
 }
 
 .mapFrame {
   min-height: 60vh;
-  background: #f0f9ff;
+  background: #e8f4ec;
 }
 
 /* ── Report Grid ───────────────────────────────────────── */
@@ -99,21 +155,25 @@ main {
 .reportCard {
   padding: 16px;
   border-radius: 12px;
-  background: #fff;
-  border: 1px solid var(--border);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-left: 4px solid var(--accent);
   text-decoration: none;
   color: var(--ink-0);
-  box-shadow: var(--shadow);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  position: relative;
 }
 
 .reportCard:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
+  border-color: var(--border-strong);
+  border-left-color: var(--saffron);
 }
 
 .reportCard:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2.5px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -127,7 +187,20 @@ main {
   font-weight: 600;
   background: var(--accent-soft);
   color: var(--accent-dark);
+  border: 1px solid var(--accent);
   letter-spacing: 0.01em;
+}
+
+.chip.saffron {
+  background: var(--saffron-soft);
+  color: var(--saffron-dark);
+  border-color: var(--saffron);
+}
+
+.chip.gold {
+  background: var(--gold-soft);
+  color: var(--saffron-dark);
+  border-color: var(--gold);
 }
 
 .muted {
@@ -139,26 +212,28 @@ main {
 
 .button {
   appearance: none;
-  border: none;
+  border: 2px solid var(--accent-dark);
   color: #fff;
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  padding: 11px 20px;
+  padding: 10px 20px;
   border-radius: 10px;
   text-decoration: none;
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow), var(--shadow-inset);
+  letter-spacing: 0.01em;
 }
 
 .button:hover {
-  opacity: 0.92;
+  background: linear-gradient(135deg, var(--accent-dark), var(--accent-darker));
   transform: translateY(-1px);
+  box-shadow: var(--shadow-lg), var(--shadow-inset);
 }
 
 .button:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2.5px solid var(--saffron);
   outline-offset: 2px;
 }
 
@@ -169,15 +244,25 @@ main {
 }
 
 .button.secondary {
-  background: #fff;
-  color: var(--accent);
-  border: 1.5px solid var(--accent);
-  box-shadow: none;
+  background: var(--bg-surface);
+  color: var(--accent-dark);
+  border: 2px solid var(--accent-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 .button.secondary:hover {
   background: var(--accent-soft);
-  opacity: 1;
+  transform: translateY(-1px);
+}
+
+.button.saffron {
+  background: linear-gradient(135deg, var(--saffron), var(--saffron-dark));
+  border-color: var(--saffron-dark);
+  box-shadow: 0 2px 8px rgba(200, 90, 31, 0.3), var(--shadow-inset);
+}
+
+.button.saffron:hover {
+  background: linear-gradient(135deg, var(--saffron-dark), #7a2d08);
 }
 
 /* ── Layout helpers ────────────────────────────────────── */
@@ -196,16 +281,21 @@ main {
 .backLink {
   font-size: 14px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent-dark);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 0;
+  padding: 6px 12px;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  transition: all 0.15s ease;
 }
 
 .backLink:hover {
-  text-decoration: underline;
+  background: var(--accent);
+  color: #fff;
 }
 
 .metaList {
@@ -216,10 +306,32 @@ main {
   list-style: none;
 }
 
+/* ── Sections ──────────────────────────────────────────── */
+
+.section {
+  padding: 20px;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-dark);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+}
+
 /* ── Loading skeleton ──────────────────────────────────── */
 
 .skeleton {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background: linear-gradient(90deg, var(--bg-1) 25%, var(--bg-surface) 50%, var(--bg-1) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 8px;
@@ -249,28 +361,33 @@ main {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   padding: 16px;
-  background: #f8fafc;
-  border-radius: 12px;
-  border: 1px solid var(--border);
+  background: var(--bg-elev);
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
 }
 
 .metaItem {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
 }
 
 .metaLabel {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--ink-1);
-  font-weight: 600;
+  color: var(--ink-soft);
+  font-weight: 700;
 }
 
 .metaValue {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--ink-0);
 }
 
 .mediaGallery {
@@ -279,12 +396,20 @@ main {
   gap: 10px;
 }
 
+.mediaGallery img,
+.mediaGallery > * {
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+}
+
 .mediaPending {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 20px;
-  background: #f8fafc;
+  background: var(--bg-elev);
+  border: 1.5px dashed var(--border-strong);
   border-radius: 10px;
 }
 
@@ -293,6 +418,7 @@ main {
 .timeline {
   display: grid;
   gap: 0;
+  padding: 8px 0;
 }
 
 .timelineItem {
@@ -304,12 +430,15 @@ main {
 }
 
 .timelineDot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--accent);
+  border: 2px solid var(--bg-surface);
+  box-shadow: 0 0 0 2px var(--accent);
   margin-top: 5px;
   justify-self: center;
+  z-index: 1;
 }
 
 .timelineLine {
@@ -318,7 +447,7 @@ main {
   top: 18px;
   bottom: 0;
   width: 2px;
-  background: var(--border);
+  background: var(--border-strong);
 }
 
 .timelineContent {
@@ -332,8 +461,9 @@ main {
 
 .timelineEvent {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   text-transform: capitalize;
+  color: var(--ink-0);
 }
 
 .timelineDate {
@@ -345,8 +475,43 @@ main {
 .timelineActor {
   font-size: 12px;
   color: var(--ink-1);
-  font-weight: 400;
+  font-weight: 500;
   width: 100%;
+}
+
+/* ── Form Elements ─────────────────────────────────────── */
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="search"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink-0);
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-0);
+  margin-bottom: 6px;
 }
 
 /* ── Responsive ────────────────────────────────────────── */
@@ -365,10 +530,56 @@ main {
   .mapFrame {
     min-height: 48vh;
   }
+
+  .hero {
+    padding: 18px;
+    border-left-width: 5px;
+  }
 }
 
 @media (max-width: 600px) {
   .detailMeta {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Status dots (shared) ──────────────────────────────── */
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
+}
+
+/* ── Section dividers ──────────────────────────────────── */
+
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  margin: 20px 0;
+}
+
+/* ── MapLibre popup override (Kerala theme) ────────────── */
+
+.maplibregl-popup-content {
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border-strong) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 10px 14px !important;
+  color: var(--ink-0) !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: var(--bg-surface) !important;
+}
+
+.maplibregl-ctrl-group {
+  background: var(--bg-surface) !important;
+  border: 1.5px solid var(--border) !important;
+  box-shadow: var(--shadow) !important;
 }

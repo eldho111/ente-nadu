@@ -100,8 +100,9 @@ export default function Header() {
 
       <style>{`
         .siteHeader {
-          background: #ffffff;
-          border-bottom: 1px solid #e5ddca;
+          background: linear-gradient(180deg, #fffbf0 0%, #faf5eb 100%);
+          border-bottom: 2px solid #b8a37d;
+          box-shadow: 0 2px 8px rgba(74, 45, 10, 0.08);
           position: sticky;
           top: 0;
           z-index: 100;
@@ -113,16 +114,20 @@ export default function Header() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          min-height: 56px;
+          min-height: 60px;
           gap: 16px;
         }
         .logoLink {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           text-decoration: none;
           color: var(--ink-0);
           flex-shrink: 0;
+          padding: 6px 12px;
+          border: 1.5px solid #d9c9a8;
+          background: #fffdf7;
+          border-radius: 10px;
         }
         .logoIcon {
           font-size: 22px;
@@ -132,39 +137,49 @@ export default function Header() {
           font-size: 17px;
           font-weight: 700;
           letter-spacing: -0.01em;
+          color: #0a4d3c;
         }
         .mainNav {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
           flex-wrap: wrap;
           justify-content: flex-end;
         }
         .navLink {
-          padding: 6px 14px;
+          padding: 7px 14px;
           border-radius: 8px;
           font-size: 14px;
           font-weight: 600;
           text-decoration: none;
-          color: var(--ink-1);
-          transition: background 0.15s, color 0.15s;
+          color: #4a5a48;
+          border: 1.5px solid transparent;
+          transition: all 0.15s;
         }
         .navLink:hover {
-          background: #0c7a5f11;
-          color: var(--accent);
+          background: #d4e8dd;
+          color: #0a4d3c;
+          border-color: #0f7056;
         }
         .navLink.active {
-          background: #e8f5ef;
-          color: var(--accent);
+          background: #0f7056;
+          color: #fff;
+          border-color: #0a4d3c;
+          box-shadow: 0 2px 6px rgba(15, 112, 86, 0.3);
         }
         .localeSelect {
-          height: 34px;
-          border: 1px solid #d5ccb7;
+          height: 36px;
+          border: 1.5px solid #b8a37d;
           border-radius: 8px;
-          background: #fff;
-          color: var(--ink-0);
-          padding: 0 8px;
+          background: #fffdf7;
+          color: #1a2e1f;
+          padding: 0 10px;
           font-weight: 600;
+          font-size: 13px;
+          cursor: pointer;
+        }
+        .localeSelect:hover {
+          border-color: #0f7056;
         }
         @media (max-width: 760px) {
           .headerInner {
