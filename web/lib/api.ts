@@ -45,6 +45,7 @@ export type ReportDetail = {
   last_checkin_at: string | null;
   media: Array<{ id: string; media_type: string; public_url: string | null; thumbnail_url: string | null }>;
   events: Array<{ id: string; event_type: string; payload?: Record<string, unknown>; actor?: string; created_at: string }>;
+  elected_representatives?: Array<{ id: string; name: string; name_ml?: string | null; role: string; party?: string | null; photo_url?: string | null }>;
 };
 
 export type WardMetric = {
