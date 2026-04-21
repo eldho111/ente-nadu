@@ -167,6 +167,53 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
     return None
 
 
+# ── Groq (FREE — 14,400/day, fastest) ───────────────────────────────
+
+def _classify_groq(image_base64: str) -> VisionResult | None:
+    """Classify using Groq (free, fast inference with Llama Vision)."""
+    if not settings.groq_api_key:
+        return None
+
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {settings.groq_api_key}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "model": settings.groq_model,
+        "messages": [
+            {"role": "system", "content": _schema_prompt()},
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Classify this civic issue image. Return ONLY valid JSON, no markdown."},
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"},
+                    },
+                ],
+            },
+        ],
+        "temperature": 0.1,
+        "max_tokens": 400,
+    }
+
+    try:
+        resp = requests.post(url, json=payload, headers=headers, timeout=15)
+        if resp.status_code != 200:
+            logger.warning("Groq error %d: %s", resp.status_code, resp.text[:300])
+            return None
+        data = resp.json()
+        text = data["choices"][0]["message"]["content"]
+        logger.info("Groq raw: %s", text[:200])
+        result = _parse_result(text)
+        logger.info("Groq classified: %s (%.2f)", result.category.value, result.confidence)
+        return result
+    except Exception as e:
+        logger.warning("Groq exception: %s", str(e)[:300])
+        return None
+
+
 # ── OpenAI — paid fallback ──────────────────────────────────────────
 
 def _classify_openai(image_base64: str) -> VisionResult | None:
@@ -210,11 +257,17 @@ def _classify_openai(image_base64: str) -> VisionResult | None:
 # ── Public API ──────────────────────────────────────────────────────
 
 def classify_preview(image_base64: str) -> VisionResult:
-    """Classify an image. Tries: Gemini (free) → OpenAI (paid) → fallback."""
+    """Classify an image. Tries: Groq (free) → Gemini (free) → OpenAI (paid) → fallback."""
     if _circuit_open():
         return _fallback_result()
 
-    # Try Gemini first (FREE)
+    # Try Groq first (FREE, 14,400/day, fastest)
+    result = _classify_groq(image_base64)
+    if result:
+        _record_success()
+        return result
+
+    # Try Gemini (FREE, 1,500/day)
     result = _classify_gemini(image_base64)
     if result:
         _record_success()
@@ -226,7 +279,7 @@ def classify_preview(image_base64: str) -> VisionResult:
         _record_success()
         return result
 
-    # Both failed
+    # All failed
     _record_failure()
     return _fallback_result()
 

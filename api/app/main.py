@@ -126,10 +126,12 @@ def health() -> dict:
 def health_ai() -> dict:
     """Check if AI classification keys are configured."""
     return {
+        "groq_configured": bool(settings.groq_api_key),
+        "groq_model": settings.groq_model if settings.groq_api_key else None,
         "gemini_configured": bool(settings.gemini_api_key),
-        "gemini_key_prefix": settings.gemini_api_key[:8] + "..." if settings.gemini_api_key else None,
         "gemini_model": settings.gemini_model if settings.gemini_api_key else None,
         "openai_configured": bool(settings.openai_api_key),
+        "chain": "Groq → Gemini → OpenAI → manual fallback",
     }
 
 
