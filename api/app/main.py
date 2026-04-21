@@ -32,6 +32,17 @@ app = FastAPI(title=f"{settings.app_name} API", version="0.1.0")
 app.state.limiter = limiter
 
 
+@app.on_event("startup")
+def init_database_on_startup() -> None:
+    """Initialize database tables on app startup (idempotent)."""
+    try:
+        from app.db.init_db import init_db
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error("Database init failed: %s", str(e)[:500])
+
+
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
     return JSONResponse(
@@ -120,6 +131,20 @@ def health() -> dict:
             content={"status": "unhealthy", "checks": checks},
         )
     return {"status": "ok", "checks": checks}
+
+
+@app.post("/admin/init-db")
+def admin_init_db(request: Request) -> dict:
+    """Manually initialize database tables. Protected by admin API key."""
+    api_key = request.headers.get("X-Admin-Api-Key", "")
+    if not settings.admin_api_key or api_key != settings.admin_api_key:
+        return JSONResponse(status_code=403, content={"error": "forbidden"})
+    try:
+        from app.db.init_db import init_db
+        init_db()
+        return {"status": "ok", "message": "Database initialized"}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"error": str(e)[:500]})
 
 
 @app.get("/health/ai")
