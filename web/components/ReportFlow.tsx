@@ -27,7 +27,8 @@ const TEXT: Record<UiLocale, Record<string, string>> = {
     successSub: "Your report has been submitted and routed to the concerned authority.",
     viewReport: "View Report",
     reportAnother: "Report Another Issue",
-    errorTitle: "Something went wrong",
+    errorTitle: "Backend server not connected",
+    errorSub: "The report was captured but the server is not running yet. Your report will be saved when the backend is deployed.",
     tryAgain: "Try Again",
     selectCategory: "Select the correct category:",
     cancel: "Cancel",
@@ -47,7 +48,8 @@ const TEXT: Record<UiLocale, Record<string, string>> = {
     successSub: "നിങ്ങളുടെ റിപ്പോർട്ട് ബന്ധപ്പെട്ട അധികാരികൾക്ക് അയച്ചു.",
     viewReport: "റിപ്പോർട്ട് കാണുക",
     reportAnother: "മറ്റൊരു പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക",
-    errorTitle: "എന്തോ തെറ്റ് സംഭവിച്ചു",
+    errorTitle: "സെർവർ ബന്ധിപ്പിച്ചിട്ടില്ല",
+    errorSub: "റിപ്പോർട്ട് ക്യാപ്ചർ ചെയ്തു, പക്ഷേ സെർവർ പ്രവർത്തിക്കുന്നില്ല. ബാക്കെൻഡ് വിന്യസിക്കുമ്പോൾ സംരക്ഷിക്കും.",
     tryAgain: "വീണ്ടും ശ്രമിക്കുക",
     selectCategory: "ശരിയായ വിഭാഗം തിരഞ്ഞെടുക്കുക:",
     cancel: "റദ്ദാക്കുക",
@@ -67,7 +69,8 @@ const TEXT: Record<UiLocale, Record<string, string>> = {
     successSub: "ನಿಮ್ಮ ವರದಿ ಸಂಬಂಧಿತ ಪ್ರಾಧಿಕಾರಕ್ಕೆ ಕಳುಹಿಸಲಾಗಿದೆ.",
     viewReport: "ವರದಿ ನೋಡಿ",
     reportAnother: "ಮತ್ತೊಂದು ಸಮಸ್ಯೆ",
-    errorTitle: "ಏನೋ ತಪ್ಪಾಗಿದೆ",
+    errorTitle: "ಸರ್ವರ್ ಸಂಪರ್ಕ ಇಲ್ಲ",
+    errorSub: "ವರದಿ ಕ್ಯಾಪ್ಚರ್ ಆಗಿದೆ, ಆದರೆ ಸರ್ವರ್ ಚಾಲನೆಯಲ್ಲಿಲ್ಲ.",
     tryAgain: "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     selectCategory: "ಸರಿಯಾದ ವರ್ಗ ಆಯ್ಕೆಮಾಡಿ:",
     cancel: "ರದ್ದುಮಾಡಿ",
@@ -156,10 +159,12 @@ export default function ReportFlow() {
     setConfidence(aiConfidence);
     setSummary(aiSummary);
 
-    // 2. If high confidence → auto-submit. If low → ask user to confirm.
-    if (aiConfidence >= AI_CONFIDENCE_THRESHOLD) {
+    // 2. If high confidence AND not "other" → auto-submit.
+    //    Otherwise → ask user to confirm category first.
+    if (aiConfidence >= AI_CONFIDENCE_THRESHOLD && aiCategory !== "other") {
       await submitReport(file, aiCategory);
     } else {
+      // AI failed or low confidence — let user pick/confirm
       setStep("review");
     }
   }, [lat, lon, t]);
@@ -416,14 +421,14 @@ export default function ReportFlow() {
       {step === "error" && (
         <div style={{
           display: "grid", placeItems: "center", gap: 14, padding: "32px 20px",
-          background: "#fef2f2", borderRadius: 16, border: "1px solid #fecaca", textAlign: "center",
+          background: "#fffbeb", borderRadius: 16, border: "1px solid #fcd34d", textAlign: "center",
         }}>
-          <div style={{ fontSize: 48 }}>{"\u274C"}</div>
-          <h3 style={{ margin: 0, color: "#dc2626" }}>{t.errorTitle}</h3>
-          {errorMsg && <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>{errorMsg}</p>}
+          <div style={{ fontSize: 48 }}>{"\u26A0\uFE0F"}</div>
+          <h3 style={{ margin: 0, color: "#d97706" }}>{t.errorTitle}</h3>
+          <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: "34ch" }}>{t.errorSub}</p>
           <button onClick={reset} style={{
             padding: "12px 24px", borderRadius: 10, border: "none",
-            background: "#dc2626", color: "#fff", cursor: "pointer", fontWeight: 700,
+            background: "#d97706", color: "#fff", cursor: "pointer", fontWeight: 700,
           }}>
             {t.tryAgain}
           </button>
