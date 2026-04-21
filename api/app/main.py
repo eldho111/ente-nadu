@@ -122,4 +122,15 @@ def health() -> dict:
     return {"status": "ok", "checks": checks}
 
 
+@app.get("/health/ai")
+def health_ai() -> dict:
+    """Check if AI classification keys are configured."""
+    return {
+        "gemini_configured": bool(settings.gemini_api_key),
+        "gemini_key_prefix": settings.gemini_api_key[:8] + "..." if settings.gemini_api_key else None,
+        "gemini_model": settings.gemini_model if settings.gemini_api_key else None,
+        "openai_configured": bool(settings.openai_api_key),
+    }
+
+
 app.include_router(api_router)

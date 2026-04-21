@@ -144,15 +144,22 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
     }
 
     try:
-        resp = requests.post(url, json=payload, timeout=12)
-        resp.raise_for_status()
+        resp = requests.post(url, json=payload, timeout=15)
+        if resp.status_code != 200:
+            logger.error("Gemini API error %d: %s", resp.status_code, resp.text[:300])
+            return None
         data = resp.json()
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
+        candidates = data.get("candidates", [])
+        if not candidates:
+            logger.error("Gemini returned no candidates: %s", str(data)[:300])
+            return None
+        text = candidates[0]["content"]["parts"][0]["text"]
+        logger.info("Gemini raw response: %s", text[:200])
         result = _parse_result(text)
         logger.info("Gemini classified: %s (%.2f)", result.category.value, result.confidence)
         return result
     except Exception as e:
-        logger.warning("Gemini classification failed: %s", str(e)[:200])
+        logger.error("Gemini classification exception: %s", str(e)[:300])
         return None
 
 
