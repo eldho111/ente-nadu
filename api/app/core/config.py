@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     # Google Gemini (FREE — 1,500 requests/day)
     gemini_api_key: str | None = Field(default=None, alias="GEMINI_API_KEY")
-    gemini_model: str = Field(default="gemini-2.0-flash", alias="GEMINI_MODEL")
+    gemini_model: str = Field(default="gemini-2.0-flash-lite", alias="GEMINI_MODEL")
 
     ai_confidence_threshold: float = Field(default=0.72, alias="AI_CONFIDENCE_THRESHOLD")
     ai_preview_timeout_seconds: float = Field(default=8.0, alias="AI_PREVIEW_TIMEOUT_SECONDS")

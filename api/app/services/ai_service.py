@@ -123,7 +123,8 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
     if not settings.gemini_api_key:
         return None
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
+    # Try v1 first (stable), works with most API keys
+    url = f"https://generativelanguage.googleapis.com/v1/models/{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
 
     payload = {
         "contents": [{
