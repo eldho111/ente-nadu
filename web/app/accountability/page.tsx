@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getPublicApiBase } from "@/lib/api";
 import { getServerLocale } from "@/lib/server-locale";
 import RepCard from "@/components/RepCard";
@@ -61,7 +63,7 @@ const TEXT = {
 };
 
 // Kerala MPs — shown as static fallback when API is offline
-const KERALA_MPS: LeaderboardEntry[] = [
+const KERALA_REPS: LeaderboardEntry[] = [
   { representative_id: "1", name: "Shashi Tharoor", name_ml: "ശശി തരൂര്‍", role: "mp", constituency_name: "Thiruvananthapuram", constituency_name_ml: "തിരുവനന്തപുരം", district: "Thiruvananthapuram", party: "INC", photo_url: null, open_issues: 0, total_issues: 0, resolved_issues: 0, resolution_rate: 0, performance_tier: "average" },
   { representative_id: "2", name: "Suresh Gopi", name_ml: "സുരേഷ് ഗോപി", role: "mp", constituency_name: "Thrissur", constituency_name_ml: "തൃശ്ശൂര്‍", district: "Thrissur", party: "BJP", photo_url: null, open_issues: 0, total_issues: 0, resolved_issues: 0, resolution_rate: 0, performance_tier: "average" },
   { representative_id: "3", name: "Priyanka Gandhi Vadra", name_ml: "പ്രിയങ്ക ഗാന്ധി വദ്ര", role: "mp", constituency_name: "Wayanad", constituency_name_ml: "വയനാട്", district: "Wayanad", party: "INC", photo_url: null, open_issues: 0, total_issues: 0, resolved_issues: 0, resolution_rate: 0, performance_tier: "average" },
@@ -127,7 +129,7 @@ export default async function AccountabilityPage({
   let isStatic = false;
   if (items.length === 0) {
     isStatic = true;
-    items = KERALA_MPS;
+    items = KERALA_REPS;
     if (roleFilter) {
       items = items.filter((i) => i.role === roleFilter);
     }
