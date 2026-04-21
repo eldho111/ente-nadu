@@ -8,7 +8,12 @@ import { CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/reportConstants";
 type Step = "ready" | "processing" | "review" | "submitting" | "done" | "error";
 type UiLocale = "en" | "kn" | "ml";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+// Production API URL (Railway backend). Env var overrides if set.
+const PROD_API = "https://ente-nadu-production.up.railway.app";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ||
+  (typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? PROD_API
+    : "http://localhost:8000");
 const AI_CONFIDENCE_THRESHOLD = 0.72;
 
 const TEXT: Record<UiLocale, Record<string, string>> = {

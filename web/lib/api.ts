@@ -1,11 +1,16 @@
+// Production API URL (Railway backend). Env var overrides if set.
+const PROD_API = "https://ente-nadu-production.up.railway.app";
+const DEV_API = "http://localhost:8000";
+const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
+
 const INTERNAL_API_BASE =
   process.env.API_INTERNAL_BASE_URL ||
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000";
+  (process.env.NODE_ENV === "production" ? PROD_API : DEV_API);
 
 const PUBLIC_API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "http://localhost:8000";
+  (isProd ? PROD_API : DEV_API);
 
 export type ReportCard = {
   id: string;
