@@ -123,13 +123,10 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
     if not settings.gemini_api_key:
         return None
 
-    # Try v1 first (stable), works with most API keys
-    url = f"https://generativelanguage.googleapis.com/v1/models/{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
-
     payload = {
         "contents": [{
             "parts": [
-                {"text": _schema_prompt() + "\n\nClassify this civic issue image. Return ONLY valid JSON."},
+                {"text": _schema_prompt() + "\n\nClassify this civic issue image. Return ONLY valid JSON, no markdown."},
                 {
                     "inline_data": {
                         "mime_type": "image/jpeg",
@@ -144,24 +141,30 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
         },
     }
 
-    try:
-        resp = requests.post(url, json=payload, timeout=15)
-        if resp.status_code != 200:
-            logger.error("Gemini API error %d: %s", resp.status_code, resp.text[:300])
-            return None
-        data = resp.json()
-        candidates = data.get("candidates", [])
-        if not candidates:
-            logger.error("Gemini returned no candidates: %s", str(data)[:300])
-            return None
-        text = candidates[0]["content"]["parts"][0]["text"]
-        logger.info("Gemini raw response: %s", text[:200])
-        result = _parse_result(text)
-        logger.info("Gemini classified: %s (%.2f)", result.category.value, result.confidence)
-        return result
-    except Exception as e:
-        logger.error("Gemini classification exception: %s", str(e)[:300])
-        return None
+    # Try v1beta first (supports latest models), then v1
+    for api_version in ["v1beta", "v1"]:
+        url = f"https://generativelanguage.googleapis.com/{api_version}/models/{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
+        try:
+            resp = requests.post(url, json=payload, timeout=15)
+            if resp.status_code != 200:
+                logger.warning("Gemini %s error %d: %s", api_version, resp.status_code, resp.text[:300])
+                continue
+            data = resp.json()
+            candidates = data.get("candidates", [])
+            if not candidates:
+                logger.warning("Gemini %s no candidates: %s", api_version, str(data)[:300])
+                continue
+            text = candidates[0]["content"]["parts"][0]["text"]
+            logger.info("Gemini [%s] raw: %s", api_version, text[:200])
+            result = _parse_result(text)
+            logger.info("Gemini classified: %s (%.2f)", result.category.value, result.confidence)
+            return result
+        except Exception as e:
+            logger.warning("Gemini %s exception: %s", api_version, str(e)[:300])
+            continue
+
+    logger.error("Gemini failed on all API versions")
+    return None
 
 
 # ── OpenAI — paid fallback ──────────────────────────────────────────
