@@ -406,38 +406,125 @@ export default function ReportFlow() {
         </div>
       )}
 
-      {/* ── STEP 5: Done — success! ── */}
+      {/* ── STEP 5: Done — kasavu acknowledgment letter ── */}
       {step === "done" && (
-        <div style={{
-          display: "grid", placeItems: "center", gap: 16, padding: "32px 20px",
-          background: "linear-gradient(145deg, #ecfdf5, #f0fdf4)", borderRadius: 16,
-          border: "1px solid #86efac", textAlign: "center",
-        }}>
-          <div style={{ fontSize: 56 }}>{"\u2705"}</div>
-          <h2 style={{ margin: 0, fontSize: 22, color: "#15803d" }}>{t.success}</h2>
-          <p style={{ margin: 0, color: "#64748b", fontSize: 14, maxWidth: "36ch" }}>{t.successSub}</p>
-
-          <div style={{
-            display: "flex", alignItems: "center", gap: 8, padding: "10px 16px",
-            background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
-          }}>
-            <span style={{ fontSize: 22 }}>{catIcon}</span>
-            <span style={{ fontWeight: 700, fontSize: 14, textTransform: "capitalize" }}>{catLabel}</span>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>&middot;</span>
-            <span style={{ fontSize: 13, color: "#0d9488", fontWeight: 600 }}>{resultId}</span>
+        <div
+          className="kasavu-border animate-in"
+          style={{
+            position: "relative",
+            padding: "28px 22px 22px",
+            display: "grid",
+            gap: 14,
+            textAlign: "center",
+            overflow: "hidden",
+          }}
+        >
+          {/* Official header */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignSelf: "center",
+              alignItems: "center",
+              gap: 8,
+              padding: "4px 12px",
+              background: "var(--kasavu-cream)",
+              border: "1px solid var(--kasavu-gold)",
+              borderRadius: 999,
+              fontFamily: "var(--font-stamp), monospace",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              color: "var(--mural-red)",
+              textTransform: "uppercase",
+            }}
+          >
+            ◉ Acknowledgment · അംഗീകാരപത്രം
           </div>
 
-          <div style={{ display: "grid", gap: 8, width: "100%", maxWidth: 280 }}>
-            <Link href={resultUrl || "/"} style={{
-              padding: "12px", borderRadius: 10, background: "#0d9488", color: "#fff",
-              textDecoration: "none", fontWeight: 700, fontSize: 14, textAlign: "center",
-            }}>
+          <h2
+            style={{
+              margin: "4px 0 0",
+              fontSize: 26,
+              lineHeight: 1.1,
+              color: "var(--mural-green-deep)",
+              fontFamily: "var(--font-ml-display), var(--font-ml), serif",
+              fontWeight: 700,
+            }}
+          >
+            {t.success}
+          </h2>
+
+          <p
+            style={{
+              margin: 0,
+              color: "var(--ink-1)",
+              fontSize: 14,
+              maxWidth: "42ch",
+              marginInline: "auto",
+              lineHeight: 1.55,
+              fontFamily: "var(--font-ml), serif",
+            }}
+          >
+            {t.successSub}
+          </p>
+
+          {/* Category + reference line */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignSelf: "center",
+              alignItems: "center",
+              gap: 10,
+              padding: "10px 14px",
+              background: "var(--kasavu-cream)",
+              borderRadius: 8,
+              border: "1px solid var(--kasavu-gold-light)",
+              boxShadow: "inset 0 0 0 2px var(--kasavu-surface)",
+            }}
+          >
+            <span style={{ fontSize: 22 }}>{catIcon}</span>
+            <span style={{ fontWeight: 700, fontSize: 14, textTransform: "capitalize", color: "var(--mural-green-deep)" }}>
+              {catLabel}
+            </span>
+            <span style={{ color: "var(--kasavu-gold)" }}>·</span>
+            <span
+              style={{
+                fontSize: 13,
+                fontFamily: "var(--font-stamp), monospace",
+                fontWeight: 700,
+                color: "var(--mural-red-deep)",
+                letterSpacing: "0.05em",
+              }}
+            >
+              REF #{resultId}
+            </span>
+          </div>
+
+          {/* The official seal, bottom-right, slightly rotated */}
+          <img
+            src="/icons/motifs/uttaravu-seal.svg"
+            alt=""
+            width="84"
+            height="84"
+            style={{
+              position: "absolute",
+              right: 14,
+              bottom: 14,
+              transform: "rotate(-8deg)",
+              opacity: 0.85,
+              pointerEvents: "none",
+            }}
+          />
+
+          <div style={{ display: "grid", gap: 8, width: "100%", maxWidth: 280, marginInline: "auto", marginTop: 4 }}>
+            <Link href={resultUrl || "/"} className="button">
               {t.viewReport}
             </Link>
-            <button onClick={reset} style={{
-              padding: "10px", borderRadius: 10, border: "1.5px solid #e2e8f0",
-              background: "#fff", color: "#475569", cursor: "pointer", fontSize: 13, fontWeight: 600,
-            }}>
+            <button
+              onClick={reset}
+              className="button secondary"
+              style={{ cursor: "pointer", fontFamily: "inherit" }}
+            >
               {t.reportAnother}
             </button>
           </div>

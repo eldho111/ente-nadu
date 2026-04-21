@@ -10,7 +10,7 @@ export default function MobileAppLayout({ children }: { children: React.ReactNod
   return (
     <>
       <AppTopBar title={messages.brand} subtitle={messages.appModeSubtitle} />
-      <main style={{ maxWidth: 680, margin: "0 auto", padding: "14px 14px 86px" }}>{children}</main>
+      <main style={{ maxWidth: 680, margin: "0 auto", padding: "16px 14px 100px" }}>{children}</main>
       <AppBottomNav
         labels={{
           map: messages.navMap,

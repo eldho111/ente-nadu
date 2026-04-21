@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" width="240" height="120" role="img" aria-label="Chundan vallam — Kerala snake boat">
+  <!-- Water ripples -->
+  <g stroke="#0e6b47" stroke-width="0.8" fill="none" opacity="0.4">
+    <path d="M 8 104 Q 40 100, 80 104 T 160 104 T 232 104"/>
+    <path d="M 8 112 Q 50 108, 100 112 T 200 112 T 232 112"/>
+  </g>
+
+  <!-- Boat hull (long curved, with a high-rising snake-head prow at the rear) -->
+  <path d="M 12 88
+           Q 8 80, 24 76
+           L 200 76
+           Q 216 76, 224 68
+           Q 232 60, 228 44
+           Q 222 28, 212 22
+           Q 206 18, 204 28
+           Q 204 34, 208 38
+           Q 210 44, 205 48
+           Q 200 52, 196 44
+           L 180 60
+           L 24 60
+           Q 12 60, 8 72
+           Q 4 84, 12 88 Z"
+        fill="#1a1208" stroke="#063a28" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- Gold hull trim -->
+  <path d="M 24 76 L 200 76" stroke="#b8860b" stroke-width="1.2"/>
+  <path d="M 24 80 L 200 80" stroke="#d4a84a" stroke-width="0.6"/>
+
+  <!-- Snake-head decorations near prow -->
+  <g fill="#b8860b" stroke="#8b6508" stroke-width="0.5">
+    <circle cx="204" cy="30" r="2"/>
+    <circle cx="210" cy="26" r="1.5"/>
+    <path d="M 218 32 Q 222 28, 224 32" stroke-width="1" fill="none"/>
+  </g>
+  <circle cx="203" cy="32" r="1" fill="#a8321e"/>  <!-- Eye -->
+
+  <!-- Rowers (10 stylized figures, heads only) -->
+  <g fill="#a8321e">
+    <circle cx="30" cy="54" r="3"/>
+    <circle cx="48" cy="54" r="3"/>
+    <circle cx="66" cy="54" r="3"/>
+    <circle cx="84" cy="54" r="3"/>
+    <circle cx="102" cy="54" r="3"/>
+    <circle cx="120" cy="54" r="3"/>
+    <circle cx="138" cy="54" r="3"/>
+    <circle cx="156" cy="54" r="3"/>
+    <circle cx="174" cy="54" r="3"/>
+    <circle cx="192" cy="54" r="3"/>
+  </g>
+  <!-- Turbans (manayola yellow) -->
+  <g fill="#d4a017">
+    <path d="M 27 50 Q 30 46, 33 50 Z"/>
+    <path d="M 45 50 Q 48 46, 51 50 Z"/>
+    <path d="M 63 50 Q 66 46, 69 50 Z"/>
+    <path d="M 81 50 Q 84 46, 87 50 Z"/>
+    <path d="M 99 50 Q 102 46, 105 50 Z"/>
+    <path d="M 117 50 Q 120 46, 123 50 Z"/>
+    <path d="M 135 50 Q 138 46, 141 50 Z"/>
+    <path d="M 153 50 Q 156 46, 159 50 Z"/>
+    <path d="M 171 50 Q 174 46, 177 50 Z"/>
+    <path d="M 189 50 Q 192 46, 195 50 Z"/>
+  </g>
+
+  <!-- Oars slanted into water -->
+  <g stroke="#8b6508" stroke-width="1.4" stroke-linecap="round">
+    <path d="M 32 60 L 26 92"/>
+    <path d="M 50 60 L 44 92"/>
+    <path d="M 68 60 L 62 92"/>
+    <path d="M 86 60 L 80 92"/>
+    <path d="M 104 60 L 98 92"/>
+    <path d="M 122 60 L 116 92"/>
+    <path d="M 140 60 L 134 92"/>
+    <path d="M 158 60 L 152 92"/>
+    <path d="M 176 60 L 170 92"/>
+    <path d="M 194 60 L 188 92"/>
+  </g>
+
+  <!-- Oar blades -->
+  <g fill="#8b6508">
+    <ellipse cx="26" cy="94" rx="3" ry="2"/>
+    <ellipse cx="44" cy="94" rx="3" ry="2"/>
+    <ellipse cx="62" cy="94" rx="3" ry="2"/>
+    <ellipse cx="80" cy="94" rx="3" ry="2"/>
+    <ellipse cx="98" cy="94" rx="3" ry="2"/>
+    <ellipse cx="116" cy="94" rx="3" ry="2"/>
+    <ellipse cx="134" cy="94" rx="3" ry="2"/>
+    <ellipse cx="152" cy="94" rx="3" ry="2"/>
+    <ellipse cx="170" cy="94" rx="3" ry="2"/>
+    <ellipse cx="188" cy="94" rx="3" ry="2"/>
+  </g>
+</svg>

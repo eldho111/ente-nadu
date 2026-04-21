@@ -213,7 +213,40 @@ export default function OpsInboxPage() {
               </div>
             </article>
           ))}
-          {reports.length === 0 && <p className="muted">No reports to display.</p>}
+          {reports.length === 0 && (
+            <div
+              className="kasavu-border soft"
+              style={{
+                padding: "32px 24px",
+                textAlign: "center",
+                display: "grid",
+                justifyItems: "center",
+                gap: 12,
+              }}
+            >
+              <img
+                src="/icons/motifs/elephant-stamp.svg"
+                alt=""
+                width={100}
+                height={100}
+                style={{ opacity: 0.92 }}
+              />
+              <div
+                style={{
+                  fontFamily: "var(--font-ml-display), var(--font-ml), serif",
+                  fontSize: 18,
+                  color: "var(--mural-green-deep)",
+                  fontWeight: 700,
+                }}
+              >
+                ഇൻബോക്സ് ശാന്തമാണ്
+              </div>
+              <p className="muted" style={{ margin: 0 }}>
+                No reports to display. Citizen complaints routed to this inbox will
+                appear here with photo evidence, ward, and suggested priority.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

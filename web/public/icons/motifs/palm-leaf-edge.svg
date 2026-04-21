@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 40" width="80" height="40"
+     preserveAspectRatio="none"
+     role="img" aria-label="Palm leaf pattern">
+  <!-- Tileable background pattern — use with background-repeat: repeat and low opacity -->
+  <defs>
+    <pattern id="palm-pattern" x="0" y="0" width="80" height="40" patternUnits="userSpaceOnUse">
+      <!-- Central stem -->
+      <path d="M 0 20 L 80 20" stroke="#b8860b" stroke-width="0.4" opacity="0.6"/>
+
+      <!-- Frond leaves above stem -->
+      <g stroke="#0e6b47" stroke-width="0.5" fill="none" opacity="0.55" stroke-linecap="round">
+        <path d="M 4 20 Q 8 12, 14 8"/>
+        <path d="M 12 20 Q 16 12, 22 8"/>
+        <path d="M 20 20 Q 24 12, 30 8"/>
+        <path d="M 28 20 Q 32 12, 38 8"/>
+        <path d="M 36 20 Q 40 12, 46 8"/>
+        <path d="M 44 20 Q 48 12, 54 8"/>
+        <path d="M 52 20 Q 56 12, 62 8"/>
+        <path d="M 60 20 Q 64 12, 70 8"/>
+        <path d="M 68 20 Q 72 12, 78 8"/>
+      </g>
+
+      <!-- Frond leaves below stem (mirrored) -->
+      <g stroke="#0e6b47" stroke-width="0.5" fill="none" opacity="0.55" stroke-linecap="round">
+        <path d="M 4 20 Q 8 28, 14 32"/>
+        <path d="M 12 20 Q 16 28, 22 32"/>
+        <path d="M 20 20 Q 24 28, 30 32"/>
+        <path d="M 28 20 Q 32 28, 38 32"/>
+        <path d="M 36 20 Q 40 28, 46 32"/>
+        <path d="M 44 20 Q 48 28, 54 32"/>
+        <path d="M 52 20 Q 56 28, 62 32"/>
+        <path d="M 60 20 Q 64 28, 70 32"/>
+        <path d="M 68 20 Q 72 28, 78 32"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="80" height="40" fill="url(#palm-pattern)"/>
+</svg>

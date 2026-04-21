@@ -74,6 +74,9 @@ export default function AppTrackClient({ locale }: Props) {
     load();
   }, [text.empty, text.latest, text.unavailable]);
 
+  const loaded = status !== text.loading;
+  const hasRows = rows.length > 0;
+
   return (
     <div style={{ display: "grid", gap: 10 }}>
       <span className="muted" style={{ fontSize: 12 }}>{status}</span>
@@ -91,6 +94,40 @@ export default function AppTrackClient({ locale }: Props) {
           </span>
         </article>
       ))}
+      {loaded && !hasRows && (
+        <div
+          className="kasavu-border soft"
+          style={{
+            padding: "24px 18px",
+            textAlign: "center",
+            display: "grid",
+            justifyItems: "center",
+            gap: 10,
+          }}
+        >
+          <img
+            src="/icons/motifs/snake-boat.svg"
+            alt=""
+            width={220}
+            height={110}
+            style={{ opacity: 0.9 }}
+          />
+          <div
+            style={{
+              fontFamily: "var(--font-ml-display), var(--font-ml), serif",
+              fontSize: 18,
+              color: "var(--mural-red)",
+              fontWeight: 700,
+            }}
+          >
+            ഇനിയും അപ്‌ഡേറ്റുകളില്ല
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: "var(--ink-1)", maxWidth: "38ch" }}>
+            Your journey starts here. Submit your first report from the Report tab
+            and progress updates will appear in this palm-leaf.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import MobileAppRedirect from "@/components/MobileAppRedirect";
+import KeralaEmptyState from "@/components/KeralaEmptyState";
 import { fetchReports } from "@/lib/api";
 import { getMessages } from "@/lib/i18n";
 import { STATUS_COLORS, STATUS_LABELS, CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/reportConstants";
@@ -51,47 +52,56 @@ export default async function HomePage({
     <main>
       <MobileAppRedirect />
 
-      {/* ── Hero Section ── */}
-      <section className="hero">
+      {/* ── Hero Section: kasavu-bordered letterhead ── */}
+      <section
+        className="kasavu-border animate-in"
+        style={{
+          padding: "28px 26px 24px",
+          margin: "0 0 4px",
+        }}
+      >
         <div style={{
-          display: "flex", alignItems: "center", gap: 14, marginBottom: 8,
+          display: "flex", alignItems: "center", gap: 16, marginBottom: 10,
         }}>
           <img
             src="/icons/logo.svg"
             alt=""
-            width="72"
-            height="72"
-            style={{ flexShrink: 0, filter: "drop-shadow(0 4px 8px rgba(15,112,86,0.2))" }}
+            width="84"
+            height="84"
+            style={{ flexShrink: 0, filter: "drop-shadow(0 4px 10px rgba(184,134,11,0.25))" }}
           />
           <div>
             <h1 style={{
               margin: 0,
-              fontSize: "clamp(1.6rem, 4.5vw, 2.4rem)",
+              fontSize: "clamp(1.7rem, 4.8vw, 2.6rem)",
               lineHeight: 1.05,
-              letterSpacing: "-0.02em",
+              letterSpacing: "-0.01em",
             }}>
               <span style={{
                 display: "block",
-                fontFamily: "var(--font-ml), serif",
-                color: "#c85a1f",
-                fontSize: "1em",
+                fontFamily: "var(--font-ml-display), var(--font-ml), serif",
+                color: "var(--mural-red)",
+                fontSize: "1.1em",
                 fontWeight: 700,
+                lineHeight: 1.1,
               }}>എന്റെ നാട്</span>
               <span style={{
                 display: "block",
-                fontSize: "0.6em",
-                fontWeight: 600,
-                color: "#0a4d3c",
-                letterSpacing: "0.04em",
-                marginTop: 4,
-              }}>ENTE NADU</span>
+                fontFamily: "var(--font-display), serif",
+                fontSize: "0.56em",
+                fontWeight: 700,
+                color: "var(--mural-green-deep)",
+                letterSpacing: "0.14em",
+                marginTop: 6,
+                textTransform: "uppercase",
+              }}>· Ente Nadu ·</span>
             </h1>
           </div>
         </div>
-        <span className="kerala-ribbon" style={{ alignSelf: "flex-start", marginBottom: 6 }}>
+        <span className="kerala-ribbon ml" style={{ alignSelf: "flex-start", marginBottom: 6, background: "linear-gradient(90deg, #f5e0a8, #d4a84a)", color: "#7a2410", borderColor: "#b8860b" }}>
           കേരളം • Kerala • केरल
         </span>
-        <p style={{ margin: "8px 0 14px", color: "#3d5540", maxWidth: "58ch", lineHeight: 1.6, fontSize: 15 }}>
+        <p className="ml" style={{ margin: "10px 0 16px", color: "var(--ink-1)", maxWidth: "58ch", lineHeight: 1.7, fontSize: 15 }}>
           {messages.homeSubtitle}
         </p>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -107,35 +117,71 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* ── Stats Banner ── */}
+      {/* ── Lotus divider between letterhead and feed ── */}
+      <div className="lotus-divider" aria-hidden="true">
+        <img src="/icons/motifs/lotus-divider.svg" alt="" className="lotus" />
+      </div>
+
+      {/* ── Stats Banner: pookalam centerpiece flanked by stat chips ── */}
       <section style={{
-        display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-        gap: 10, marginBottom: 20,
+        position: "relative",
+        display: "grid",
+        gridTemplateColumns: "1fr auto 1fr",
+        alignItems: "center",
+        gap: 14,
+        padding: "18px 16px",
+        marginBottom: 20,
+        background: "var(--kasavu-surface)",
+        border: "1px solid var(--kasavu-gold-light)",
+        borderRadius: 10,
+        boxShadow: "inset 0 0 0 4px var(--kasavu-cream), inset 0 0 0 5px var(--kasavu-gold-light), var(--shadow-sm)",
       }}>
-        {[
-          { value: totalReports, label: "Total Reports", color: "#0f7056", icon: "\u{1F4CA}", border: "#0f7056" },
-          { value: openReports, label: "Open Issues", color: "#b91c1c", icon: "\u{1F534}", border: "#b91c1c" },
-          { value: fixedReports, label: "Fixed", color: "#15803d", icon: "\u2705", border: "#15803d" },
-          { value: 20, label: "MPs Tracked", color: "#c85a1f", icon: "\u{1F3DB}", border: "#c85a1f" },
-        ].map((stat) => (
-          <div key={stat.label} style={{
-            padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,
-            background: "#fffdf7", borderRadius: 12,
-            border: "1.5px solid #d9c9a8",
-            borderLeft: `4px solid ${stat.border}`,
-            boxShadow: "0 2px 4px rgba(74, 45, 10, 0.08), 0 4px 12px rgba(74, 45, 10, 0.06)",
-          }}>
-            <span style={{ fontSize: 26 }}>{stat.icon}</span>
-            <div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: stat.color, lineHeight: 1 }}>
+        {/* Left pair */}
+        <div style={{ display: "grid", gap: 10 }}>
+          {[
+            { value: totalReports, label: "TOTAL · ആകെ", color: "var(--mural-green-deep)", border: "var(--mural-green)" },
+            { value: openReports, label: "OPEN · പരിഹരിക്കാത്തവ", color: "var(--mural-red-deep)", border: "var(--mural-red)" },
+          ].map((stat) => (
+            <div key={stat.label} style={{
+              display: "flex", alignItems: "baseline", justifyContent: "flex-end",
+              gap: 10, padding: "4px 10px",
+              borderRight: `3px solid ${stat.border}`,
+            }}>
+              <div style={{ fontSize: 11, fontFamily: "var(--font-stamp), monospace", fontWeight: 700, color: "var(--ink-soft)", letterSpacing: "0.08em", textAlign: "right" }}>
+                {stat.label}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, lineHeight: 1, fontFamily: "var(--font-display), serif" }}>
                 {stat.value}
               </div>
-              <div style={{ fontSize: 11, color: "#4a5a48", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginTop: 2 }}>
+            </div>
+          ))}
+        </div>
+
+        {/* Center pookalam */}
+        <div style={{ position: "relative", width: 120, height: 120 }}>
+          <img src="/icons/motifs/pookalam-ring.svg" alt="" width="120" height="120" />
+        </div>
+
+        {/* Right pair */}
+        <div style={{ display: "grid", gap: 10 }}>
+          {[
+            { value: fixedReports, label: "FIXED · പരിഹരിച്ചു", color: "var(--mural-green-deep)", border: "var(--mural-green)" },
+            { value: 20, label: "MPs TRACKED · എംപിമാർ", color: "var(--kasavu-gold-dark)", border: "var(--kasavu-gold)" },
+          ].map((stat) => (
+            <div key={stat.label} style={{
+              display: "flex", alignItems: "baseline", justifyContent: "flex-start",
+              gap: 10, padding: "4px 10px",
+              borderLeft: `3px solid ${stat.border}`,
+            }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: stat.color, lineHeight: 1, fontFamily: "var(--font-display), serif" }}>
+                {stat.value}
+              </div>
+              <div style={{ fontSize: 11, fontFamily: "var(--font-stamp), monospace", fontWeight: 700, color: "var(--ink-soft)", letterSpacing: "0.08em" }}>
                 {stat.label}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
 
       {/* ── Map + Filters ── */}
@@ -220,12 +266,22 @@ export default async function HomePage({
       {/* ── Report Cards Grid ── */}
       <section>
         <h2 style={{
-          fontSize: 18, margin: "0 0 14px", color: "#0a4d3c",
-          padding: "10px 14px",
-          background: "#fffdf7", border: "1.5px solid #d9c9a8", borderLeft: "4px solid #c85a1f",
-          borderRadius: 10, fontWeight: 700,
+          fontSize: 18, margin: "0 0 14px",
+          color: "var(--mural-green-deep)",
+          padding: "10px 16px",
+          background: "var(--kasavu-surface)",
+          border: "1px solid var(--kasavu-gold-light)",
+          borderLeft: "4px solid var(--mural-red)",
+          borderRadius: 8,
+          fontWeight: 700,
+          fontFamily: "var(--font-display), serif",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
         }}>
-          {"\u{1F4CC}"} Recent Reports
+          <span style={{ fontFamily: "var(--font-ml-display), var(--font-ml), serif", color: "var(--mural-red)" }}>പുതിയ പരാതികൾ</span>
+          <span style={{ color: "var(--kasavu-gold-dark)", fontWeight: 600 }}>·</span>
+          <span>Recent Reports</span>
         </h2>
         <div className="reportGrid">
           {reports.slice(0, 18).map((report) => {
@@ -246,16 +302,10 @@ export default async function HomePage({
                     <span style={{ fontSize: 13 }}>{icon}</span>
                     {catLabel}
                   </span>
-                  <span style={{
-                    display: "inline-flex", alignItems: "center", gap: 4,
-                    fontSize: 11, fontWeight: 700, color: sColor,
-                    textTransform: "uppercase", letterSpacing: "0.03em",
-                  }}>
-                    <span style={{
-                      width: 8, height: 8, borderRadius: "50%", background: sColor,
-                      display: "inline-block",
-                      boxShadow: report.status === "open" ? `0 0 0 2px #fff, 0 0 6px ${sColor}` : `0 0 0 2px #fff`,
-                    }} />
+                  <span
+                    className={`stamp-chip ${report.status === "fixed" ? "fixed" : report.status === "open" ? "open" : "progress"}`}
+                    style={{ transform: "rotate(-4deg)" }}
+                  >
                     {sLabel}
                   </span>
                 </div>
@@ -282,14 +332,13 @@ export default async function HomePage({
           })}
         </div>
         {reports.length === 0 && (
-          <div className="card" style={{ padding: 24, textAlign: "center" }}>
-            <p style={{ fontSize: 15, color: "#475569", margin: 0 }}>
-              No reports yet. Be the first to report a civic issue in Kerala!
-            </p>
-            <Link href="/report" className="button" style={{ marginTop: 12, display: "inline-block" }}>
-              Report an Issue
-            </Link>
-          </div>
+          <KeralaEmptyState
+            variant="nilavilakku"
+            titleMl="ആദ്യ പരാതി നിങ്ങളുടേതാകട്ടെ"
+            title="Be the first to report an issue in Kerala"
+            description="Kerala's first public civic ledger is still taking shape. Light the first lamp — take a photo of a pothole, garbage pile, or broken streetlight near you."
+            cta={{ href: "/report", label: "📸 Report an Issue" }}
+          />
         )}
       </section>
     </main>

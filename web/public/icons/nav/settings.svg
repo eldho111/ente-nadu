@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Settings — nilavilakku">
+  <!-- Compact nilavilakku (brass lamp) silhouette -->
+  <g fill="currentColor">
+    <!-- Flame -->
+    <path d="M16 3 C 14.4 6, 13.5 8.5, 16 11 C 18.5 8.5, 17.6 6, 16 3 Z"/>
+    <!-- Wick cup -->
+    <rect x="14.5" y="11" width="3" height="1" rx="0.3"/>
+  </g>
+  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+    <!-- Top plate -->
+    <path d="M 11 13 L 21 13 L 19.5 15 L 12.5 15 Z"/>
+    <!-- Stem + tiers -->
+    <rect x="15" y="15" width="2" height="2.5"/>
+    <path d="M 12 18 L 20 18 L 18.5 20 L 13.5 20 Z"/>
+    <rect x="15" y="20" width="2" height="3"/>
+    <!-- Base -->
+    <path d="M 9 23 L 23 23 L 21 27 L 11 27 Z"/>
+    <ellipse cx="16" cy="28.5" rx="8" ry="1.3"/>
+  </g>
+</svg>

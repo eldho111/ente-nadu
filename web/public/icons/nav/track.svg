@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Track — palm-leaf scroll">
+  <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Rolled palm-leaf scroll (ola grantham) -->
+    <!-- Left scroll end -->
+    <ellipse cx="6" cy="16" rx="2" ry="6"/>
+    <!-- Right scroll end -->
+    <ellipse cx="26" cy="16" rx="2" ry="6"/>
+    <!-- Top + bottom edges -->
+    <path d="M 6 10 L 26 10"/>
+    <path d="M 6 22 L 26 22"/>
+    <!-- Ruled lines (text on palm leaf) -->
+    <path d="M 10 14 L 22 14" stroke-width="1.1"/>
+    <path d="M 10 17 L 20 17" stroke-width="1.1"/>
+    <path d="M 10 20 L 23 20" stroke-width="1.1"/>
+  </g>
+  <!-- Tie string dot -->
+  <circle cx="16" cy="6" r="1.2" fill="currentColor"/>
+</svg>

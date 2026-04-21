@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Report — camera">
+  <!-- Camera body with kasavu zari border -->
+  <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+    <!-- Top viewfinder -->
+    <path d="M 11 7 L 13 5 L 19 5 L 21 7"/>
+    <!-- Body -->
+    <rect x="4" y="8" width="24" height="18" rx="2.5" />
+    <!-- Lens outer -->
+    <circle cx="16" cy="17" r="6"/>
+    <!-- Lens inner -->
+    <circle cx="16" cy="17" r="3.2"/>
+    <!-- Flash/LED -->
+    <circle cx="24" cy="12" r="0.6" fill="currentColor"/>
+  </g>
+  <!-- Gold zari dots at corners (Panchavarna accent) -->
+  <g fill="currentColor" opacity="0.6">
+    <circle cx="7" cy="11" r="0.7"/>
+    <circle cx="25" cy="23" r="0.7"/>
+  </g>
+</svg>

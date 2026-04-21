@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="120" height="200" role="img" aria-label="Nilavilakku — traditional Kerala lamp">
+  <!-- Flame (chayilyam red + manayola yellow) -->
+  <path d="M60 10
+           C 55 22, 52 32, 60 44
+           C 68 32, 65 22, 60 10 Z"
+        fill="#a8321e"/>
+  <path d="M60 16
+           C 57 24, 56 32, 60 40
+           C 64 32, 63 24, 60 16 Z"
+        fill="#d4a017" opacity="0.85"/>
+
+  <!-- Wick cup -->
+  <rect x="54" y="44" width="12" height="3" rx="1" fill="#b8860b"/>
+
+  <!-- Top plate (widest tier) -->
+  <path d="M 40 47 L 80 47 L 74 54 L 46 54 Z" fill="#b8860b"/>
+  <rect x="57" y="54" width="6" height="5" fill="#b8860b"/>
+
+  <!-- Tier 1 -->
+  <path d="M 44 59 L 76 59 L 70 66 L 50 66 Z" fill="#d4a84a"/>
+  <rect x="57" y="66" width="6" height="5" fill="#b8860b"/>
+
+  <!-- Tier 2 -->
+  <path d="M 40 71 L 80 71 L 74 79 L 46 79 Z" fill="#b8860b"/>
+  <rect x="57" y="79" width="6" height="5" fill="#b8860b"/>
+
+  <!-- Tier 3 (decorative petals) -->
+  <path d="M 36 84 L 84 84 L 78 92 L 42 92 Z" fill="#d4a84a"/>
+  <g fill="#8b6508">
+    <circle cx="44" cy="88" r="1.5"/>
+    <circle cx="54" cy="88" r="1.5"/>
+    <circle cx="66" cy="88" r="1.5"/>
+    <circle cx="76" cy="88" r="1.5"/>
+  </g>
+  <rect x="57" y="92" width="6" height="6" fill="#b8860b"/>
+
+  <!-- Stem -->
+  <rect x="58" y="98" width="4" height="40" fill="#b8860b"/>
+  <circle cx="60" cy="110" r="4" fill="#d4a84a" stroke="#8b6508" stroke-width="0.8"/>
+  <circle cx="60" cy="128" r="3" fill="#d4a84a" stroke="#8b6508" stroke-width="0.6"/>
+
+  <!-- Lower decorative collar -->
+  <path d="M 50 138 L 70 138 L 66 146 L 54 146 Z" fill="#b8860b"/>
+
+  <!-- Base plate -->
+  <path d="M 32 146 L 88 146 L 82 160 L 38 160 Z" fill="#b8860b"/>
+  <ellipse cx="60" cy="162" rx="32" ry="4" fill="#d4a84a"/>
+
+  <!-- Bottommost tray -->
+  <ellipse cx="60" cy="172" rx="40" ry="6" fill="#b8860b"/>
+  <ellipse cx="60" cy="172" rx="36" ry="3" fill="#8b6508" opacity="0.5"/>
+
+  <!-- Ground shadow -->
+  <ellipse cx="60" cy="184" rx="44" ry="4" fill="#1a1208" opacity="0.12"/>
+</svg>

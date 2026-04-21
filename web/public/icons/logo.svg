@@ -1,55 +1,91 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- Gradient definitions -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Ente Nadu">
+  <!-- ═══════════════════════════════════════════════════
+       Ente Nadu — ola grantham palm-leaf scroll logo
+       - Rolled palm-leaf pin (ola) tapering to a stylus tip
+       - Kasavu zari gold ring around the pin
+       - 5 Panchavarna dots at cardinals
+       - Mural pacha green body; chayilyam red tilak dot
+       - Inner monogram: എ (Malayalam 'e' for എന്റെ)
+       ═══════════════════════════════════════════════════ -->
+
   <defs>
-    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f7056"/>
-      <stop offset="100%" stop-color="#0a4d3c"/>
+    <linearGradient id="pachaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#147d54"/>
+      <stop offset="55%" stop-color="#0e6b47"/>
+      <stop offset="100%" stop-color="#063a28"/>
     </linearGradient>
-    <linearGradient id="saffronGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c85a1f"/>
-      <stop offset="100%" stop-color="#9a3e0f"/>
+
+    <linearGradient id="zariGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8c34a"/>
+      <stop offset="100%" stop-color="#8b6508"/>
     </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c89728"/>
-      <stop offset="100%" stop-color="#8f6b15"/>
-    </linearGradient>
+
+    <radialGradient id="kasavuBg" cx="30%" cy="28%" r="85%">
+      <stop offset="0%" stop-color="#fffdf5"/>
+      <stop offset="100%" stop-color="#fbf4e0"/>
+    </radialGradient>
+
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="o"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.22"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <!-- Outer circle (earth/clay ring) -->
-  <circle cx="100" cy="100" r="96" fill="#fffbf0" stroke="#a68c5c" stroke-width="3"/>
+  <!-- Kasavu cream disc -->
+  <circle cx="100" cy="100" r="96" fill="url(#kasavuBg)" stroke="#b8860b" stroke-width="2"/>
+  <!-- Inner zari rule -->
+  <circle cx="100" cy="100" r="89" fill="none" stroke="#d4a84a" stroke-width="1"/>
 
-  <!-- Inner background (Kerala backwater green) -->
-  <circle cx="100" cy="100" r="88" fill="url(#greenGrad)"/>
-
-  <!-- Coconut tree (simplified, centered) -->
-  <!-- Trunk -->
-  <rect x="96" y="95" width="8" height="55" rx="2" fill="#8b6b3d"/>
-
-  <!-- Palm fronds -->
-  <g fill="#4ade80" opacity="0.95">
-    <!-- Left frond -->
-    <path d="M 100 95 Q 60 75 30 85 Q 45 90 55 92 Q 50 98 45 105 Q 65 98 80 95 Z" />
-    <!-- Right frond -->
-    <path d="M 100 95 Q 140 75 170 85 Q 155 90 145 92 Q 150 98 155 105 Q 135 98 120 95 Z" />
-    <!-- Top frond -->
-    <path d="M 100 95 Q 90 60 80 40 Q 95 55 98 70 Q 102 55 120 40 Q 110 60 100 95 Z" />
-    <!-- Back-left frond -->
-    <path d="M 100 95 Q 75 90 50 110 Q 70 100 85 100 Z" />
-    <!-- Back-right frond -->
-    <path d="M 100 95 Q 125 90 150 110 Q 130 100 115 100 Z" />
+  <!-- Panchavarna 5 cardinal dots (red / yellow / green / gold / red) -->
+  <g>
+    <circle cx="100" cy="12" r="3" fill="#a8321e"/>       <!-- top: chayilyam -->
+    <circle cx="164" cy="57" r="2.6" fill="#d4a017"/>     <!-- NE: manayola -->
+    <circle cx="164" cy="143" r="2.6" fill="#0e6b47"/>    <!-- SE: pacha -->
+    <circle cx="36" cy="143" r="2.6" fill="#b8860b"/>     <!-- SW: zari -->
+    <circle cx="36" cy="57" r="2.6" fill="#1a1208"/>      <!-- NW: kari -->
   </g>
 
-  <!-- Coconuts -->
-  <circle cx="94" cy="93" r="4" fill="#8b6b3d"/>
-  <circle cx="106" cy="93" r="4" fill="#8b6b3d"/>
-  <circle cx="100" cy="88" r="3.5" fill="#8b6b3d"/>
+  <g filter="url(#softShadow)">
+    <!-- Ola palm-leaf scroll pin: rounded top, tapered stylus tip -->
+    <path d="M 100 28
+             C 66 28, 42 52, 42 86
+             C 42 114, 70 140, 92 164
+             Q 100 174, 108 164
+             C 130 140, 158 114, 158 86
+             C 158 52, 134 28, 100 28 Z"
+          fill="url(#pachaGrad)"
+          stroke="#063a28"
+          stroke-width="1.2"/>
 
-  <!-- Wave lines (backwaters) at bottom -->
-  <g stroke="#c89728" stroke-width="2" fill="none" opacity="0.8">
-    <path d="M 45 160 Q 60 155 75 160 T 105 160 T 135 160 T 155 160"/>
-    <path d="M 50 170 Q 65 165 80 170 T 110 170 T 140 170 T 150 170" opacity="0.6"/>
+    <!-- Ola tie-thread: two horizontal rules (imitates the string that binds palm-leaf manuscripts) -->
+    <g stroke="#b8860b" stroke-width="0.9" opacity="0.55" fill="none">
+      <path d="M 55 70 Q 100 74, 145 70"/>
+      <path d="M 55 106 Q 100 110, 145 106"/>
+    </g>
+
+    <!-- Inner kasavu paper disc -->
+    <circle cx="100" cy="86" r="30" fill="#fffdf5" stroke="url(#zariGrad)" stroke-width="2"/>
+    <circle cx="100" cy="86" r="26" fill="none" stroke="#d4a84a" stroke-width="0.7"/>
+
+    <!-- Malayalam 'എ' monogram (stroked letter-form, palm-leaf curves) -->
+    <g transform="translate(100, 86)" fill="none" stroke="#063a28"
+       stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Outer curl (top) — the upper bowl of എ -->
+      <path d="M -12 -10 Q -12 -18, -2 -18 Q 10 -18, 10 -10 Q 10 -4, 2 -2"/>
+      <!-- Inner vertical stem -->
+      <path d="M -2 -8 L -2 12"/>
+      <!-- Bottom curve (the foot of എ) -->
+      <path d="M -12 12 Q -2 18, 10 12"/>
+      <!-- Small crossbar -->
+      <path d="M -9 2 L 4 2" stroke-width="2.8"/>
+    </g>
+
+    <!-- Chayilyam tilak dot at crown (saffron/mural red) -->
+    <circle cx="100" cy="34" r="4" fill="#a8321e" stroke="#fffdf5" stroke-width="1.2"/>
+
+    <!-- Stylus tip highlight at the base -->
+    <path d="M 96 168 L 100 176 L 104 168 Z" fill="#063a28"/>
   </g>
-
-  <!-- Accent star/sun (top) -->
-  <circle cx="100" cy="28" r="6" fill="url(#saffronGrad)"/>
 </svg>

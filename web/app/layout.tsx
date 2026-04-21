@@ -1,17 +1,26 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Fraunces, Noto_Sans_Malayalam } from "next/font/google";
+import { Space_Grotesk, Fraunces, Manjari, Chilanka, Special_Elite } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import BootMarker from "@/components/BootMarker";
 import PwaBoot from "@/components/PwaBoot";
 import { getServerLocale } from "@/lib/server-locale";
 
-const display = Fraunces({ subsets: ["latin"], variable: "--font-display" });
-const body = Space_Grotesk({ subsets: ["latin"], variable: "--font-body" });
-const malayalam = Noto_Sans_Malayalam({ subsets: ["malayalam"], variable: "--font-ml", weight: ["400", "600", "700"] });
+// Latin display + body
+const display = Fraunces({ subsets: ["latin"], variable: "--font-display", display: "swap" });
+const body = Space_Grotesk({ subsets: ["latin"], variable: "--font-body", display: "swap" });
+
+// Kerala-native Malayalam.
+// Manjari (SMC) — workhorse body face with Grantha-faithful curves.
+const malayalam = Manjari({ subsets: ["malayalam"], variable: "--font-ml", weight: ["400", "700"], display: "swap" });
+// Chilanka — handwriting-style decorative face for hero + ribbon.
+const malayalamDisplay = Chilanka({ subsets: ["malayalam"], variable: "--font-ml-display", weight: ["400"], display: "swap" });
+
+// Typewriter feel for "ORDER / ഉത്തരവ്" stamps.
+const stamp = Special_Elite({ subsets: ["latin"], variable: "--font-stamp", weight: ["400"], display: "swap" });
 
 export const viewport: Viewport = {
-  themeColor: "#0a4d3c",
+  themeColor: "#063a28",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -33,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const locale = getServerLocale();
   return (
     <html lang={locale}>
-      <body className={`${display.variable} ${body.variable} ${malayalam.variable}`}>
+      <body className={`${display.variable} ${body.variable} ${malayalam.variable} ${malayalamDisplay.variable} ${stamp.variable}`}>
         <div
           id="cp-boot-fallback"
           style={{
