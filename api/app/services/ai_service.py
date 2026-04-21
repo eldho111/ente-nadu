@@ -123,6 +123,9 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
     if not settings.gemini_api_key:
         return None
 
+    # Resize large images
+    image_base64 = _resize_image_if_needed(image_base64)
+
     payload = {
         "contents": [{
             "parts": [
@@ -169,10 +172,42 @@ def _classify_gemini(image_base64: str) -> VisionResult | None:
 
 # ── Groq (FREE — 14,400/day, fastest) ───────────────────────────────
 
+def _resize_image_if_needed(image_base64: str, max_dim: int = 1024, quality: int = 85) -> str:
+    """Resize/compress image if too large. Groq limit is ~4MB, so we target ~500KB."""
+    try:
+        from PIL import Image
+        from io import BytesIO
+        img_bytes = base64.b64decode(image_base64)
+        # If already small enough, skip
+        if len(img_bytes) < 500_000:
+            return image_base64
+        img = Image.open(BytesIO(img_bytes))
+        # Convert RGBA to RGB for JPEG
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        # Resize if larger than max_dim on any side
+        w, h = img.size
+        if max(w, h) > max_dim:
+            scale = max_dim / max(w, h)
+            img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+        buf = BytesIO()
+        img.save(buf, format="JPEG", quality=quality, optimize=True)
+        new_bytes = buf.getvalue()
+        logger.info("Resized image: %d → %d bytes (%d%%)",
+                    len(img_bytes), len(new_bytes), int(100 * len(new_bytes) / len(img_bytes)))
+        return base64.b64encode(new_bytes).decode("ascii")
+    except Exception as e:
+        logger.warning("Image resize failed: %s, using original", str(e)[:200])
+        return image_base64
+
+
 def _classify_groq(image_base64: str) -> VisionResult | None:
     """Classify using Groq (free, fast inference with Llama Vision)."""
     if not settings.groq_api_key:
         return None
+
+    # Resize large images to fit Groq's ~4MB base64 limit
+    image_base64 = _resize_image_if_needed(image_base64)
 
     url = "https://api.groq.com/openai/v1/chat/completions"
     headers = {
