@@ -185,11 +185,28 @@ export default function ReportFlow() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ media_type: file.type.startsWith("video/") ? "video" : "image", file_ext: "jpg" }),
       });
-      if (!uploadRes.ok) throw new Error("upload failed");
-      const { upload_url, media_key } = await uploadRes.json();
-      await fetch(upload_url, { method: "PUT", headers: { "Content-Type": file.type || "image/jpeg" }, body: file });
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        throw new Error(`Upload URL failed (${uploadRes.status}): ${errText.slice(0, 200)}`);
+      }
+      const uploadData = await uploadRes.json();
+      const { upload_url, media_key } = uploadData;
+      if (!media_key) {
+        throw new Error(`No media_key in response: ${JSON.stringify(uploadData).slice(0, 200)}`);
+      }
 
-      // Create report
+      const putRes = await fetch(upload_url, {
+        method: "PUT",
+        headers: { "Content-Type": file.type || "image/jpeg" },
+        body: file,
+      });
+      if (!putRes.ok) {
+        const errText = await putRes.text();
+        throw new Error(`Photo upload failed (${putRes.status}): ${errText.slice(0, 200)}`);
+      }
+
+      // Create report — use CURRENT time for captured_at to avoid "stale" errors
+      // if user stared at review screen too long
       const submitRes = await fetch(`${API_BASE}/v1/reports`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -198,19 +215,24 @@ export default function ReportFlow() {
           lon: lon ?? 76.2711,
           category_final: cat,
           capture_origin: "camera",
-          captured_at: capturedAt ?? new Date().toISOString(),
+          captured_at: new Date().toISOString(),
           gps_accuracy_m: gpsAccuracy,
           media_keys: [media_key],
           device_id: getDeviceId(),
         }),
       });
-      if (!submitRes.ok) throw new Error("submit failed");
+      if (!submitRes.ok) {
+        const errText = await submitRes.text();
+        throw new Error(`Submit failed (${submitRes.status}): ${errText.slice(0, 300)}`);
+      }
       const data = await submitRes.json();
       setResultId(data.public_id);
       setResultUrl(data.share_url || `${window.location.origin}/reports/${data.public_id}`);
       setStep("done");
-    } catch (e) {
-      setErrorMsg(String(e));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("[ReportFlow] submit error:", msg);
+      setErrorMsg(msg);
       setStep("error");
     }
   }, [lat, lon, capturedAt, gpsAccuracy, t]);
@@ -431,6 +453,12 @@ export default function ReportFlow() {
           <div style={{ fontSize: 48 }}>{"\u26A0\uFE0F"}</div>
           <h3 style={{ margin: 0, color: "#d97706" }}>{t.errorTitle}</h3>
           <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: "34ch" }}>{t.errorSub}</p>
+          {errorMsg && (
+            <details style={{ fontSize: 11, color: "#94a3b8", maxWidth: "38ch", textAlign: "left" }}>
+              <summary style={{ cursor: "pointer" }}>Error details</summary>
+              <pre style={{ margin: "6px 0 0", padding: 8, background: "#f8fafc", borderRadius: 6, overflowX: "auto", fontSize: 10 }}>{errorMsg}</pre>
+            </details>
+          )}
           <button onClick={reset} style={{
             padding: "12px 24px", borderRadius: 10, border: "none",
             background: "#d97706", color: "#fff", cursor: "pointer", fontWeight: 700,
