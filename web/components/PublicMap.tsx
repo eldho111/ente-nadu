@@ -51,19 +51,19 @@ function tilesForTheme(theme: "light" | "dark"): string[] {
 }
 
 /**
- * Mask color + opacity by theme. Darker on dark theme so non-Kerala
- * areas genuinely recede; lighter wash on light theme so the state's
- * shape stays legible without overwhelming the page.
+ * Mask color + opacity by theme. Deeper non-Kerala dim to make the focus
+ * region pop. Matches the premium palette's deep-black / off-white bg.
  */
 function maskFillForTheme(theme: "light" | "dark"): { color: string; opacity: number } {
   return theme === "light"
-    ? { color: "#f7f8fa", opacity: 0.78 }
-    : { color: "#0b0b0d", opacity: 0.78 };
+    ? { color: "#f6f8fb", opacity: 0.85 }
+    : { color: "#05070d", opacity: 0.85 };
 }
 
 function outlineColorForTheme(theme: "light" | "dark"): string {
-  // Subtle red hairline reinforces "this is Kerala" on both themes.
-  return theme === "light" ? "rgba(230, 57, 70, 0.45)" : "rgba(230, 57, 70, 0.55)";
+  // Cyan hairline — echoes the brand accent; signifies "focus area" rather
+  // than "emergency area" (the red hairline did).
+  return theme === "light" ? "rgba(0, 153, 198, 0.65)" : "rgba(0, 212, 255, 0.7)";
 }
 
 function buildStyle(theme: "light" | "dark"): StyleSpecification {
@@ -81,14 +81,13 @@ function buildStyle(theme: "light" | "dark"): StyleSpecification {
   };
 }
 
-// JHU-style: all reports render as red dots; size scales with severity.
-// Status is encoded via a small orange ring for in-progress and a muted
-// green for fixed — keeps the dashboard "alarm-first" without lying
-// about progress.
-const C_OPEN = "#e63946";    // alarm
-const C_PROGRESS = "#f59e0b"; // warn
-const C_FIXED = "#22c55e";   // ok
-const C_REJECTED = "#6b7078"; // muted
+// Premium C12-inspired palette: muted crimson for OPEN (still urgent, less
+// ambulance-red); quantum cyan for IN PROGRESS; warm whisky gold for FIXED.
+// Rejected stays muted. Dot size scales with severity.
+const C_OPEN = "#ff5470";    // muted alarm (was #e63946)
+const C_PROGRESS = "#00d4ff"; // quantum cyan (was amber)
+const C_FIXED = "#c8a64e";   // whisky gold (was green)
+const C_REJECTED = "#5b6172"; // muted ink
 
 export default function PublicMap({ reports }: Props) {
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
@@ -291,7 +290,7 @@ export default function PublicMap({ reports }: Props) {
           clusterRadius: 50,
         });
 
-        // ── CLUSTERS: solid red disc + count ──
+        // ── CLUSTERS: muted crimson disc (scaling with count), 1px stroke ──
         map.addLayer({
           id: "clusters",
           type: "circle",
@@ -301,12 +300,12 @@ export default function PublicMap({ reports }: Props) {
             "circle-color": [
               "step",
               ["get", "point_count"],
-              "#e63946", 10,
-              "#b4202f", 30,
-              "#7a1320",
+              "#ff5470", 10,
+              "#d9334f", 30,
+              "#a5253c",
             ],
             "circle-radius": ["step", ["get", "point_count"], 14, 10, 20, 30, 26],
-            "circle-stroke-width": 1.5,
+            "circle-stroke-width": 1,
             "circle-stroke-color": dotStroke,
             "circle-opacity": 0.9,
           },
@@ -338,9 +337,9 @@ export default function PublicMap({ reports }: Props) {
             ["==", ["get", "status"], "open"],
           ],
           paint: {
-            "circle-color": "rgba(230, 57, 70, 0)",
-            "circle-stroke-color": "#e63946",
-            "circle-stroke-width": 1.5,
+            "circle-color": "rgba(255, 84, 112, 0)",
+            "circle-stroke-color": C_OPEN,
+            "circle-stroke-width": 1,
             "circle-radius": 8,
             "circle-opacity": 0.8,
           },
@@ -509,25 +508,27 @@ export default function PublicMap({ reports }: Props) {
         className="mapFrame"
         aria-label="Public issue map"
       />
-      {/* Legend — institutional, echoes dashboard chrome */}
+      {/* Legend — institutional, premium chrome */}
       <div
         style={{
           position: "absolute",
-          bottom: 12,
-          left: 12,
+          bottom: 14,
+          left: 14,
           display: "flex",
-          gap: 12,
-          padding: "6px 10px",
-          background: "var(--bg-surface)",
+          gap: 14,
+          padding: "8px 14px",
+          background: "rgba(13, 18, 25, 0.75)",
+          backdropFilter: "blur(8px) saturate(120%)",
+          WebkitBackdropFilter: "blur(8px) saturate(120%)",
           border: "1px solid var(--border)",
           borderRadius: "var(--r-sm)",
           fontSize: 10,
           fontFamily: "var(--font-body)",
-          fontWeight: 700,
-          letterSpacing: "0.1em",
+          fontWeight: 500,
+          letterSpacing: "0.16em",
           textTransform: "uppercase",
           color: "var(--ink-1)",
-          boxShadow: "var(--shadow-sm)",
+          boxShadow: "var(--shadow)",
         }}
       >
         <LegendItem color={C_OPEN} label="Open" />

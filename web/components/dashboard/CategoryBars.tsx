@@ -22,7 +22,7 @@ export default function CategoryBars({
   title = "Category Breakdown",
   items,
   emptyMessage = "No data yet.",
-  color = "var(--alarm)",
+  color = "var(--accent)",
 }: Props) {
   const max = items.reduce((m, x) => Math.max(m, x.count), 0);
 
@@ -61,22 +61,23 @@ export default function CategoryBars({
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          padding: 10px 14px;
+          padding: 14px 18px;
           border-bottom: 1px solid var(--border);
           gap: 8px;
         }
         .heading-main {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: var(--ink-0);
         }
         .heading-sub {
           font-size: 10px;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: var(--ink-muted);
+          font-weight: 400;
         }
         .category-list {
           list-style: none;
@@ -89,14 +90,14 @@ export default function CategoryBars({
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: baseline;
-          gap: 10px;
-          padding: 9px 14px;
+          gap: 12px;
+          padding: 11px 18px;
           border-bottom: 1px solid var(--border);
           font-size: 13px;
         }
         .category-row:last-child { border-bottom: 0; }
         .label {
-          font-weight: 600;
+          font-weight: 500;
           color: var(--ink-0);
           text-transform: capitalize;
           overflow: hidden;
@@ -104,19 +105,25 @@ export default function CategoryBars({
           white-space: nowrap;
         }
         .count {
-          font-weight: 700;
+          font-weight: 500;
           color: var(--ink-0);
+          letter-spacing: 0.02em;
         }
         .bar {
           grid-column: 1 / -1;
           display: block;
-          height: 2px;
+          height: 1px;
           background: var(--grid-line);
-          margin-top: 6px;
+          margin-top: 8px;
           overflow: hidden;
         }
-        .bar-fill { display: block; height: 100%; transition: width 0.4s ease; }
-        .category-empty { padding: 20px 14px; color: var(--ink-muted); font-size: 12px; }
+        .bar-fill {
+          display: block;
+          height: 100%;
+          box-shadow: 0 0 8px var(--accent-glow);
+          transition: width 0.4s ease;
+        }
+        .category-empty { padding: 20px 18px; color: var(--ink-muted); font-size: 12px; }
       `}</style>
     </section>
   );

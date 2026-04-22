@@ -68,9 +68,15 @@ export default function TimeSeriesStrip({
       {buckets.length === 0 ? (
         <div className="ts-empty">No activity in the last 30 days.</div>
       ) : (
-        <div style={{ width: "100%", height, padding: "8px 10px 4px" }}>
+        <div style={{ width: "100%", height, padding: "10px 14px 4px" }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+              <defs>
+                <linearGradient id="ts-bar-fill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%"   stopColor={t.info} stopOpacity={0.95} />
+                  <stop offset="100%" stopColor={t.info} stopOpacity={0.15} />
+                </linearGradient>
+              </defs>
               <CartesianGrid
                 vertical={false}
                 stroke={t.gridLine}
@@ -78,7 +84,7 @@ export default function TimeSeriesStrip({
               />
               <XAxis
                 dataKey="tick"
-                tick={{ fill: t.inkMuted, fontSize: 10, fontFamily: "inherit" }}
+                tick={{ fill: t.inkMuted, fontSize: 10, fontFamily: "inherit", letterSpacing: "0.05em" }}
                 axisLine={{ stroke: t.gridLine }}
                 tickLine={false}
                 interval="preserveStartEnd"
@@ -90,15 +96,16 @@ export default function TimeSeriesStrip({
                 width={36}
               />
               <Tooltip
-                cursor={{ fill: t.theme === "dark" ? "#ffffff10" : "#0b0b0d08" }}
+                cursor={{ fill: t.theme === "dark" ? "#ffffff0a" : "#0b0b0d08" }}
                 contentStyle={{
                   background: t.bgSurface,
                   border: `1px solid ${t.border}`,
                   borderRadius: 4,
                   fontSize: 11,
                   color: t.ink0,
-                  padding: "6px 10px",
+                  padding: "8px 12px",
                   fontFamily: "inherit",
+                  letterSpacing: "0.04em",
                 }}
                 labelFormatter={(v) => String(v ?? "")}
                 formatter={(val) => {
@@ -106,7 +113,7 @@ export default function TimeSeriesStrip({
                   return [n.toLocaleString("en-IN"), "Reports"];
                 }}
               />
-              <Bar dataKey="count" fill={t.alarm} maxBarSize={14} />
+              <Bar dataKey="count" fill="url(#ts-bar-fill)" maxBarSize={12} />
             </BarChart>
           </ResponsiveContainer>
         </div>

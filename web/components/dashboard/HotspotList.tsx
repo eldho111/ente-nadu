@@ -76,22 +76,23 @@ export default function HotspotList({
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          padding: 10px 14px;
+          padding: 14px 18px;
           border-bottom: 1px solid var(--border);
           gap: 8px;
         }
         .heading-main {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: var(--ink-0);
         }
         .heading-sub {
           font-size: 10px;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: var(--ink-muted);
+          font-weight: 400;
         }
         .hotspot-list {
           list-style: none;
@@ -109,44 +110,47 @@ export default function HotspotList({
           display: grid;
           grid-template-columns: 22px 1fr auto;
           align-items: center;
-          gap: 10px;
-          padding: 9px 14px;
+          gap: 12px;
+          padding: 11px 18px;
           color: var(--ink-0);
           text-decoration: none;
           font-size: 13px;
-          transition: background-color 0.12s ease;
+          transition: background-color 0.15s ease;
         }
         .row-link:hover { background: var(--bg-elev); text-decoration: none; }
         .rank {
           font-size: 10px;
           color: var(--ink-muted);
-          font-weight: 600;
-          letter-spacing: 0.02em;
+          font-weight: 400;
+          letter-spacing: 0.06em;
+          font-variant-numeric: tabular-nums;
         }
         .ward {
-          font-weight: 600;
+          font-weight: 500;
           color: var(--ink-0);
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
         .count {
-          font-weight: 700;
+          font-weight: 500;
           color: var(--alarm);
           font-size: 13px;
+          letter-spacing: 0.02em;
         }
         .bar {
           grid-column: 2 / -1;
           display: block;
-          height: 2px;
+          height: 1px;
           background: var(--grid-line);
-          margin-top: 6px;
+          margin-top: 8px;
           overflow: hidden;
         }
         .bar-fill {
           display: block;
           height: 100%;
-          background: var(--alarm);
+          background: linear-gradient(90deg, var(--alarm), var(--alarm-deep));
+          box-shadow: 0 0 8px var(--alarm-glow);
           transition: width 0.4s ease;
         }
         .hotspot-empty {

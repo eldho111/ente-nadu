@@ -112,22 +112,23 @@ export default function ReportTable({
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          padding: 10px 14px;
+          padding: 14px 18px;
           border-bottom: 1px solid var(--border);
           gap: 8px;
         }
         .heading-main {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: var(--ink-0);
         }
         .heading-sub {
           font-size: 10px;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: var(--ink-muted);
+          font-weight: 400;
         }
         .rt-scroll { overflow-x: auto; }
         .rt-table {
@@ -138,11 +139,11 @@ export default function ReportTable({
         thead th {
           text-align: left;
           font-size: 10px;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: var(--ink-muted);
-          font-weight: 700;
-          padding: 8px 14px;
+          font-weight: 600;
+          padding: 12px 18px;
           border-bottom: 1px solid var(--border);
           position: sticky;
           top: 0;
@@ -152,7 +153,7 @@ export default function ReportTable({
         tbody .rt-row:last-child { border-bottom: 0; }
         tbody .rt-row:hover { background: var(--bg-elev); }
         tbody td {
-          padding: 8px 14px;
+          padding: 14px 18px;
           color: var(--ink-0);
           vertical-align: middle;
           white-space: nowrap;
@@ -160,43 +161,49 @@ export default function ReportTable({
         .time {
           color: var(--ink-muted);
           font-family: var(--font-mono);
-          font-size: 12px;
-          width: 72px;
+          font-size: 11px;
+          width: 80px;
+          letter-spacing: 0.04em;
         }
         .ref a {
           color: var(--ink-1);
           font-family: var(--font-mono);
-          font-size: 12px;
+          font-size: 11px;
           text-decoration: none;
+          letter-spacing: 0.04em;
         }
-        .ref a:hover { color: var(--alarm); text-decoration: underline; }
+        .ref a:hover { color: var(--accent); text-decoration: underline; }
         .cat {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           max-width: 240px;
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .catIcon { font-size: 14px; opacity: 0.9; }
-        .catLabel { text-transform: capitalize; font-weight: 600; }
+        .catIcon { font-size: 14px; opacity: 0.75; }
+        .catLabel { text-transform: capitalize; font-weight: 500; }
         .ward {
           color: var(--ink-1);
           max-width: 160px;
           overflow: hidden;
           text-overflow: ellipsis;
+          font-weight: 400;
         }
         .logged {
           color: var(--ink-muted);
-          font-size: 11px;
-          letter-spacing: 0.02em;
+          font-size: 10px;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
           width: 80px;
+          font-weight: 500;
         }
         .rt-empty {
-          padding: 24px 14px;
+          padding: 32px 18px;
           color: var(--ink-muted);
           font-size: 12px;
           text-align: center;
+          letter-spacing: 0.04em;
         }
 
         @media (max-width: 640px) {

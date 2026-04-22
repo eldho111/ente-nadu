@@ -138,21 +138,23 @@ export default function LiveHeader() {
           position: sticky;
           top: 0;
           z-index: 100;
+          backdrop-filter: blur(8px) saturate(120%);
+          -webkit-backdrop-filter: blur(8px) saturate(120%);
         }
         .liveHeaderInner {
           max-width: 1440px;
           margin: 0 auto;
-          padding: 0 20px;
+          padding: 0 24px;
           display: flex;
           align-items: center;
-          gap: 16px;
-          min-height: 56px;
+          gap: 20px;
+          min-height: 64px;
         }
 
         .wordmark {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           text-decoration: none;
           color: var(--ink-0);
           padding: 6px 2px;
@@ -161,42 +163,43 @@ export default function LiveHeader() {
           text-decoration: none;
         }
         .brandDot {
-          width: 10px;
-          height: 10px;
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
-          background: var(--alarm);
-          box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.55);
-          animation: livePulse 1.6s ease-out infinite;
+          background: var(--accent);
+          box-shadow: 0 0 10px var(--accent-glow);
+          animation: liveBreath 2.6s ease-in-out infinite;
           display: inline-block;
         }
         .brandName {
           display: inline-flex;
           flex-direction: column;
           line-height: 1;
-          gap: 2px;
+          gap: 3px;
         }
         .brandEn {
           font-family: var(--font-display);
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          font-size: 15px;
+          font-weight: 500;
+          letter-spacing: 0.22em;
+          font-size: 13px;
           color: var(--ink-0);
+          text-transform: uppercase;
         }
         .brandMl {
-          font-size: 10px;
+          font-size: 9px;
           color: var(--ink-muted);
-          letter-spacing: 0.02em;
-          font-weight: 500;
+          letter-spacing: 0.04em;
+          font-weight: 400;
         }
         .brandDivider {
           width: 1px;
-          height: 24px;
-          background: var(--border-strong);
+          height: 20px;
+          background: var(--border);
         }
         .brandTag {
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.14em;
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.24em;
           color: var(--ink-muted);
           text-transform: uppercase;
         }
@@ -204,92 +207,96 @@ export default function LiveHeader() {
         .mainNav {
           display: inline-flex;
           align-items: center;
-          gap: 2px;
+          gap: 4px;
           margin-left: auto;
         }
         .navLink {
-          padding: 6px 12px;
+          padding: 7px 14px;
           border-radius: var(--r-sm);
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 0.04em;
+          font-size: 11px;
+          font-weight: 500;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           text-decoration: none;
           color: var(--ink-1);
-          border: 1px solid transparent;
-          transition: background-color 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+          border-bottom: 1px solid transparent;
+          transition: color 0.18s ease, border-color 0.18s ease;
         }
         .navLink:hover {
-          background: var(--bg-elev);
-          color: var(--ink-0);
+          color: var(--accent);
           text-decoration: none;
         }
         .navLink.active {
           color: var(--ink-0);
-          border-color: var(--alarm);
+          border-bottom-color: var(--accent);
         }
 
         .rightGroup {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
 
         .liveClock {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           font-family: var(--font-mono);
-          font-size: 11px;
+          font-size: 10px;
           color: var(--ink-1);
-          letter-spacing: 0.04em;
-          padding: 5px 10px;
-          background: var(--bg-surface);
+          letter-spacing: 0.14em;
+          padding: 6px 12px;
+          background: transparent;
           border: 1px solid var(--border);
           border-radius: var(--r-sm);
+          text-transform: uppercase;
         }
         .liveText {
-          color: var(--alarm);
-          font-weight: 700;
+          color: var(--accent);
+          font-weight: 600;
+          letter-spacing: 0.2em;
         }
-        .sep { color: var(--ink-muted); }
+        .sep { color: var(--ink-muted); opacity: 0.6; }
         .tz {
           color: var(--ink-muted);
           margin-left: 2px;
-          font-weight: 600;
+          font-weight: 500;
         }
 
         .localeSelect {
           appearance: none;
-          height: 30px;
-          min-height: 30px;
+          height: 32px;
+          min-height: 32px;
           border: 1px solid var(--border);
           border-radius: var(--r-sm);
-          background: var(--bg-surface);
-          color: var(--ink-0);
-          padding: 0 10px;
-          padding-right: 22px;
-          font-weight: 600;
-          font-size: 12px;
+          background: transparent;
+          color: var(--ink-1);
+          padding: 0 12px;
+          padding-right: 24px;
+          font-weight: 500;
+          font-size: 11px;
+          letter-spacing: 0.08em;
           cursor: pointer;
           background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
                             linear-gradient(135deg, currentColor 50%, transparent 50%);
-          background-position: calc(100% - 12px) 14px, calc(100% - 7px) 14px;
+          background-position: calc(100% - 14px) 14px, calc(100% - 9px) 14px;
           background-size: 5px 5px, 5px 5px;
           background-repeat: no-repeat;
+          text-transform: uppercase;
         }
         .localeSelect:hover {
-          border-color: var(--border-strong);
+          border-color: var(--accent);
+          color: var(--accent);
         }
 
         @media (max-width: 900px) {
           .brandDivider, .brandTag { display: none; }
         }
         @media (max-width: 760px) {
-          .liveHeaderInner { padding: 0 12px; gap: 8px; min-height: 52px; }
+          .liveHeaderInner { padding: 0 14px; gap: 10px; min-height: 56px; }
           .liveClock { display: none; }
-          .navLink { padding: 5px 8px; font-size: 11px; }
-          .brandEn { font-size: 14px; }
+          .navLink { padding: 5px 10px; font-size: 10px; }
+          .brandEn { font-size: 12px; letter-spacing: 0.18em; }
         }
         @media (max-width: 480px) {
           .mainNav { display: none; }

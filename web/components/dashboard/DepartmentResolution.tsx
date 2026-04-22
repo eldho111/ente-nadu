@@ -57,22 +57,23 @@ export default function DepartmentResolution({
           display: flex;
           justify-content: space-between;
           align-items: baseline;
-          padding: 10px 14px;
+          padding: 14px 18px;
           border-bottom: 1px solid var(--border);
           gap: 8px;
         }
         .heading-main {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: var(--ink-0);
         }
         .heading-sub {
           font-size: 10px;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           color: var(--ink-muted);
+          font-weight: 400;
         }
         .dept-list {
           list-style: none;
@@ -85,44 +86,46 @@ export default function DepartmentResolution({
           display: grid;
           grid-template-columns: 1fr auto auto;
           align-items: baseline;
-          gap: 10px;
-          padding: 9px 14px;
+          gap: 12px;
+          padding: 11px 18px;
           border-bottom: 1px solid var(--border);
           font-size: 13px;
         }
         .dept-row:last-child { border-bottom: 0; }
         .label {
-          font-weight: 600;
+          font-weight: 500;
           color: var(--ink-0);
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
         .pct {
-          font-weight: 700;
+          font-weight: 500;
           font-size: 13px;
+          letter-spacing: 0.02em;
         }
-        .pct.tone-good { color: var(--ok); }
-        .pct.tone-warn { color: var(--warn); }
+        .pct.tone-good { color: var(--gold); }
+        .pct.tone-warn { color: var(--accent); }
         .pct.tone-bad  { color: var(--alarm); }
         .total {
           font-size: 11px;
           color: var(--ink-muted);
-          font-weight: 500;
+          font-weight: 400;
+          letter-spacing: 0.04em;
         }
         .bar {
           grid-column: 1 / -1;
           display: block;
-          height: 2px;
+          height: 1px;
           background: var(--grid-line);
-          margin-top: 6px;
+          margin-top: 8px;
           overflow: hidden;
         }
         .bar-fill { display: block; height: 100%; transition: width 0.4s ease; }
-        .bar-fill.tone-good { background: var(--ok); }
-        .bar-fill.tone-warn { background: var(--warn); }
-        .bar-fill.tone-bad  { background: var(--alarm); }
-        .dept-empty { padding: 20px 14px; color: var(--ink-muted); font-size: 12px; }
+        .bar-fill.tone-good { background: var(--gold); box-shadow: 0 0 8px var(--gold-glow); }
+        .bar-fill.tone-warn { background: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+        .bar-fill.tone-bad  { background: var(--alarm); box-shadow: 0 0 8px var(--alarm-glow); }
+        .dept-empty { padding: 20px 18px; color: var(--ink-muted); font-size: 12px; }
       `}</style>
     </section>
   );
