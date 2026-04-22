@@ -1,7 +1,9 @@
 import json
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
@@ -23,6 +25,7 @@ from app.schemas.report import (
 )
 from app.services.event_service import add_report_event
 from app.services.notification_service import queue_status_notifications
+from app.services.notify_service import send_email_sendgrid
 
 router = APIRouter()
 settings = get_settings()
@@ -232,3 +235,93 @@ def upsert_official_user(
 
     db.commit()
     return ApiMessage(message="official user upserted")
+
+
+# ── Trial email ───────────────────────────────────────────────────────
+# Sends a sample civic-report escalation email to any address, using the
+# production SendGrid credentials. Used to verify the email pipeline end
+# to end without creating a real report. Subject + body mimic what a
+# Kerala department would actually receive.
+
+
+class TrialEmailRequest(BaseModel):
+    to: EmailStr = Field(..., description="Recipient address")
+    category: str = Field(default="pothole", description="Civic category slug")
+    location: str = Field(default="Kadavanthra, Ernakulam", description="Report location label")
+    note: str | None = Field(default=None, description="Optional extra note shown in body")
+
+
+class TrialEmailResponse(BaseModel):
+    sent: bool
+    to: str
+    subject: str
+    note: str
+
+
+def _build_trial_email(payload: TrialEmailRequest) -> tuple[str, str]:
+    """Return (subject, body) matching the real escalation template."""
+    now_ist = datetime.now(timezone.utc).strftime("%d %b %Y %H:%M UTC")
+    public_id = f"TRIAL-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+    category_label = payload.category.replace("_", " ").title()
+
+    subject = f"[TRIAL] Civic Issue Report {public_id} | {category_label}"
+
+    lines = [
+        "Dear Recipient,",
+        "",
+        "This is a TRIAL email from the Ente Nadu civic platform.",
+        "It mirrors the exact format your department would receive when a",
+        "citizen report is routed to you. No real report was filed.",
+        "",
+        f"Report ID    : {public_id}",
+        f"Category     : {payload.category}",
+        "Severity (AI): 3 / 5",
+        f"Location     : {payload.location}",
+        "Ward/Zone    : KL-EKM-W042 / KOCHI",
+        (
+            "Summary      : A sample civic issue — large pothole on main road, "
+            "affecting traffic. AI confidence 0.87."
+        ),
+        "",
+        "Public Evidence Link: https://www.ente-nadu.in/reports/" + public_id,
+        "",
+        (payload.note or "If you received this by mistake, please disregard."),
+        "",
+        f"Generated at : {now_ist}",
+        "Regards,",
+        f"{settings.app_name} — Civic Ops Platform",
+    ]
+    return subject, "\n".join(lines)
+
+
+@router.post("/notify/test-email", response_model=TrialEmailResponse)
+def send_trial_email(
+    payload: TrialEmailRequest,
+    admin: User = Depends(require_admin),
+) -> TrialEmailResponse:
+    """Send a representative trial civic-report email via SendGrid.
+
+    Requires SENDGRID_API_KEY + NOTIFY_FROM_EMAIL in the API environment.
+    Returns the outcome so callers know whether delivery was accepted.
+    """
+    if not settings.sendgrid_api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="SENDGRID_API_KEY not configured on the API.",
+        )
+
+    subject, body = _build_trial_email(payload)
+    sent = send_email_sendgrid(to=[payload.to], cc=[], subject=subject, body=body)
+
+    if not sent:
+        raise HTTPException(
+            status_code=502,
+            detail="SendGrid returned an error — check API logs.",
+        )
+
+    return TrialEmailResponse(
+        sent=True,
+        to=str(payload.to),
+        subject=subject,
+        note="Accepted by SendGrid. Check inbox (and spam folder).",
+    )

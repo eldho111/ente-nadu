@@ -6,10 +6,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { StyleSpecification } from "maplibre-gl";
 
 import type { ReportCard } from "@/lib/api";
-import {
-  NON_KERALA_MASK_GEOJSON,
-  KERALA_OUTLINE_GEOJSON,
-} from "@/components/dashboard/keralaBoundary";
+
+// Real Kerala state boundary (from geohacker/kerala, simplified to ~900 verts
+// for a 34KB static asset). Fetched at runtime from /geo/kerala.geojson.
+const KERALA_GEOJSON_URL = "/geo/kerala.geojson";
+
+// World rectangle used as the outer ring of the non-Kerala mask polygon.
+const WORLD_OUTER_RING: [number, number][] = [
+  [-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85],
+];
 
 type Props = {
   reports: ReportCard[];
@@ -51,19 +56,19 @@ function tilesForTheme(theme: "light" | "dark"): string[] {
 }
 
 /**
- * Mask color + opacity by theme. Deeper non-Kerala dim to make the focus
- * region pop. Matches the premium palette's deep-black / off-white bg.
+ * Non-Kerala dim mask. Pure black bg on dark; paper off-white on light.
  */
 function maskFillForTheme(theme: "light" | "dark"): { color: string; opacity: number } {
   return theme === "light"
-    ? { color: "#f6f8fb", opacity: 0.85 }
-    : { color: "#05070d", opacity: 0.85 };
+    ? { color: "#f5f6f8", opacity: 0.88 }
+    : { color: "#000000", opacity: 0.88 };
 }
 
 function outlineColorForTheme(theme: "light" | "dark"): string {
-  // Cyan hairline — echoes the brand accent; signifies "focus area" rather
-  // than "emergency area" (the red hairline did).
-  return theme === "light" ? "rgba(0, 153, 198, 0.65)" : "rgba(0, 212, 255, 0.7)";
+  // Sage teal hairline — brand accent; signifies "focus area."
+  return theme === "light"
+    ? "rgba(62, 104, 92, 0.70)"
+    : "rgba(86, 136, 120, 0.75)";
 }
 
 function buildStyle(theme: "light" | "dark"): StyleSpecification {
@@ -81,13 +86,13 @@ function buildStyle(theme: "light" | "dark"): StyleSpecification {
   };
 }
 
-// Premium C12-inspired palette: muted crimson for OPEN (still urgent, less
-// ambulance-red); quantum cyan for IN PROGRESS; warm whisky gold for FIXED.
-// Rejected stays muted. Dot size scales with severity.
-const C_OPEN = "#ff5470";    // muted alarm (was #e63946)
-const C_PROGRESS = "#00d4ff"; // quantum cyan (was amber)
-const C_FIXED = "#c8a64e";   // whisky gold (was green)
-const C_REJECTED = "#5b6172"; // muted ink
+// Hexcarb enterprise palette: terracotta-crimson for OPEN (muted, not
+// ambulance-red), sage teal for IN PROGRESS, warm ochre gold for FIXED.
+// Rejected stays muted ink. Dot size scales with severity.
+const C_OPEN = "#d15e6a";     // muted terracotta alarm
+const C_PROGRESS = "#568878"; // sage teal
+const C_FIXED = "#b79057";    // ochre gold
+const C_REJECTED = "#6c7078"; // muted ink
 
 export default function PublicMap({ reports }: Props) {
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
@@ -177,24 +182,56 @@ export default function PublicMap({ reports }: Props) {
     return () => window.removeEventListener("theme-change", handle);
   }, []);
 
-  // ── Install the non-Kerala dim mask (runs once after map is ready) ──
+  // ── Install the non-Kerala dim mask (fetches real boundary once) ──
   useEffect(() => {
     if (!mapRef.current || !mapReady || mapUnavailable) return;
     const map = mapRef.current;
+    let cancelled = false;
 
-    const install = () => {
+    const install = async () => {
       try {
+        // Load the simplified Kerala boundary (geohacker/kerala, ~900 verts).
+        const res = await fetch(KERALA_GEOJSON_URL);
+        if (!res.ok) throw new Error(`GeoJSON fetch failed: HTTP ${res.status}`);
+        const fc = (await res.json()) as GeoJSON.FeatureCollection<GeoJSON.Polygon>;
+        if (cancelled) return;
+
+        const feature = fc.features?.[0];
+        const rings = feature?.geometry?.coordinates;
+        if (!rings || !rings.length) throw new Error("GeoJSON feature has no rings");
+        const keralaOuter = rings[0] as unknown as [number, number][];
+        // Keep any holes Kerala itself has (e.g. Mahé enclave) intact on the outline.
+        const keralaRings = rings as unknown as [number, number][][];
+
+        // Non-Kerala mask polygon = world rectangle with Kerala cut out as a hole.
+        const maskPoly: GeoJSON.Feature<GeoJSON.Polygon> = {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "Polygon",
+            // Under odd-even rule, this fills the area between the world
+            // rectangle and Kerala — i.e. everything NOT in Kerala.
+            coordinates: [WORLD_OUTER_RING, keralaOuter],
+          },
+        };
+
+        const outlinePoly: GeoJSON.Feature<GeoJSON.Polygon> = {
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Polygon", coordinates: keralaRings },
+        };
+
         const current = getInitialTheme();
         const { color, opacity } = maskFillForTheme(current);
 
-        // Clean up any previous instance (safety for hot-reload)
+        // Clean previous instance (safety for hot-reload / re-run)
         if (map.getLayer(MASK_OUTLINE_LAYER_ID)) map.removeLayer(MASK_OUTLINE_LAYER_ID);
         if (map.getSource(MASK_OUTLINE_SOURCE_ID)) map.removeSource(MASK_OUTLINE_SOURCE_ID);
         if (map.getLayer(MASK_FILL_LAYER_ID)) map.removeLayer(MASK_FILL_LAYER_ID);
         if (map.getSource(MASK_SOURCE_ID)) map.removeSource(MASK_SOURCE_ID);
 
         // If cluster/point layers already exist (reports effect raced us),
-        // insert the mask UNDER them so markers stay visible.
+        // insert the mask UNDER them so markers stay visible on top.
         const insertBefore =
           (map.getLayer("cluster-glow") && "cluster-glow") ||
           (map.getLayer("clusters") && "clusters") ||
@@ -202,29 +239,18 @@ export default function PublicMap({ reports }: Props) {
           (map.getLayer("points") && "points") ||
           undefined;
 
-        // World-with-Kerala-hole source → dim overlay
-        map.addSource(MASK_SOURCE_ID, {
-          type: "geojson",
-          data: NON_KERALA_MASK_GEOJSON,
-        });
+        map.addSource(MASK_SOURCE_ID, { type: "geojson", data: maskPoly });
         map.addLayer(
           {
             id: MASK_FILL_LAYER_ID,
             type: "fill",
             source: MASK_SOURCE_ID,
-            paint: {
-              "fill-color": color,
-              "fill-opacity": opacity,
-            },
+            paint: { "fill-color": color, "fill-opacity": opacity },
           },
           insertBefore,
         );
 
-        // Kerala boundary outline — subtle focus ring.
-        map.addSource(MASK_OUTLINE_SOURCE_ID, {
-          type: "geojson",
-          data: KERALA_OUTLINE_GEOJSON,
-        });
+        map.addSource(MASK_OUTLINE_SOURCE_ID, { type: "geojson", data: outlinePoly });
         map.addLayer(
           {
             id: MASK_OUTLINE_LAYER_ID,
@@ -233,21 +259,22 @@ export default function PublicMap({ reports }: Props) {
             paint: {
               "line-color": outlineColorForTheme(current),
               "line-width": 1,
-              "line-opacity": 0.8,
+              "line-opacity": 0.85,
             },
           },
           insertBefore,
         );
       } catch (e) {
-        console.warn("[PublicMap] mask install failed", e);
+        // Boundary is decorative — never fatal. Log and move on.
+        console.warn("[PublicMap] Kerala mask install skipped:", e);
       }
     };
 
-    if (map.isStyleLoaded()) install();
-    else map.once("load", install);
+    if (map.isStyleLoaded()) void install();
+    else map.once("load", () => void install());
 
     return () => {
-      // Lifecycle cleanup — best effort; map teardown also clears sources.
+      cancelled = true;
       try {
         if (!map) return;
         if (map.getLayer(MASK_OUTLINE_LAYER_ID)) map.removeLayer(MASK_OUTLINE_LAYER_ID);
@@ -290,7 +317,7 @@ export default function PublicMap({ reports }: Props) {
           clusterRadius: 50,
         });
 
-        // ── CLUSTERS: muted crimson disc (scaling with count), 1px stroke ──
+        // ── CLUSTERS: muted terracotta disc, scales deeper with count ──
         map.addLayer({
           id: "clusters",
           type: "circle",
@@ -300,9 +327,9 @@ export default function PublicMap({ reports }: Props) {
             "circle-color": [
               "step",
               ["get", "point_count"],
-              "#ff5470", 10,
-              "#d9334f", 30,
-              "#a5253c",
+              "#d15e6a", 10,
+              "#b04250", 30,
+              "#82303b",
             ],
             "circle-radius": ["step", ["get", "point_count"], 14, 10, 20, 30, 26],
             "circle-stroke-width": 1,
@@ -517,7 +544,7 @@ export default function PublicMap({ reports }: Props) {
           display: "flex",
           gap: 14,
           padding: "8px 14px",
-          background: "rgba(13, 18, 25, 0.75)",
+          background: "rgba(10, 11, 13, 0.78)",
           backdropFilter: "blur(8px) saturate(120%)",
           WebkitBackdropFilter: "blur(8px) saturate(120%)",
           border: "1px solid var(--border)",

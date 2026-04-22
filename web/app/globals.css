@@ -7,27 +7,26 @@
 
 /* ── Shared tokens (theme-independent) ───────────────────── */
 :root {
-  /* SIGNATURE — quantum cyan (C12-inspired premium accent). Dark theme
-     uses a bright neon cyan; light theme drops to a deeper teal via the
-     [data-theme="light"] override below. --accent is the cross-theme
-     variable every component binds to. */
-  --accent:         #00d4ff;          /* dark default — overridden in light */
-  --accent-deep:    #00a3c7;
-  --accent-soft:    rgba(0, 212, 255, 0.14);
-  --accent-glow:    rgba(0, 212, 255, 0.30);
-  --accent-hairline:rgba(0, 212, 255, 0.55);
+  /* SIGNATURE — sage teal (Hexcarb-inspired enterprise restraint).
+     Desaturated forest/sage tone replaces last iteration's neon cyan,
+     which read too quantum / too bright for a government platform. */
+  --accent:         #568878;          /* sage teal */
+  --accent-deep:    #3e685c;
+  --accent-soft:    rgba(86, 136, 120, 0.16);
+  --accent-glow:    rgba(86, 136, 120, 0.28);
+  --accent-hairline:rgba(86, 136, 120, 0.55);
 
-  /* GOLD — whisky highlight, used for FIXED status (premium "resolved") */
-  --gold:         #c8a64e;
-  --gold-deep:    #8f7433;
-  --gold-soft:    rgba(200, 166, 78, 0.15);
-  --gold-glow:    rgba(200, 166, 78, 0.28);
+  /* GOLD — warmer, more ochre; used for FIXED status */
+  --gold:         #b79057;
+  --gold-deep:    #7e6130;
+  --gold-soft:    rgba(183, 144, 87, 0.16);
+  --gold-glow:    rgba(183, 144, 87, 0.26);
 
-  /* ALARM — softer crimson; reserved for OPEN / urgent only */
-  --alarm:        #ff5470;
-  --alarm-deep:   #c43756;
-  --alarm-soft:   rgba(255, 84, 112, 0.15);
-  --alarm-glow:   rgba(255, 84, 112, 0.28);
+  /* ALARM — muted terracotta-crimson; reserved for OPEN / urgent only */
+  --alarm:        #d15e6a;
+  --alarm-deep:   #9e3a47;
+  --alarm-soft:   rgba(209, 94, 106, 0.15);
+  --alarm-glow:   rgba(209, 94, 106, 0.26);
 
   --info:         var(--accent);
   --warn:         var(--gold);
@@ -72,82 +71,80 @@
   --r-pill: 999px;
 }
 
-/* ── DARK (default / brand) ──────────────────────────────── */
+/* ── DARK (default / brand) — pure black like Hexcarb ───── */
 :root,
 [data-theme="dark"] {
-  --bg-0:       #05070d;   /* deep navy-black page bg */
-  --bg-1:       #0a0e17;
-  --bg-2:       #111620;
-  --bg-surface: #0d1219;   /* panel/card */
-  --bg-elev:    #161c27;   /* hover / elevated */
-  --bg-sunken:  #03050a;   /* map area, deepest */
-  --bg-palm:    #0b1014;
+  --bg-0:       #000000;   /* pure black page bg */
+  --bg-1:       #050607;
+  --bg-2:       #0b0d10;
+  --bg-surface: #0a0b0d;   /* panel/card */
+  --bg-elev:    #121418;   /* hover / elevated */
+  --bg-sunken:  #000000;   /* map area */
+  --bg-palm:    #080a0c;
 
-  --ink-0:      #f5f7fa;   /* primary text */
-  --ink-1:      #9ba3b4;   /* secondary */
-  --ink-soft:   #5b6172;   /* labels, axes */
-  --ink-muted:  #5b6172;
+  --ink-0:      #f5f6f8;   /* primary text */
+  --ink-1:      #a8adb5;   /* secondary — slightly cooler */
+  --ink-soft:   #6c7078;   /* labels, axes */
+  --ink-muted:  #6c7078;
 
-  --border:        #1a1f2b;
-  --border-strong: #2b3344;
+  --border:        #1d2025;
+  --border-strong: #2f3339;
   --border-accent: var(--accent);
-  --grid-line:     #141923;
+  --grid-line:     #14161a;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-  --shadow:    0 2px 12px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.7);
-  --shadow-green: 0 2px 10px rgba(200, 166, 78, 0.22);
-  --shadow-saffron: 0 2px 10px rgba(255, 84, 112, 0.28);
-  --shadow-gold: 0 2px 10px rgba(200, 166, 78, 0.28);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow:    0 2px 14px rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 14px 40px rgba(0, 0, 0, 0.75);
+  --shadow-green: 0 2px 10px rgba(183, 144, 87, 0.22);
+  --shadow-saffron: 0 2px 10px rgba(209, 94, 106, 0.26);
+  --shadow-gold: 0 2px 10px rgba(183, 144, 87, 0.26);
 
   color-scheme: dark;
 }
 
-/* ── LIGHT (inverted surfaces; accent drops to deeper teal) ──── */
+/* ── LIGHT (enterprise paper — off-white, same sage teal) ──── */
 [data-theme="light"] {
-  --bg-0:       #f6f8fb;
-  --bg-1:       #eef1f5;
-  --bg-2:       #e3e7ec;
+  --bg-0:       #f5f6f8;
+  --bg-1:       #eceef2;
+  --bg-2:       #e1e4ea;
   --bg-surface: #ffffff;
-  --bg-elev:    #eef1f5;
-  --bg-sunken:  #e0e4ea;
-  --bg-palm:    #eef2ee;
+  --bg-elev:    #eceef2;
+  --bg-sunken:  #dee2e9;
+  --bg-palm:    #edf1ee;
 
-  --ink-0:      #05070d;   /* 19:1 */
-  --ink-1:      #353a45;
-  --ink-soft:   #5b6172;
-  --ink-muted:  #5b6172;
+  --ink-0:      #0a0b0d;
+  --ink-1:      #3a3e45;
+  --ink-soft:   #6c7078;
+  --ink-muted:  #6c7078;
 
-  --border:        #e0e4eb;
-  --border-strong: #c7cdd6;
+  --border:        #dee2e9;
+  --border-strong: #c3c9d2;
   --border-accent: var(--accent);
-  --grid-line:     #edf0f4;
+  --grid-line:     #ecedf0;
 
-  /* Neon cyan reads cheap on white — drop to a deeper teal. */
-  --accent:         #0099c6;
-  --accent-deep:    #0079a0;
-  --accent-soft:    rgba(0, 153, 198, 0.14);
-  --accent-glow:    rgba(0, 153, 198, 0.22);
-  --accent-hairline:rgba(0, 153, 198, 0.45);
+  /* Sage teal deepens slightly on white for legibility */
+  --accent:         #3e685c;
+  --accent-deep:    #2c4f45;
+  --accent-soft:    rgba(62, 104, 92, 0.14);
+  --accent-glow:    rgba(62, 104, 92, 0.22);
+  --accent-hairline:rgba(62, 104, 92, 0.45);
 
-  /* Gold deepens slightly for print-like feel on white */
-  --gold:        #9a7f36;
-  --gold-deep:   #6d5a25;
-  --gold-soft:   rgba(154, 127, 54, 0.14);
-  --gold-glow:   rgba(154, 127, 54, 0.22);
+  --gold:        #8a6a38;
+  --gold-deep:   #5e4722;
+  --gold-soft:   rgba(138, 106, 56, 0.14);
+  --gold-glow:   rgba(138, 106, 56, 0.22);
 
-  /* Alarm crimson holds up fine on white */
-  --alarm:       #d9334f;
-  --alarm-deep:  #a5253c;
-  --alarm-soft:  rgba(217, 51, 79, 0.14);
-  --alarm-glow:  rgba(217, 51, 79, 0.22);
+  --alarm:       #b04250;
+  --alarm-deep:  #82303b;
+  --alarm-soft:  rgba(176, 66, 80, 0.14);
+  --alarm-glow:  rgba(176, 66, 80, 0.22);
 
-  --shadow-sm: 0 1px 2px rgba(5, 7, 13, 0.05);
-  --shadow:    0 2px 10px rgba(5, 7, 13, 0.07);
-  --shadow-lg: 0 12px 32px rgba(5, 7, 13, 0.10);
-  --shadow-green: 0 2px 10px rgba(154, 127, 54, 0.20);
-  --shadow-saffron: 0 2px 10px rgba(217, 51, 79, 0.22);
-  --shadow-gold: 0 2px 10px rgba(154, 127, 54, 0.22);
+  --shadow-sm: 0 1px 2px rgba(10, 11, 13, 0.05);
+  --shadow:    0 2px 10px rgba(10, 11, 13, 0.07);
+  --shadow-lg: 0 12px 32px rgba(10, 11, 13, 0.10);
+  --shadow-green: 0 2px 10px rgba(138, 106, 56, 0.20);
+  --shadow-saffron: 0 2px 10px rgba(176, 66, 80, 0.20);
+  --shadow-gold: 0 2px 10px rgba(138, 106, 56, 0.22);
 
   color-scheme: light;
 }
@@ -155,33 +152,33 @@
 /* ── System preference as default (before theme toggle runs) */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --bg-0: #f6f8fb;
-    --bg-1: #eef1f5;
-    --bg-2: #e3e7ec;
+    --bg-0: #f5f6f8;
+    --bg-1: #eceef2;
+    --bg-2: #e1e4ea;
     --bg-surface: #ffffff;
-    --bg-elev: #eef1f5;
-    --bg-sunken: #e0e4ea;
-    --bg-palm: #eef2ee;
-    --ink-0: #05070d;
-    --ink-1: #353a45;
-    --ink-soft: #5b6172;
-    --ink-muted: #5b6172;
-    --border: #e0e4eb;
-    --border-strong: #c7cdd6;
-    --grid-line: #edf0f4;
-    --accent:      #0099c6;
-    --accent-deep: #0079a0;
-    --accent-soft: rgba(0, 153, 198, 0.14);
-    --accent-glow: rgba(0, 153, 198, 0.22);
-    --gold:        #9a7f36;
-    --gold-deep:   #6d5a25;
-    --gold-soft:   rgba(154, 127, 54, 0.14);
-    --alarm:       #d9334f;
-    --alarm-deep:  #a5253c;
-    --alarm-soft:  rgba(217, 51, 79, 0.14);
-    --shadow-sm: 0 1px 2px rgba(5, 7, 13, 0.05);
-    --shadow:    0 2px 10px rgba(5, 7, 13, 0.07);
-    --shadow-lg: 0 12px 32px rgba(5, 7, 13, 0.10);
+    --bg-elev: #eceef2;
+    --bg-sunken: #dee2e9;
+    --bg-palm: #edf1ee;
+    --ink-0: #0a0b0d;
+    --ink-1: #3a3e45;
+    --ink-soft: #6c7078;
+    --ink-muted: #6c7078;
+    --border: #dee2e9;
+    --border-strong: #c3c9d2;
+    --grid-line: #ecedf0;
+    --accent:      #3e685c;
+    --accent-deep: #2c4f45;
+    --accent-soft: rgba(62, 104, 92, 0.14);
+    --accent-glow: rgba(62, 104, 92, 0.22);
+    --gold:        #8a6a38;
+    --gold-deep:   #5e4722;
+    --gold-soft:   rgba(138, 106, 56, 0.14);
+    --alarm:       #b04250;
+    --alarm-deep:  #82303b;
+    --alarm-soft:  rgba(176, 66, 80, 0.14);
+    --shadow-sm: 0 1px 2px rgba(10, 11, 13, 0.05);
+    --shadow:    0 2px 10px rgba(10, 11, 13, 0.07);
+    --shadow-lg: 0 12px 32px rgba(10, 11, 13, 0.10);
     color-scheme: light;
   }
 }
