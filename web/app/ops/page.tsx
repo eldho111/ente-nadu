@@ -215,35 +215,40 @@ export default function OpsInboxPage() {
           ))}
           {reports.length === 0 && (
             <div
-              className="kasavu-border soft"
+              className="panel"
               style={{
-                padding: "32px 24px",
+                padding: "40px 24px",
                 textAlign: "center",
                 display: "grid",
                 justifyItems: "center",
-                gap: 12,
+                gap: 10,
               }}
             >
-              <img
-                src="/icons/motifs/elephant-stamp.svg"
-                alt=""
-                width={100}
-                height={100}
-                style={{ opacity: 0.92 }}
-              />
               <div
                 style={{
-                  fontFamily: "var(--font-ml-display), var(--font-ml), serif",
-                  fontSize: 18,
-                  color: "var(--mural-green-deep)",
+                  fontSize: 10,
                   fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-muted)",
+                  fontFamily: "var(--font-mono)",
                 }}
               >
-                ഇൻബോക്സ് ശാന്തമാണ്
+                Inbox · ഇൻബോക്സ് ശാന്തം
               </div>
-              <p className="muted" style={{ margin: 0 }}>
-                No reports to display. Citizen complaints routed to this inbox will
-                appear here with photo evidence, ward, and suggested priority.
+              <div
+                style={{
+                  fontSize: 18,
+                  color: "var(--ink-0)",
+                  fontWeight: 300,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                No reports to display
+              </div>
+              <p className="muted" style={{ margin: 0, maxWidth: "42ch" }}>
+                Citizen complaints routed to this inbox will appear here with photo
+                evidence, ward, and suggested priority.
               </p>
             </div>
           )}

@@ -1,9 +1,13 @@
+// Matches the Hexcarb palette in globals.css. These hex values are used
+// where we need a literal color (e.g. status-colored map marker, inline
+// style on a server-rendered tag). For theme-aware places prefer the CSS
+// variables --alarm / --warn / --gold / --ok / --ink-muted / --accent.
 export const STATUS_COLORS: Record<string, string> = {
-  open: "#dc2626",
-  acknowledged: "#ea580c",
-  in_progress: "#d97706",
-  fixed: "#16a34a",
-  rejected: "#6b7280",
+  open: "#d15e6a",          // muted terracotta (alarm)
+  acknowledged: "#568878",  // sage teal — "being handled"
+  in_progress: "#568878",   // sage teal — "being handled"
+  fixed: "#b79057",         // warm ochre — "resolved" = premium gold
+  rejected: "#6c7078",      // muted ink
 };
 
 export const STATUS_LABELS: Record<string, string> = {

@@ -28,20 +28,23 @@ export type ThemeTokens = {
   info: string;
 };
 
+// Defaults are used only for the brief instant before SSR hands off to the
+// client + computed styles resolve. Must match the Hexcarb palette in
+// globals.css ([data-theme="dark"]) so charts don't flash stale colors.
 const DEFAULT_DARK: ThemeTokens = {
   theme: "dark",
-  bg0: "#0b0b0d",
-  bgSurface: "#16171a",
-  bgSunken: "#070708",
-  ink0: "#f1f3f5",
-  ink1: "#b8bcc2",
-  inkMuted: "#6b7078",
-  border: "#2a2d33",
-  gridLine: "#1f2126",
-  alarm: "#e63946",
-  warn: "#f59e0b",
-  ok: "#22c55e",
-  info: "#3b82f6",
+  bg0: "#000000",
+  bgSurface: "#0a0b0d",
+  bgSunken: "#000000",
+  ink0: "#f5f6f8",
+  ink1: "#a8adb5",
+  inkMuted: "#6c7078",
+  border: "#1d2025",
+  gridLine: "#14161a",
+  alarm: "#d15e6a",   // muted terracotta (was JHU #e63946)
+  warn: "#b79057",    // warm ochre (was bootstrap #f59e0b)
+  ok: "#568878",      // sage teal (was bootstrap #22c55e)
+  info: "#568878",    // sage teal (was bootstrap #3b82f6)
 };
 
 function readTokens(): ThemeTokens {

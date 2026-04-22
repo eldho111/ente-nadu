@@ -10,9 +10,17 @@ type TreeNode = {
   icon?: string;
 };
 
+// Category branch colors map onto the dashboard palette rather than
+// bootstrap-primary hexes. All options are cycled from the same three
+// accents (sage teal, ochre gold, muted terracotta) so the tree stays
+// visually coherent across categories.
+const C_SAGE = "var(--accent)";
+const C_GOLD = "var(--gold)";
+const C_ALARM = "var(--alarm)";
+
 const KERALA_TREE: Record<string, TreeNode> = {
   pothole: {
-    label: "Pothole / Road Damage", icon: "\u{1F6A7}", color: "#dc2626",
+    label: "Pothole / Road Damage", icon: "\u{1F6A7}", color: C_ALARM,
     children: [
       { label: "Local Body (Panchayat / Municipality / Corporation)", sublabel: "Local roads", contact: "splsecy.lsgd@kerala.gov.in",
         children: [
@@ -29,7 +37,7 @@ const KERALA_TREE: Record<string, TreeNode> = {
     ]
   },
   waterlogging: {
-    label: "Waterlogging / Drainage", icon: "\u{1F30A}", color: "#2563eb",
+    label: "Waterlogging / Drainage", icon: "\u{1F30A}", color: C_SAGE,
     children: [
       { label: "Kerala Water Authority (KWA)", sublabel: "Water & drainage", contact: "1916cckwa@gmail.com", phone: "1916",
         children: [
@@ -40,7 +48,7 @@ const KERALA_TREE: Record<string, TreeNode> = {
     ]
   },
   garbage_dumping: {
-    label: "Garbage / Waste", icon: "\u{1F5D1}", color: "#65a30d",
+    label: "Garbage / Waste", icon: "\u{1F5D1}", color: C_SAGE,
     children: [
       { label: "Suchitwa Mission", sublabel: "Kerala waste management body", contact: "splsecy.lsgd@kerala.gov.in",
         children: [
@@ -51,7 +59,7 @@ const KERALA_TREE: Record<string, TreeNode> = {
     ]
   },
   streetlight_outage: {
-    label: "Streetlight / Electricity", icon: "\u{1F4A1}", color: "#ca8a04",
+    label: "Streetlight / Electricity", icon: "\u{1F4A1}", color: C_GOLD,
     children: [
       { label: "KSEB (Kerala State Electricity Board)", sublabel: "Electricity supply & streetlights", contact: "ccc@kseb.in", phone: "1912",
         children: [
@@ -62,7 +70,7 @@ const KERALA_TREE: Record<string, TreeNode> = {
     ]
   },
   canal_blockage: {
-    label: "Canal Blockage", icon: "\u{1F30A}", color: "#0891b2",
+    label: "Canal Blockage", icon: "\u{1F30A}", color: C_SAGE,
     children: [
       { label: "Irrigation Department", sublabel: "Canal maintenance" },
       { label: "Kerala Water Authority", contact: "1916cckwa@gmail.com", phone: "1916" },
@@ -70,7 +78,7 @@ const KERALA_TREE: Record<string, TreeNode> = {
     ]
   },
   other: {
-    label: "Other Civic Issues", icon: "\u{1F4CB}", color: "#64748b",
+    label: "Other Civic Issues", icon: "\u{1F4CB}", color: "var(--ink-muted)",
     children: [
       { label: "LSGD (Local Self Government Dept)", sublabel: "Overall civic governance", contact: "splsecy.lsgd@kerala.gov.in",
         children: [
@@ -89,7 +97,7 @@ function TreeBranch({ node, depth = 0, isLast = false }: { node: TreeNode; depth
       {depth > 0 && (
         <div style={{
           position: "absolute", left: 8, top: 0, bottom: isLast ? "50%" : 0,
-          width: 2, background: "#e2e8f0",
+          width: 1, background: "var(--border)",
         }} />
       )}
       <div style={{
@@ -99,41 +107,50 @@ function TreeBranch({ node, depth = 0, isLast = false }: { node: TreeNode; depth
         {depth > 0 && (
           <>
             <div style={{
-              position: "absolute", left: 8, top: "50%", width: 12, height: 2,
-              background: "#e2e8f0",
+              position: "absolute", left: 8, top: "50%", width: 12, height: 1,
+              background: "var(--border)",
             }} />
             <div style={{
-              width: 10, height: 10, borderRadius: "50%",
-              background: node.color || "#0d9488", border: "2px solid #fff",
-              boxShadow: "0 0 0 2px #e2e8f0", flexShrink: 0,
-              marginLeft: 3, marginTop: 4, position: "relative", zIndex: 1,
+              width: 8, height: 8, borderRadius: "50%",
+              background: node.color || "var(--accent)",
+              boxShadow: "0 0 0 2px var(--bg-surface)",
+              flexShrink: 0,
+              marginLeft: 4, marginTop: 5, position: "relative", zIndex: 1,
             }} />
           </>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-            {node.icon && <span style={{ fontSize: 16 }}>{node.icon}</span>}
-            <strong style={{ fontSize: depth === 0 ? 15 : 13, color: "#0f172a" }}>
+            {node.icon && <span style={{ fontSize: 15, opacity: 0.85 }}>{node.icon}</span>}
+            <strong style={{ fontSize: depth === 0 ? 14 : 13, color: "var(--ink-0)", fontWeight: 600, letterSpacing: "0.01em" }}>
               {node.label}
             </strong>
           </div>
           {node.sublabel && (
-            <div style={{ fontSize: 11, color: "#64748b", marginTop: 1 }}>{node.sublabel}</div>
+            <div style={{ fontSize: 11, color: "var(--ink-muted)", marginTop: 2, letterSpacing: "0.02em" }}>{node.sublabel}</div>
           )}
           {(node.contact || node.phone) && (
-            <div style={{ display: "flex", gap: 8, marginTop: 3, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
               {node.contact && (
                 <a href={`mailto:${node.contact}`} style={{
-                  fontSize: 11, color: "#0d9488", textDecoration: "none", fontWeight: 600,
-                  background: "#ecfdf5", padding: "1px 8px", borderRadius: 99,
+                  fontSize: 10, color: "var(--accent)", textDecoration: "none", fontWeight: 600,
+                  background: "var(--accent-soft)",
+                  padding: "2px 8px", borderRadius: "var(--r-sm)",
+                  border: "1px solid var(--border)",
+                  letterSpacing: "0.02em",
+                  fontFamily: "var(--font-mono)",
                 }}>
                   {node.contact}
                 </a>
               )}
               {node.phone && (
                 <a href={`tel:${node.phone}`} style={{
-                  fontSize: 11, color: "#7c3aed", textDecoration: "none", fontWeight: 600,
-                  background: "#f5f3ff", padding: "1px 8px", borderRadius: 99,
+                  fontSize: 10, color: "var(--gold)", textDecoration: "none", fontWeight: 600,
+                  background: "var(--gold-soft)",
+                  padding: "2px 8px", borderRadius: "var(--r-sm)",
+                  border: "1px solid var(--border)",
+                  letterSpacing: "0.02em",
+                  fontFamily: "var(--font-mono)",
                 }}>
                   {node.phone}
                 </a>
@@ -167,14 +184,27 @@ export default function ResponsibilityTree({ category, locale = "en" }: Props) {
 
   return (
     <section className="card" style={{ padding: 16 }}>
-      <h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#0f172a" }}>
-        {locale === "ml" ? "ആരാണ് ഉത്തരവാദി?" : "Who is responsible?"}
+      <h3 style={{
+        margin: "0 0 12px",
+        fontSize: 10,
+        color: "var(--ink-0)",
+        fontWeight: 700,
+        letterSpacing: "0.18em",
+        textTransform: "uppercase",
+      }}>
+        {locale === "ml" ? "ഉത്തരവാദി · Who is responsible" : "Who is responsible"}
       </h3>
       <TreeBranch node={activeTree} />
       <div style={{
-        marginTop: 12, padding: "8px 12px", borderRadius: 8,
-        background: "#fffbeb", border: "1px solid #fcd34d",
-        fontSize: 11, color: "#92400e", lineHeight: 1.5,
+        marginTop: 12,
+        padding: "8px 12px",
+        borderRadius: "var(--r-sm)",
+        background: "var(--gold-soft)",
+        border: "1px solid var(--border)",
+        borderLeft: "2px solid var(--gold)",
+        fontSize: 11,
+        color: "var(--ink-1)",
+        lineHeight: 1.55,
       }}>
         {locale === "ml"
           ? "പ്രശ്നം പരിഹരിക്കപ്പെടുന്നില്ലെങ്കില്‍, നിങ്ങളുടെ MLA-ക്ക് എസ്കലേറ്റ് ചെയ്യുക."

@@ -1,8 +1,16 @@
-const CACHE_VERSION = "civic-pulse-v2";
+// Bump the version on every palette/asset refresh so installed PWAs flush
+// their cache on next load. The `activate` handler purges old caches.
+const CACHE_VERSION = "ente-nadu-v3";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const REPORTS_CACHE = `${CACHE_VERSION}-reports`;
 const APP_FALLBACK = "/app";
-const STATIC_ASSETS = [APP_FALLBACK, "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
+const STATIC_ASSETS = [
+  APP_FALLBACK,
+  "/manifest.webmanifest",
+  "/icons/logo.svg",
+  "/icons/logo-mark.svg",
+  "/icons/maskable-512.svg",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

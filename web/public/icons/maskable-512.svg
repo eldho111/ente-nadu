@@ -1,7 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect x="0" y="0" width="512" height="512" fill="#0c7a5f"/>
-  <circle cx="256" cy="220" r="84" fill="#ffffff"/>
-  <path d="M256 122 L304 198 L208 198 Z" fill="#f8f6f0"/>
-  <rect x="150" y="324" width="212" height="34" rx="17" fill="#ffffff" opacity="0.95"/>
-  <text x="256" y="440" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="74" fill="#ffffff">CP</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Ente Nadu">
+  <!-- Maskable: safe area is the center 80%, so geometry sits inside viewBox ~50..462 -->
+  <rect x="0" y="0" width="512" height="512" fill="#000000"/>
+  <circle cx="256" cy="234" r="128" fill="#d15e6a" opacity="0.14"/>
+  <circle cx="256" cy="234" r="86"  fill="#d15e6a" opacity="0.32"/>
+  <circle cx="256" cy="234" r="54"  fill="#d15e6a"/>
+  <text x="256" y="422" text-anchor="middle" fill="#f5f6f8"
+        font-family="Inter, system-ui, sans-serif" font-size="58" font-weight="800"
+        letter-spacing="10">ENTE NADU</text>
 </svg>

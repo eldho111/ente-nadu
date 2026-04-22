@@ -9,6 +9,8 @@ __pycache__/
 node_modules/
 .next/
 out/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
 
 # Flutter / Dart
 .dart_tool/

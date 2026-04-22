@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Ente Nadu">
-  <!-- Civic-ops minimalist mark: one red alarm dot on a dark chip. -->
+  <!-- Civic-ops minimalist mark: one terracotta alarm dot on a pure-black chip. -->
   <!-- Chip -->
-  <rect x="1" y="1" width="46" height="46" rx="6" fill="#0b0b0d" stroke="#2a2d33" stroke-width="1"/>
-  <!-- Alarm dot with soft glow -->
-  <circle cx="24" cy="24" r="12" fill="#e63946" opacity="0.18"/>
-  <circle cx="24" cy="24" r="8" fill="#e63946" opacity="0.35"/>
-  <circle cx="24" cy="24" r="5" fill="#e63946"/>
-  <!-- Tiny "EN" hairline under the dot for scale >= 48px -->
-  <text x="24" y="42" text-anchor="middle" fill="#f1f3f5"
+  <rect x="1" y="1" width="46" height="46" rx="6" fill="#000000" stroke="#1d2025" stroke-width="1"/>
+  <!-- Alarm dot with soft glow layers -->
+  <circle cx="24" cy="24" r="12" fill="#d15e6a" opacity="0.15"/>
+  <circle cx="24" cy="24" r="8"  fill="#d15e6a" opacity="0.32"/>
+  <circle cx="24" cy="24" r="5"  fill="#d15e6a"/>
+  <!-- Tiny "EN" hairline under the dot -->
+  <text x="24" y="42" text-anchor="middle" fill="#f5f6f8"
         font-family="Inter, system-ui, sans-serif" font-size="6" font-weight="800"
         letter-spacing="1.5">EN</text>
 </svg>

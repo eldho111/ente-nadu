@@ -27,16 +27,19 @@ const ROLE_LABELS: Record<string, Record<string, string>> = {
   block_panchayat_member: { en: "Block Member", ml: "ബ്ലോക്ക് അംഗം" },
 };
 
+// Hexcarb palette: sage for good, ochre for average, terracotta for poor.
+// BG tokens are the matching *-soft variants (low-alpha washes) so the
+// pills read calm against the dashboard's near-black background.
 const TIER_COLORS: Record<string, string> = {
-  good: "#16a34a",
-  average: "#d97706",
-  poor: "#dc2626",
+  good: "#568878",    // sage teal (accent)
+  average: "#b79057", // warm ochre (gold)
+  poor: "#d15e6a",    // muted terracotta (alarm)
 };
 
 const TIER_BG: Record<string, string> = {
-  good: "#dcfce7",
-  average: "#fef3c7",
-  poor: "#fee2e2",
+  good: "rgba(86, 136, 120, 0.14)",
+  average: "rgba(183, 144, 87, 0.14)",
+  poor: "rgba(209, 94, 106, 0.14)",
 };
 
 const TIER_LABELS: Record<string, Record<string, string>> = {
@@ -66,7 +69,7 @@ export default function RepCard({
   const tierBg = TIER_BG[performanceTier] || TIER_BG.average;
   const tierLabel = TIER_LABELS[performanceTier]?.[locale] || TIER_LABELS[performanceTier]?.en || "Average";
   const ratePercent = Math.round(resolutionRate * 100);
-  const partyColor = party ? (PARTY_COLORS[party] || "#64748b") : "#64748b";
+  const partyColor = party ? (PARTY_COLORS[party] || "var(--ink-muted)") : "var(--ink-muted)";
 
   return (
     <article
@@ -114,7 +117,7 @@ export default function RepCard({
           </div>
 
           {/* Role + Constituency */}
-          <div style={{ fontSize: 12, color: "#64748b" }}>
+          <div style={{ fontSize: 12, color: "var(--ink-muted)" }}>
             {roleLabel} &middot; {displayConstituency}
             {district && <> &middot; {district}</>}
           </div>
@@ -122,19 +125,19 @@ export default function RepCard({
           {/* Performance bar */}
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <div style={{
-              flex: 1, height: 6, borderRadius: 4,
-              background: "#e2e8f0", overflow: "hidden",
+              flex: 1, height: 4, borderRadius: 2,
+              background: "var(--grid-line)", overflow: "hidden",
             }}>
               <div style={{
                 width: `${ratePercent}%`, height: "100%",
-                background: `linear-gradient(90deg, ${tierColor}cc, ${tierColor})`,
-                borderRadius: 4, transition: "width 0.4s ease",
+                background: tierColor,
+                borderRadius: 2, transition: "width 0.4s ease",
                 minWidth: ratePercent > 0 ? 4 : 0,
               }} />
             </div>
             <span style={{
               fontSize: 11, fontWeight: 700, color: tierColor,
-              background: tierBg, padding: "2px 8px", borderRadius: 10,
+              background: tierBg, padding: "2px 8px", borderRadius: "var(--r-sm)",
               whiteSpace: "nowrap",
             }}>
               {ratePercent}%
@@ -142,22 +145,22 @@ export default function RepCard({
           </div>
 
           {/* Tier label */}
-          <div style={{ fontSize: 11, fontWeight: 600, color: tierColor }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: tierColor, letterSpacing: "0.04em" }}>
             {tierLabel}
           </div>
 
           {/* Stats row */}
           <div style={{ display: "flex", gap: 14, fontSize: 12 }}>
             <span>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#dc2626", display: "inline-block", marginRight: 4 }} />
-              <strong>{openIssues}</strong> <span style={{ color: "#94a3b8" }}>{locale === "ml" ? "തുറന്നത്" : "open"}</span>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--alarm)", display: "inline-block", marginRight: 4 }} />
+              <strong>{openIssues}</strong> <span style={{ color: "var(--ink-muted)" }}>{locale === "ml" ? "തുറന്നത്" : "open"}</span>
             </span>
             <span>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#16a34a", display: "inline-block", marginRight: 4 }} />
-              <strong>{resolvedIssues}</strong> <span style={{ color: "#94a3b8" }}>{locale === "ml" ? "പരിഹരിച്ചത്" : "resolved"}</span>
+              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gold)", display: "inline-block", marginRight: 4 }} />
+              <strong>{resolvedIssues}</strong> <span style={{ color: "var(--ink-muted)" }}>{locale === "ml" ? "പരിഹരിച്ചത്" : "resolved"}</span>
             </span>
-            <span style={{ color: "#94a3b8" }}>
-              <strong style={{ color: "#475569" }}>{totalIssues}</strong> {locale === "ml" ? "ആകെ" : "total"}
+            <span style={{ color: "var(--ink-muted)" }}>
+              <strong style={{ color: "var(--ink-1)" }}>{totalIssues}</strong> {locale === "ml" ? "ആകെ" : "total"}
             </span>
           </div>
         </div>

@@ -96,35 +96,30 @@ export default function AppTrackClient({ locale }: Props) {
       ))}
       {loaded && !hasRows && (
         <div
-          className="kasavu-border soft"
+          className="panel"
           style={{
-            padding: "24px 18px",
+            padding: "32px 18px",
             textAlign: "center",
             display: "grid",
             justifyItems: "center",
-            gap: 10,
+            gap: 8,
           }}
         >
-          <img
-            src="/icons/motifs/snake-boat.svg"
-            alt=""
-            width={220}
-            height={110}
-            style={{ opacity: 0.9 }}
-          />
           <div
             style={{
-              fontFamily: "var(--font-ml-display), var(--font-ml), serif",
-              fontSize: 18,
-              color: "var(--mural-red)",
+              fontSize: 10,
               fontWeight: 700,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "var(--ink-muted)",
+              fontFamily: "var(--font-mono)",
             }}
           >
-            ഇനിയും അപ്‌ഡേറ്റുകളില്ല
+            No updates · ഇനിയും അപ്‌ഡേറ്റുകളില്ല
           </div>
-          <p style={{ margin: 0, fontSize: 13, color: "var(--ink-1)", maxWidth: "38ch" }}>
-            Your journey starts here. Submit your first report from the Report tab
-            and progress updates will appear in this palm-leaf.
+          <p style={{ margin: 0, fontSize: 13, color: "var(--ink-1)", maxWidth: "38ch", lineHeight: 1.55 }}>
+            Submit your first report from the Report tab — progress updates will
+            appear here.
           </p>
         </div>
       )}

@@ -3,9 +3,9 @@
   <!-- Background is transparent — renders correctly on dark or light surfaces. -->
 
   <!-- Alarm dot (echoes map markers) -->
-  <circle cx="22" cy="40" r="14" fill="#e63946" opacity="0.14"/>
-  <circle cx="22" cy="40" r="9"  fill="#e63946" opacity="0.32"/>
-  <circle cx="22" cy="40" r="6"  fill="#e63946"/>
+  <circle cx="22" cy="40" r="14" fill="#d15e6a" opacity="0.14"/>
+  <circle cx="22" cy="40" r="9"  fill="#d15e6a" opacity="0.32"/>
+  <circle cx="22" cy="40" r="6"  fill="#d15e6a"/>
 
   <!-- ENTE NADU wordmark -->
   <text x="46" y="38"
