@@ -80,7 +80,7 @@ from app.services.location_service import apply_location_jitter, reverse_geocode
 from app.services.notification_service import auto_subscribe_reporter, queue_status_notifications, upsert_subscription
 from app.services.notify_service import build_email_payload, build_share_url, build_whatsapp_payload
 from app.services.priority_service import compute_priority_score, nearby_duplicate_density
-from app.services.queue_service import enqueue_report_classification
+from app.services.media_processing import blur_and_publish, fetch_raw_bytes
 from app.services.responsibility_service import get_report_responsible_chain, upsert_report_responsibility_snapshot
 from app.services.routing_service import lookup_jurisdiction_id, lookup_ward_zone, resolve_routing_rule
 from app.services.storage_service import create_presigned_upload, raw_object_url
@@ -135,6 +135,92 @@ def _new_token_no(db: Session) -> str:
         if not exists:
             return candidate
     raise HTTPException(status_code=500, detail="failed to allocate token number")
+
+
+def _run_inline_pipeline(db: Session, report: Report, media_rows: list["Media"]) -> None:
+    """Synchronous classification + media publishing.
+
+    Runs AFTER the report row has been committed. Everything in here is
+    best-effort — failures are logged and swallowed. The submitted
+    report remains valid even if AI or R2 has a bad moment.
+    """
+    import structlog
+
+    log = structlog.get_logger("api.pipeline")
+
+    # Download the first image so we can both classify AND blur-publish
+    # with a single round-trip to R2.
+    primary_blob: bytes | None = None
+    for media in media_rows:
+        if media.media_type == MediaType.IMAGE:
+            blob = fetch_raw_bytes(media.raw_key)
+            if blob is not None:
+                primary_blob = blob
+                break
+
+    # ── AI classification (fills category_ai, confidence, severity_ai,
+    # description_ai, tags) ─────────────────────────────────────────
+    ai_result: dict | None = None
+    if primary_blob is not None:
+        try:
+            ai_result = ai_service.classify_from_media_blobs([primary_blob])
+        except Exception as exc:
+            log.warning("inline_classify_failed", report_id=str(report.id), detail=str(exc)[:160])
+
+    if ai_result:
+        try:
+            report.category_ai = Category(ai_result.get("category", "other"))
+        except ValueError:
+            report.category_ai = Category.OTHER
+        report.confidence = float(ai_result.get("confidence", 0.0))
+        report.severity_ai = int(ai_result.get("severity", 0))
+        report.tags = list(ai_result.get("tags", [])) or None
+        summary = str(ai_result.get("summary", "")).strip()[:280]
+        if summary:
+            report.description_ai = summary
+
+        add_report_event(
+            db,
+            report_id=report.id,
+            event_type="report.classified",
+            payload={
+                "category_ai": report.category_ai.value,
+                "confidence": report.confidence,
+                "severity_ai": report.severity_ai,
+            },
+            actor="system",
+        )
+
+    # ── Blur + publish each image to the public bucket ──────────────
+    for media in media_rows:
+        if media.media_type != MediaType.IMAGE:
+            continue
+        # Re-use the primary blob when possible; otherwise download per-media.
+        blob = primary_blob if media is media_rows[0] else fetch_raw_bytes(media.raw_key)
+        if blob is None:
+            log.warning(
+                "inline_media_fetch_failed",
+                report_id=str(report.id),
+                media_id=str(media.id),
+            )
+            continue
+        public_url, thumbnail_url = blur_and_publish(media.raw_key, blob)
+        if public_url:
+            media.public_key = media.raw_key
+            media.public_url = public_url
+            media.thumbnail_url = thumbnail_url
+        else:
+            log.warning(
+                "inline_media_publish_failed",
+                report_id=str(report.id),
+                media_id=str(media.id),
+            )
+
+    try:
+        db.commit()
+    except Exception as exc:
+        log.warning("inline_pipeline_commit_failed", report_id=str(report.id), detail=str(exc)[:160])
+        db.rollback()
 
 
 @router.post("/reports/classify-preview", response_model=ClassifyPreviewResponse)
@@ -314,18 +400,17 @@ def create_report(
     auto_subscribe_reporter(db, report)
     db.commit()
 
-    try:
-        enqueue_report_classification(str(report.id))
-    except Exception:
-        # Non-blocking: report is still accepted even if queue enqueue fails.
-        # Log the error so sweep jobs can pick it up later.
-        import structlog
-
-        structlog.get_logger("api").error(
-            "queue_enqueue_failed",
-            report_id=str(report.id),
-            detail="Report saved but classification job could not be enqueued",
-        )
+    # ── Inline pipeline ────────────────────────────────────────────
+    # Used to enqueue a Redis job for a separate worker service. That
+    # turned into a Railway-deployment minefield. Everything the worker
+    # did now runs inline: fetch raw image, AI classify, blur + publish
+    # to public bucket, update media.public_url, emit classified event.
+    #
+    # Total added latency: ~3-8 s (depends on AI provider + image size).
+    # Each failure path logs + continues — a broken R2 or AI provider
+    # must NOT block the submit from succeeding. The report row itself
+    # is already committed above; this is all enrichment.
+    _run_inline_pipeline(db, report, media_rows)
 
     share_url = build_share_url(settings.web_base_url, report.public_id)
     notify_actions = NotifyActions(

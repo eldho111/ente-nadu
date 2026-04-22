@@ -21,7 +21,8 @@ from app.services.id_service import generate_public_id, generate_token_number
 from app.services.location_service import apply_location_jitter, reverse_geocode_nominatim
 from app.services.notification_service import upsert_subscription
 from app.services.priority_service import compute_priority_score, nearby_duplicate_density
-from app.services.queue_service import enqueue_report_classification
+# enqueue_report_classification removed — WhatsApp submissions now run the
+# inline pipeline directly (same as the main /v1/reports handler).
 from app.services.responsibility_service import upsert_report_responsibility_snapshot
 from app.services.routing_service import lookup_jurisdiction_id, lookup_ward_zone, resolve_routing_rule
 from app.services.storage_service import upload_bytes_to_raw, raw_object_url
@@ -495,13 +496,17 @@ def _create_report_from_whatsapp(
         channels=[NotificationChannel.WHATSAPP],
     )
 
-    # Enqueue background classification
+    # Run the inline classification + media publish pipeline.
+    # Previously this enqueued a Redis job; now it runs synchronously so
+    # WhatsApp-submitted reports are fully classified by the time this
+    # function returns. See api/app/services/media_processing.py.
     add_report_event(db, report_id=report.id, event_type="report.classification.requested", actor="whatsapp_bot")
     db.commit()
 
     try:
-        enqueue_report_classification(str(report.id))
-    except Exception:
-        logger.error("Failed to enqueue classification for WhatsApp report %s", report.id)
+        from app.api.routes.reports import _run_inline_pipeline  # noqa: PLC0415 (avoid circular import at module load)
+        _run_inline_pipeline(db, report, list(report.media))
+    except Exception as exc:
+        logger.error("Inline classification failed for WhatsApp report %s: %s", report.id, str(exc)[:160])
 
     return report
