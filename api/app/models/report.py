@@ -48,7 +48,9 @@ class Report(Base):
     category_final: Mapped[Category] = mapped_column(Enum(Category, name="category_enum", native_enum=False), nullable=False, index=True)
     confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
     severity_ai: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    tags: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # AI-generated tag list (e.g. ["urgent", "road_hazard"]). JSONB stores
+    # any structure; historical rows may contain dicts, but new writes use lists.
+    tags: Mapped[list | None] = mapped_column(JSONB, nullable=True)
 
     description_ai: Mapped[str | None] = mapped_column(String(280), nullable=True)
     description_user: Mapped[str | None] = mapped_column(Text, nullable=True)

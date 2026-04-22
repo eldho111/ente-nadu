@@ -143,7 +143,11 @@ class ReportDetailResponse(BaseModel):
     category_final: Category
     confidence: float | None
     severity_ai: int | None
-    tags: dict[str, Any] | None
+    # tags is a JSON-stored list of short tag strings from the AI
+    # (e.g. ["urgent", "visible_from_road"]). Previously declared as a
+    # dict, which crashed serialization once the pipeline actually wrote
+    # any value. Accept list | dict | None for backward compat.
+    tags: list[str] | dict[str, Any] | None
     description_ai: str | None
     description_user: str | None
     manual_issue_label: str | None
