@@ -6,6 +6,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { StyleSpecification } from "maplibre-gl";
 
 import type { ReportCard } from "@/lib/api";
+import {
+  NON_KERALA_MASK_GEOJSON,
+  KERALA_OUTLINE_GEOJSON,
+} from "@/components/dashboard/keralaBoundary";
 
 type Props = {
   reports: ReportCard[];
@@ -32,6 +36,10 @@ const ATTRIBUTION =
 
 const BASEMAP_SOURCE_ID = "basemap";
 const BASEMAP_LAYER_ID = "basemap-layer";
+const MASK_SOURCE_ID = "kerala-mask";
+const MASK_FILL_LAYER_ID = "kerala-mask-fill";
+const MASK_OUTLINE_SOURCE_ID = "kerala-outline";
+const MASK_OUTLINE_LAYER_ID = "kerala-outline-line";
 
 function getInitialTheme(): "light" | "dark" {
   if (typeof document === "undefined") return "dark";
@@ -40,6 +48,22 @@ function getInitialTheme(): "light" | "dark" {
 
 function tilesForTheme(theme: "light" | "dark"): string[] {
   return theme === "light" ? LIGHT_TILES : DARK_TILES;
+}
+
+/**
+ * Mask color + opacity by theme. Darker on dark theme so non-Kerala
+ * areas genuinely recede; lighter wash on light theme so the state's
+ * shape stays legible without overwhelming the page.
+ */
+function maskFillForTheme(theme: "light" | "dark"): { color: string; opacity: number } {
+  return theme === "light"
+    ? { color: "#f7f8fa", opacity: 0.78 }
+    : { color: "#0b0b0d", opacity: 0.78 };
+}
+
+function outlineColorForTheme(theme: "light" | "dark"): string {
+  // Subtle red hairline reinforces "this is Kerala" on both themes.
+  return theme === "light" ? "rgba(230, 57, 70, 0.45)" : "rgba(230, 57, 70, 0.55)";
 }
 
 function buildStyle(theme: "light" | "dark"): StyleSpecification {
@@ -128,21 +152,112 @@ export default function PublicMap({ reports }: Props) {
     };
   }, []);
 
-  // ── Live theme swap — swap raster tile source on theme-change event ──
+  // ── Live theme swap — swap raster tile source + retint mask on theme-change ──
   useEffect(() => {
     const handle = () => {
       const next = getInitialTheme();
       setTheme(next);
       const map = mapRef.current;
       if (!map) return;
+      // Swap basemap raster tiles
       const src = map.getSource(BASEMAP_SOURCE_ID) as import("maplibre-gl").RasterTileSource | undefined;
       if (src && typeof (src as unknown as { setTiles?: (t: string[]) => void }).setTiles === "function") {
         (src as unknown as { setTiles: (t: string[]) => void }).setTiles(tilesForTheme(next));
+      }
+      // Retint the Kerala focus mask + outline
+      if (map.getLayer(MASK_FILL_LAYER_ID)) {
+        const { color, opacity } = maskFillForTheme(next);
+        map.setPaintProperty(MASK_FILL_LAYER_ID, "fill-color", color);
+        map.setPaintProperty(MASK_FILL_LAYER_ID, "fill-opacity", opacity);
+      }
+      if (map.getLayer(MASK_OUTLINE_LAYER_ID)) {
+        map.setPaintProperty(MASK_OUTLINE_LAYER_ID, "line-color", outlineColorForTheme(next));
       }
     };
     window.addEventListener("theme-change", handle);
     return () => window.removeEventListener("theme-change", handle);
   }, []);
+
+  // ── Install the non-Kerala dim mask (runs once after map is ready) ──
+  useEffect(() => {
+    if (!mapRef.current || !mapReady || mapUnavailable) return;
+    const map = mapRef.current;
+
+    const install = () => {
+      try {
+        const current = getInitialTheme();
+        const { color, opacity } = maskFillForTheme(current);
+
+        // Clean up any previous instance (safety for hot-reload)
+        if (map.getLayer(MASK_OUTLINE_LAYER_ID)) map.removeLayer(MASK_OUTLINE_LAYER_ID);
+        if (map.getSource(MASK_OUTLINE_SOURCE_ID)) map.removeSource(MASK_OUTLINE_SOURCE_ID);
+        if (map.getLayer(MASK_FILL_LAYER_ID)) map.removeLayer(MASK_FILL_LAYER_ID);
+        if (map.getSource(MASK_SOURCE_ID)) map.removeSource(MASK_SOURCE_ID);
+
+        // If cluster/point layers already exist (reports effect raced us),
+        // insert the mask UNDER them so markers stay visible.
+        const insertBefore =
+          (map.getLayer("cluster-glow") && "cluster-glow") ||
+          (map.getLayer("clusters") && "clusters") ||
+          (map.getLayer("pulse") && "pulse") ||
+          (map.getLayer("points") && "points") ||
+          undefined;
+
+        // World-with-Kerala-hole source → dim overlay
+        map.addSource(MASK_SOURCE_ID, {
+          type: "geojson",
+          data: NON_KERALA_MASK_GEOJSON,
+        });
+        map.addLayer(
+          {
+            id: MASK_FILL_LAYER_ID,
+            type: "fill",
+            source: MASK_SOURCE_ID,
+            paint: {
+              "fill-color": color,
+              "fill-opacity": opacity,
+            },
+          },
+          insertBefore,
+        );
+
+        // Kerala boundary outline — subtle focus ring.
+        map.addSource(MASK_OUTLINE_SOURCE_ID, {
+          type: "geojson",
+          data: KERALA_OUTLINE_GEOJSON,
+        });
+        map.addLayer(
+          {
+            id: MASK_OUTLINE_LAYER_ID,
+            type: "line",
+            source: MASK_OUTLINE_SOURCE_ID,
+            paint: {
+              "line-color": outlineColorForTheme(current),
+              "line-width": 1,
+              "line-opacity": 0.8,
+            },
+          },
+          insertBefore,
+        );
+      } catch (e) {
+        console.warn("[PublicMap] mask install failed", e);
+      }
+    };
+
+    if (map.isStyleLoaded()) install();
+    else map.once("load", install);
+
+    return () => {
+      // Lifecycle cleanup — best effort; map teardown also clears sources.
+      try {
+        if (!map) return;
+        if (map.getLayer(MASK_OUTLINE_LAYER_ID)) map.removeLayer(MASK_OUTLINE_LAYER_ID);
+        if (map.getSource(MASK_OUTLINE_SOURCE_ID)) map.removeSource(MASK_OUTLINE_SOURCE_ID);
+        if (map.getLayer(MASK_FILL_LAYER_ID)) map.removeLayer(MASK_FILL_LAYER_ID);
+        if (map.getSource(MASK_SOURCE_ID)) map.removeSource(MASK_SOURCE_ID);
+      } catch { /* noop */ }
+    };
+  }, [mapReady, mapUnavailable]);
 
   // ── Dot-stroke color must contrast against the basemap, so it depends on theme ──
   const dotStroke = theme === "light" ? "#0b0b0d" : "#ffffff";
