@@ -1,3 +1,4 @@
+import AppIntroCard from "@/components/app/AppIntroCard";
 import AppMapFeedClient from "@/components/app/AppMapFeedClient";
 import KPIRow, { type KPIItem } from "@/components/dashboard/KPIRow";
 import { fetchReports } from "@/lib/api";
@@ -18,14 +19,27 @@ export default async function MobileAppHomePage({
   const open = initialReports.filter((r) => r.status === "open").length;
   const fixed = initialReports.filter((r) => r.status === "fixed").length;
 
+  // All KPI labels are locale-driven now (were hardcoded English)
   const kpis: KPIItem[] = [
-    { key: "total", value: total, label: "Total", variant: "default" },
-    { key: "open",  value: open,  label: "Open",  variant: "open" },
-    { key: "fixed", value: fixed, label: "Fixed", variant: "fixed" },
+    { key: "total", value: total, label: messages.kpiTotal, variant: "default" },
+    { key: "open",  value: open,  label: messages.kpiOpen,  variant: "open" },
+    { key: "fixed", value: fixed, label: messages.kpiFixed, variant: "fixed" },
   ];
 
   return (
     <section style={{ display: "grid", gap: 10 }}>
+      {/* ── First-time intro (dismissible, explains what the app does) ── */}
+      <AppIntroCard
+        eyebrow={messages.appIntroEyebrow}
+        title={messages.appIntroTitle}
+        body={messages.appIntroBody}
+        step1={messages.appIntroStep1}
+        step2={messages.appIntroStep2}
+        step3={messages.appIntroStep3}
+        cta={messages.appIntroCta}
+        dismiss={messages.appIntroDismiss}
+      />
+
       {/* ── Greeting strip ── */}
       <div
         style={{
@@ -51,7 +65,7 @@ export default async function MobileAppHomePage({
           }}
         >
           <span className="live-dot" aria-hidden="true" />
-          <span>Your Area · Kerala</span>
+          <span>{messages.yourAreaKerala}</span>
         </div>
         <h1
           style={{
@@ -105,10 +119,10 @@ export default async function MobileAppHomePage({
               borderRadius: "var(--r-sm)",
             }}
           >
-            Safe
+            {messages.safeModeTag}
           </span>
           <div style={{ flex: 1, fontSize: 12, color: "var(--ink-1)", fontWeight: 500 }}>
-            Map disabled for low-end devices.
+            {messages.safeModeLine}
           </div>
           <a
             href="/app?safe=0"
@@ -125,7 +139,7 @@ export default async function MobileAppHomePage({
               textTransform: "uppercase",
             }}
           >
-            Full map →
+            {messages.fullMapCta}
           </a>
         </div>
       )}

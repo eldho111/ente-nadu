@@ -13,24 +13,24 @@ type Branding = {
   locales: Locale[];
 };
 
-const TEXT: Record<Locale, { language: string; apply: string; about: string; installTip: string }> = {
+const TEXT: Record<Locale, { language: string; languageNote: string; about: string; installTip: string }> = {
   en: {
     language: "Language",
-    apply: "Apply",
+    languageNote: "Applies immediately to the whole app.",
     about: "About",
-    installTip: "Tip: use browser menu and choose Install app to add this to your home screen.",
+    installTip: "Tip: use your browser menu and choose “Install app” to add this to your home screen.",
   },
   kn: {
     language: "ಭಾಷೆ",
-    apply: "ಅನ್ವಯಿಸು",
+    languageNote: "ಸಂಪೂರ್ಣ ಆ್ಯಪ್‌ಗೆ ತಕ್ಷಣ ಅನ್ವಯಿಸುತ್ತದೆ.",
     about: "ಬಗ್ಗೆ",
-    installTip: "ಸೂಚನೆ: ಬ್ರೌಸರ್ ಮೆನುದಲ್ಲಿ Install app ಆಯ್ಕೆ ಮಾಡಿ ಹೋಮ್ ಸ್ಕ್ರೀನ್‌ಗೆ ಸೇರಿಸಿ.",
+    installTip: "ಸೂಚನೆ: ಬ್ರೌಸರ್ ಮೆನುವಿನಲ್ಲಿ “Install app” ಆಯ್ಕೆ ಮಾಡಿ ಹೋಮ್ ಸ್ಕ್ರೀನ್‌ಗೆ ಸೇರಿಸಿ.",
   },
   ml: {
     language: "ഭാഷ",
-    apply: "പ്രയോഗിക്കുക",
+    languageNote: "ആപ്പിലുടനീളം ഉടൻ പ്രയോഗിക്കും.",
     about: "കുറിച്ച്",
-    installTip: "സൂചന: ബ്രൗസർ മെനുവിൽ Install app ഉപയോഗിച്ച് ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക.",
+    installTip: "സൂചന: ബ്രൗസർ മെനുവിൽ “Install app” ഉപയോഗിച്ച് ഹോം സ്ക്രീനിലേക്ക് ചേർക്കുക.",
   },
 };
 
@@ -67,25 +67,39 @@ export default function AppSettingsClient({ locale: serverLocale }: Props) {
       });
   }, []);
 
-  const updateLocale = (next: Locale) => {
+  // Language change → persist, set cookie, reload the whole app immediately.
+  // Previously this required a separate "Apply" button most users missed.
+  const changeLocale = (next: Locale) => {
+    if (next === locale) return;
     setLocale(next);
     try {
       localStorage.setItem("locale", next);
     } catch {
-      // storage may be blocked
+      // storage blocked
     }
     const secure = window.location.protocol === "https:" ? "; Secure" : "";
     document.cookie = `locale=${next}; path=/; max-age=31536000; SameSite=Lax${secure}`;
+    // Reload so server-rendered strings in every component re-resolve.
+    window.location.reload();
   };
 
   return (
     <div style={{ display: "grid", gap: 12 }}>
       <section className="card" style={{ padding: 14, display: "grid", gap: 8 }}>
-        <strong>{text.language}</strong>
+        <strong style={{ fontSize: 13, letterSpacing: "0.02em" }}>{text.language}</strong>
         <select
           value={locale}
-          onChange={(event) => updateLocale(event.target.value as Locale)}
-          style={{ minHeight: 38, border: "1px solid #d5ccb7", borderRadius: 8, padding: "0 10px" }}
+          onChange={(event) => changeLocale(event.target.value as Locale)}
+          style={{
+            minHeight: 42,
+            border: "1px solid var(--border-strong)",
+            borderRadius: "var(--r-sm)",
+            padding: "0 12px",
+            background: "var(--bg-surface)",
+            color: "var(--ink-0)",
+            fontSize: 15,
+            fontWeight: 500,
+          }}
         >
           {(Object.keys(LOCALE_LABELS) as Locale[]).map((code) => (
             <option value={code} key={code}>
@@ -93,17 +107,17 @@ export default function AppSettingsClient({ locale: serverLocale }: Props) {
             </option>
           ))}
         </select>
-        <button className="button" onClick={() => window.location.reload()}>
-          {text.apply}
-        </button>
+        <span style={{ fontSize: 11, color: "var(--ink-muted)", letterSpacing: "0.02em" }}>
+          {text.languageNote}
+        </span>
       </section>
 
       <section className="card" style={{ padding: 14, display: "grid", gap: 6 }}>
-        <strong>{text.about}</strong>
+        <strong style={{ fontSize: 13, letterSpacing: "0.02em" }}>{text.about}</strong>
         <span className="muted">
-          {branding ? `${branding.app_name} - ${branding.region_label}` : "Ente Nadu"}
+          {branding ? `${branding.app_name} · ${branding.region_label}` : "Ente Nadu · Kerala"}
         </span>
-        <span className="muted" style={{ fontSize: 12 }}>
+        <span className="muted" style={{ fontSize: 12, lineHeight: 1.55 }}>
           {text.installTip}
         </span>
       </section>
