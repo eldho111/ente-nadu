@@ -540,29 +540,97 @@ export default function ReportFlow() {
         </div>
       )}
 
-      {/* ── Error state ── */}
-      {step === "error" && (
-        <div style={{
-          display: "grid", placeItems: "center", gap: 14, padding: "32px 20px",
-          background: "#fffbeb", borderRadius: 16, border: "1px solid #fcd34d", textAlign: "center",
-        }}>
-          <div style={{ fontSize: 48 }}>{"\u26A0\uFE0F"}</div>
-          <h3 style={{ margin: 0, color: "#d97706" }}>{t.errorTitle}</h3>
-          <p style={{ margin: 0, fontSize: 13, color: "#64748b", maxWidth: "34ch" }}>{t.errorSub}</p>
-          {errorMsg && (
-            <details style={{ fontSize: 11, color: "#94a3b8", maxWidth: "38ch", textAlign: "left" }}>
-              <summary style={{ cursor: "pointer" }}>Error details</summary>
-              <pre style={{ margin: "6px 0 0", padding: 8, background: "#f8fafc", borderRadius: 6, overflowX: "auto", fontSize: 10 }}>{errorMsg}</pre>
-            </details>
-          )}
-          <button onClick={reset} style={{
-            padding: "12px 24px", borderRadius: 10, border: "none",
-            background: "#d97706", color: "#fff", cursor: "pointer", fontWeight: 700,
-          }}>
-            {t.tryAgain}
-          </button>
-        </div>
-      )}
+      {/* ── Error state — context-aware (was showing "server not connected"
+           for EVERY failure, including rate-limits, which is misleading) ── */}
+      {step === "error" && (() => {
+        // Parse the error string (format from line ~226: "Submit failed (STATUS): BODY")
+        const statusMatch = errorMsg.match(/\((\d{3})\)/);
+        const httpStatus = statusMatch ? Number(statusMatch[1]) : 0;
+        const isRateLimited = httpStatus === 429;
+        const isServerError = httpStatus >= 500 && httpStatus < 600;
+        const isAuthError = httpStatus === 401 || httpStatus === 403;
+        const isValidationError = httpStatus === 400 || httpStatus === 422;
+
+        const title = isRateLimited
+          ? "Daily reporting limit reached"
+          : isAuthError
+            ? "Not authorized"
+            : isValidationError
+              ? "Report could not be saved"
+              : isServerError
+                ? "Server error"
+                : t.errorTitle;
+
+        const subtitle = isRateLimited
+          ? "You've submitted the maximum reports allowed per day from this device. The limit resets at midnight IST. If you're testing and need more, bump ANON_DEVICE_DAILY_LIMIT on the API."
+          : isAuthError
+            ? "This action requires a sign-in that your session doesn't have."
+            : isValidationError
+              ? "Some of the report fields weren't accepted by the server. See details below."
+              : isServerError
+                ? "The backend encountered an error handling this report. It may be temporary — try again in a minute."
+                : t.errorSub;
+
+        return (
+          <div
+            style={{
+              display: "grid",
+              placeItems: "center",
+              gap: 14,
+              padding: "32px 20px",
+              background: "var(--bg-surface)",
+              borderRadius: "var(--r-md)",
+              border: "1px solid var(--border)",
+              borderLeft: `3px solid ${isRateLimited ? "var(--gold)" : "var(--alarm)"}`,
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontSize: 40 }}>{isRateLimited ? "\u23F3" : "\u26A0\uFE0F"}</div>
+            <h3
+              style={{
+                margin: 0,
+                color: isRateLimited ? "var(--gold)" : "var(--alarm)",
+                fontSize: 16,
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+              }}
+            >
+              {title}
+            </h3>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--ink-1)", maxWidth: "44ch", lineHeight: 1.55 }}>
+              {subtitle}
+            </p>
+            {errorMsg && (
+              <details style={{ fontSize: 11, color: "var(--ink-muted)", maxWidth: "44ch", textAlign: "left" }}>
+                <summary style={{ cursor: "pointer", fontFamily: "var(--font-mono)", letterSpacing: "0.04em" }}>
+                  Error details
+                </summary>
+                <pre
+                  style={{
+                    margin: "6px 0 0",
+                    padding: 10,
+                    background: "var(--bg-elev)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "var(--r-sm)",
+                    overflowX: "auto",
+                    fontSize: 10,
+                    color: "var(--ink-1)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {errorMsg}
+                </pre>
+              </details>
+            )}
+            <button
+              onClick={reset}
+              className={isRateLimited ? "button secondary" : "button primary"}
+            >
+              {isRateLimited ? "OK" : t.tryAgain}
+            </button>
+          </div>
+        );
+      })()}
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
