@@ -28,6 +28,22 @@ export default async function ReportPage({ params }: { params: { publicId: strin
   const statusColor = STATUS_COLORS[report.status] || "#868e96";
   const statusLabel = STATUS_LABELS[report.status] || report.status;
 
+  // Classification is async — the worker may still be processing this report.
+  // Distinguish genuine "missing" data from "not yet populated" by comparing
+  // created_at to a grace window.
+  const createdAt = new Date(report.created_at).getTime();
+  const ageMinutes = (Date.now() - createdAt) / 60_000;
+  const classifyPending =
+    !report.description_ai && !report.description_user && ageMinutes < 10;
+  const classifyStuck =
+    !report.description_ai && !report.description_user && ageMinutes >= 10;
+
+  // Same logic for media — treat < 10 min old null public_url as "processing"
+  // and anything older as "stuck".
+  const hasLiveMedia = report.media.some((m) => m.public_url);
+  const mediaPending = !hasLiveMedia && report.media.length > 0 && ageMinutes < 10;
+  const mediaStuck = !hasLiveMedia && report.media.length > 0 && ageMinutes >= 10;
+
   return (
     <main>
       <nav aria-label="Breadcrumb" style={{ marginBottom: 12 }}>
@@ -76,10 +92,71 @@ export default async function ReportPage({ params }: { params: { publicId: strin
             )}
           </div>
 
-          {/* Summary */}
-          <p style={{ fontSize: 15, lineHeight: 1.6, margin: "12px 0" }}>
-            {report.description_ai || report.description_user || "No description available."}
-          </p>
+          {/* Summary / description.
+              When AI hasn't populated description_ai yet, fall back in order:
+              user-typed note → clear "classification pending" state →
+              "classification stuck" diagnostic hint. Never leave the user
+              staring at an ambiguous "No description available." */}
+          {report.description_ai || report.description_user ? (
+            <p style={{ fontSize: 15, lineHeight: 1.6, margin: "12px 0", color: "var(--ink-0)" }}>
+              {report.description_ai || report.description_user}
+            </p>
+          ) : classifyPending ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 14px",
+                margin: "12px 0",
+                background: "var(--accent-soft)",
+                border: "1px solid var(--border)",
+                borderLeft: "2px solid var(--accent)",
+                borderRadius: "var(--r-sm)",
+                fontSize: 13,
+                color: "var(--ink-1)",
+                lineHeight: 1.55,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "var(--accent)",
+                  boxShadow: "0 0 8px var(--accent-glow)",
+                  flexShrink: 0,
+                }}
+              />
+              <span>
+                <strong style={{ color: "var(--accent)", fontWeight: 600 }}>AI classification in progress.</strong>
+                {" "}Filed {Math.round(ageMinutes)} min ago · refresh in a minute for the auto-generated summary.
+              </span>
+            </div>
+          ) : classifyStuck ? (
+            <div
+              style={{
+                padding: "10px 14px",
+                margin: "12px 0",
+                background: "var(--alarm-soft)",
+                border: "1px solid var(--border)",
+                borderLeft: "2px solid var(--alarm)",
+                borderRadius: "var(--r-sm)",
+                fontSize: 13,
+                color: "var(--ink-1)",
+                lineHeight: 1.55,
+              }}
+            >
+              <strong style={{ color: "var(--alarm)", fontWeight: 600 }}>
+                AI classification hasn&apos;t run for this report.
+              </strong>
+              {" "}
+              Filed {Math.round(ageMinutes)} min ago — the background worker may be offline.
+              The report itself is saved and visible publicly. User-selected category:{" "}
+              <strong style={{ color: "var(--ink-0)" }}>{categoryLabel}</strong>.
+            </div>
+          ) : null}
 
           {/* Details grid */}
           <div className="detailMeta">
@@ -127,10 +204,47 @@ export default async function ReportPage({ params }: { params: { publicId: strin
 
         {/* Sidebar: media + map + timeline */}
         <div className="reportDetailSidebar">
-          {/* Media gallery */}
+          {/* Evidence gallery.
+              Handles three states:
+              1. Media with a public_url — render it.
+              2. Media < 10 min old with no URL yet — "processing" (expected
+                 while the background worker blurs + publishes to public bucket).
+              3. Media >= 10 min old with no URL — "stuck" (worker likely down). */}
           {report.media.length > 0 && (
             <section className="card" style={{ padding: 20 }}>
-              <h3 style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700 }}>Evidence</h3>
+              <h3
+                style={{
+                  margin: "0 0 12px",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                  textTransform: "uppercase",
+                  color: "var(--ink-0)",
+                }}
+              >
+                Evidence
+              </h3>
+              {mediaStuck && (
+                <div
+                  style={{
+                    padding: "8px 12px",
+                    marginBottom: 12,
+                    background: "var(--alarm-soft)",
+                    border: "1px solid var(--border)",
+                    borderLeft: "2px solid var(--alarm)",
+                    borderRadius: "var(--r-sm)",
+                    fontSize: 12,
+                    color: "var(--ink-1)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <strong style={{ color: "var(--alarm)", fontWeight: 600 }}>
+                    Media processing is stuck.
+                  </strong>
+                  {" "}The background worker hasn&apos;t blurred + published this image.
+                  Reload once the worker service is healthy.
+                </div>
+              )}
               <div className="mediaGallery">
                 {report.media.map((item) => (
                   <div key={item.id} className="mediaItem">
@@ -141,7 +255,7 @@ export default async function ReportPage({ params }: { params: { publicId: strin
                           alt={`Evidence for report ${report.public_id}`}
                           width={400}
                           height={300}
-                          style={{ width: "100%", height: "auto", borderRadius: 10, display: "block" }}
+                          style={{ width: "100%", height: "auto", borderRadius: "var(--r-sm)", display: "block", border: "1px solid var(--border)" }}
                         />
                       ) : (
                         <a href={item.public_url} target="_blank" rel="noreferrer" className="button secondary">
@@ -149,9 +263,40 @@ export default async function ReportPage({ params }: { params: { publicId: strin
                         </a>
                       )
                     ) : (
-                      <div className="mediaPending">
-                        <span style={{ fontSize: 24 }}>{"\u{23F3}"}</span>
-                        <span className="muted">Media processing...</span>
+                      <div
+                        className="mediaPending"
+                        style={{
+                          background: "var(--bg-elev)",
+                          border: "1px dashed var(--border-strong)",
+                          borderRadius: "var(--r-sm)",
+                          padding: "20px 16px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: mediaPending ? "var(--accent)" : "var(--alarm)",
+                            boxShadow: mediaPending
+                              ? "0 0 8px var(--accent-glow)"
+                              : "0 0 8px var(--alarm-glow)",
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "var(--ink-1)",
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          {mediaPending ? "Processing media — refresh in a minute" : "Not yet processed"}
+                        </span>
                       </div>
                     )}
                   </div>
