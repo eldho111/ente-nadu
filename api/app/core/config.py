@@ -21,8 +21,16 @@ class Settings(BaseSettings):
     database_pool_recycle_seconds: int = Field(default=1800, alias="DATABASE_POOL_RECYCLE_SECONDS")
     redis_url: str = Field(default="redis://redis:6379/0", alias="REDIS_URL")
 
+    # S3_ENDPOINT       — server-side S3 API endpoint (used by API/worker for GET/PUT object).
+    # S3_PUBLIC_ENDPOINT — browser-facing S3 API endpoint for PRESIGNED UPLOADS.
+    #                     On R2 this is the SAME as S3_ENDPOINT (…r2.cloudflarestorage.com).
+    # S3_PUBLIC_READ_BASE_URL — browser-facing READ URL (e.g. R2.dev domain or custom CDN).
+    #                           Used ONLY to construct public_url fields saved into media rows.
+    # Conflating presigned-PUT endpoint with public-read URL is a classic R2 foot-gun:
+    # r2.dev is read-only and rejects signed PUTs with 401.
     s3_endpoint: str = Field(default="http://minio:9000", alias="S3_ENDPOINT")
     s3_public_endpoint: str = Field(default="http://localhost:9000", alias="S3_PUBLIC_ENDPOINT")
+    s3_public_read_base_url: str | None = Field(default=None, alias="S3_PUBLIC_READ_BASE_URL")
     s3_access_key: str = Field(default="minioadmin", alias="S3_ACCESS_KEY")
     s3_secret_key: str = Field(default="minioadmin", alias="S3_SECRET_KEY")
     s3_bucket_raw: str = Field(default="civic-raw", alias="S3_BUCKET_RAW")
