@@ -37,7 +37,11 @@ const CATEGORY_TO_DEPT: Record<string, { code: string; label: string }> = {
 };
 
 export default async function HomePage() {
-  const reports = await fetchReports({ page_size: 500 });
+  // 200 is enough for the full dashboard composition: the panels are all
+  // counts/aggregates, the map clusters, and the report table shows only the
+  // most recent 20. Going higher just bloats SSR and widens the failure blast
+  // radius when the API is slow.
+  const reports = await fetchReports({ page_size: 200 });
 
   const totals = summarize(reports);
   const hotspots = topHotspots(reports, 10);

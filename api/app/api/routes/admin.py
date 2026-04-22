@@ -245,6 +245,10 @@ def upsert_official_user(
 
 
 class TrialEmailRequest(BaseModel):
+    # NOTE: EmailStr validators are constructed at MODEL IMPORT TIME (not at
+    # request time). That means the `email-validator` package must be in
+    # api/requirements.txt — without it, this module fails to import and the
+    # WHOLE API crashes on boot. See: https://docs.pydantic.dev/latest/api/networks/#pydantic.networks.EmailStr
     to: EmailStr = Field(..., description="Recipient address")
     category: str = Field(default="pothole", description="Civic category slug")
     location: str = Field(default="Kadavanthra, Ernakulam", description="Report location label")

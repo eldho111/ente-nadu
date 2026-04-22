@@ -87,10 +87,31 @@ function queryString(filters?: Record<string, string | number | undefined>): str
   return value ? `?${value}` : "";
 }
 
+// When the Railway API is cold-started or briefly unhealthy, we don't want
+// Next.js SSR to hang for the default 30s — that leaves visitors staring
+// at a blank white page before eventually getting an error. 8s is long
+// enough for a warm API on a slow network and short enough that the
+// homepage degrades to an empty-state shell fast.
+const FETCH_TIMEOUT_MS = 8000;
+
+async function fetchWithTimeout(
+  input: string,
+  init: RequestInit = {},
+  timeoutMs = FETCH_TIMEOUT_MS,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function fetchReports(filters?: ReportFilter): Promise<ReportCard[]> {
   try {
     const url = `${INTERNAL_API_BASE}/v1/reports${queryString(filters)}`;
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetchWithTimeout(url, { cache: "no-store" });
     if (!response.ok) {
       return [];
     }
@@ -105,7 +126,7 @@ export async function fetchReports(filters?: ReportFilter): Promise<ReportCard[]
 export async function fetchReportByPublicId(publicId: string): Promise<ReportDetail | null> {
   try {
     const url = `${INTERNAL_API_BASE}/v1/reports/${publicId}`;
-    const response = await fetch(url, { cache: "no-store" });
+    const response = await fetchWithTimeout(url, { cache: "no-store" });
     if (!response.ok) {
       return null;
     }
@@ -118,7 +139,7 @@ export async function fetchReportByPublicId(publicId: string): Promise<ReportDet
 
 export async function fetchWardMetrics(): Promise<WardMetric[]> {
   try {
-    const response = await fetch(`${INTERNAL_API_BASE}/v1/reports/metrics/wards`, { cache: "no-store" });
+    const response = await fetchWithTimeout(`${INTERNAL_API_BASE}/v1/reports/metrics/wards`, { cache: "no-store" });
     if (!response.ok) {
       return [];
     }
