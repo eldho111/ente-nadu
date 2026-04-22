@@ -11,50 +11,67 @@ type Props = {
   reports: ReportCard[];
 };
 
-// Clean map — CartoDB Voyager
-const MAP_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    "carto-voyager": {
-      type: "raster",
-      tiles: [
-        "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
-        "https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
-        "https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
-      ],
-      tileSize: 256,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-    },
-  },
-  layers: [{ id: "carto-voyager-layer", type: "raster", source: "carto-voyager" }],
-};
-
 const KERALA_CENTER: [number, number] = [76.27, 10.85];
 
-// Status-based colors
-// Red = open (urgent), Orange = acknowledged/in-progress, Green = fixed
-const STATUS_COLORS: Record<string, string> = {
-  open: "#dc2626",
-  acknowledged: "#ea580c",
-  in_progress: "#d97706",
-  fixed: "#16a34a",
-  rejected: "#6b7280",
-};
+// ── CartoDB raster basemaps: Dark Matter (dark) / Positron (light) ──
+// Both are free, CC-BY attribution required, same endpoint pattern.
+const DARK_TILES = [
+  "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+  "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+  "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+  "https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+];
+const LIGHT_TILES = [
+  "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+  "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+  "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+  "https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+];
+const ATTRIBUTION =
+  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
 
-const STATUS_GLOW: Record<string, string> = {
-  open: "rgba(220, 38, 38, 0.4)",
-  acknowledged: "rgba(234, 88, 12, 0.3)",
-  in_progress: "rgba(217, 119, 6, 0.3)",
-  fixed: "rgba(22, 163, 74, 0.2)",
-  rejected: "rgba(107, 114, 128, 0.15)",
-};
+const BASEMAP_SOURCE_ID = "basemap";
+const BASEMAP_LAYER_ID = "basemap-layer";
+
+function getInitialTheme(): "light" | "dark" {
+  if (typeof document === "undefined") return "dark";
+  return (document.documentElement.getAttribute("data-theme") as "light" | "dark") || "dark";
+}
+
+function tilesForTheme(theme: "light" | "dark"): string[] {
+  return theme === "light" ? LIGHT_TILES : DARK_TILES;
+}
+
+function buildStyle(theme: "light" | "dark"): StyleSpecification {
+  return {
+    version: 8,
+    sources: {
+      [BASEMAP_SOURCE_ID]: {
+        type: "raster",
+        tiles: tilesForTheme(theme),
+        tileSize: 256,
+        attribution: ATTRIBUTION,
+      },
+    },
+    layers: [{ id: BASEMAP_LAYER_ID, type: "raster", source: BASEMAP_SOURCE_ID }],
+  };
+}
+
+// JHU-style: all reports render as red dots; size scales with severity.
+// Status is encoded via a small orange ring for in-progress and a muted
+// green for fixed — keeps the dashboard "alarm-first" without lying
+// about progress.
+const C_OPEN = "#e63946";    // alarm
+const C_PROGRESS = "#f59e0b"; // warn
+const C_FIXED = "#22c55e";   // ok
+const C_REJECTED = "#6b7078"; // muted
 
 export default function PublicMap({ reports }: Props) {
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [mapUnavailable, setMapUnavailable] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   const geojsonData = useMemo<GeoJSON.FeatureCollection>(() => ({
     type: "FeatureCollection",
@@ -76,6 +93,8 @@ export default function PublicMap({ reports }: Props) {
     if (!mapContainerRef.current) return;
     let cancelled = false;
     let loadedMap: import("maplibre-gl").Map | null = null;
+    const initialTheme = getInitialTheme();
+    setTheme(initialTheme);
 
     const init = async () => {
       try {
@@ -83,7 +102,7 @@ export default function PublicMap({ reports }: Props) {
         if (cancelled || !mapContainerRef.current) return;
         loadedMap = new maplibregl.Map({
           container: mapContainerRef.current,
-          style: MAP_STYLE,
+          style: buildStyle(initialTheme),
           center: KERALA_CENTER,
           zoom: 7.2,
           minZoom: 6.5,
@@ -101,10 +120,34 @@ export default function PublicMap({ reports }: Props) {
       }
     };
     void init();
-    return () => { cancelled = true; loadedMap?.remove(); mapRef.current = null; setMapReady(false); };
+    return () => {
+      cancelled = true;
+      loadedMap?.remove();
+      mapRef.current = null;
+      setMapReady(false);
+    };
   }, []);
 
-  // ── Layers + Pulse Animation ──
+  // ── Live theme swap — swap raster tile source on theme-change event ──
+  useEffect(() => {
+    const handle = () => {
+      const next = getInitialTheme();
+      setTheme(next);
+      const map = mapRef.current;
+      if (!map) return;
+      const src = map.getSource(BASEMAP_SOURCE_ID) as import("maplibre-gl").RasterTileSource | undefined;
+      if (src && typeof (src as unknown as { setTiles?: (t: string[]) => void }).setTiles === "function") {
+        (src as unknown as { setTiles: (t: string[]) => void }).setTiles(tilesForTheme(next));
+      }
+    };
+    window.addEventListener("theme-change", handle);
+    return () => window.removeEventListener("theme-change", handle);
+  }, []);
+
+  // ── Dot-stroke color must contrast against the basemap, so it depends on theme ──
+  const dotStroke = theme === "light" ? "#0b0b0d" : "#ffffff";
+
+  // ── Data layers ──
   useEffect(() => {
     if (!mapRef.current || !mapReady || mapUnavailable) return;
 
@@ -119,7 +162,7 @@ export default function PublicMap({ reports }: Props) {
 
         // Clean previous
         if (map.getSource(SRC)) {
-          ["pulse-ring", "cluster-glow", "clusters", "cluster-count", "point-glow", "points"].forEach((id) => {
+          ["pulse", "clusters", "cluster-count", "points"].forEach((id) => {
             if (map.getLayer(id)) map.removeLayer(id);
           });
           map.removeSource(SRC);
@@ -133,30 +176,24 @@ export default function PublicMap({ reports }: Props) {
           clusterRadius: 50,
         });
 
-        // ── CLUSTER LAYERS ──
-
-        map.addLayer({
-          id: "cluster-glow",
-          type: "circle",
-          source: SRC,
-          filter: ["has", "point_count"],
-          paint: {
-            "circle-color": "rgba(220, 38, 38, 0.2)",
-            "circle-radius": ["step", ["get", "point_count"], 28, 10, 36, 30, 48],
-            "circle-blur": 0.6,
-          },
-        });
-
+        // ── CLUSTERS: solid red disc + count ──
         map.addLayer({
           id: "clusters",
           type: "circle",
           source: SRC,
           filter: ["has", "point_count"],
           paint: {
-            "circle-color": ["step", ["get", "point_count"], "#ea580c", 10, "#dc2626", 30, "#9333ea"],
-            "circle-radius": ["step", ["get", "point_count"], 16, 10, 22, 30, 28],
-            "circle-stroke-width": 3,
-            "circle-stroke-color": "#ffffff",
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              "#e63946", 10,
+              "#b4202f", 30,
+              "#7a1320",
+            ],
+            "circle-radius": ["step", ["get", "point_count"], 14, 10, 20, 30, 26],
+            "circle-stroke-width": 1.5,
+            "circle-stroke-color": dotStroke,
+            "circle-opacity": 0.9,
           },
         });
 
@@ -165,59 +202,36 @@ export default function PublicMap({ reports }: Props) {
           type: "symbol",
           source: SRC,
           filter: ["has", "point_count"],
-          layout: { "text-field": "{point_count_abbreviated}", "text-size": 13 },
-          paint: { "text-color": "#ffffff" },
+          layout: {
+            "text-field": "{point_count_abbreviated}",
+            "text-size": 11,
+            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+          },
+          paint: {
+            "text-color": "#ffffff",
+          },
         });
 
-        // ── INDIVIDUAL POINT LAYERS ──
-
-        // Pulsing ring — only for unresolved issues
+        // ── OPEN pulse — subtle ring that expands/fades ──
         map.addLayer({
-          id: "pulse-ring",
+          id: "pulse",
           type: "circle",
           source: SRC,
-          filter: ["all", ["!", ["has", "point_count"]], ["!=", ["get", "status"], "fixed"], ["!=", ["get", "status"], "rejected"]],
+          filter: [
+            "all",
+            ["!", ["has", "point_count"]],
+            ["==", ["get", "status"], "open"],
+          ],
           paint: {
-            "circle-color": [
-              "match", ["get", "status"],
-              "open", STATUS_GLOW.open,
-              "acknowledged", STATUS_GLOW.acknowledged,
-              "in_progress", STATUS_GLOW.in_progress,
-              STATUS_GLOW.open,
-            ],
-            "circle-radius": [
-              "interpolate", ["linear"], ["get", "severity"],
-              0, 14,
-              2, 18,
-              4, 24,
-              5, 30,
-            ],
+            "circle-color": "rgba(230, 57, 70, 0)",
+            "circle-stroke-color": "#e63946",
+            "circle-stroke-width": 1.5,
+            "circle-radius": 8,
             "circle-opacity": 0.8,
           },
         });
 
-        // Inner glow
-        map.addLayer({
-          id: "point-glow",
-          type: "circle",
-          source: SRC,
-          filter: ["!", ["has", "point_count"]],
-          paint: {
-            "circle-color": [
-              "match", ["get", "status"],
-              "open", STATUS_GLOW.open,
-              "acknowledged", STATUS_GLOW.acknowledged,
-              "in_progress", STATUS_GLOW.in_progress,
-              "fixed", STATUS_GLOW.fixed,
-              "rejected", STATUS_GLOW.rejected,
-              STATUS_GLOW.open,
-            ],
-            "circle-radius": 12,
-            "circle-blur": 0.4,
-          },
-        });
-
-        // Solid dot — color by status
+        // ── SOLID DOTS — colored by status ──
         map.addLayer({
           id: "points",
           type: "circle",
@@ -225,46 +239,47 @@ export default function PublicMap({ reports }: Props) {
           filter: ["!", ["has", "point_count"]],
           paint: {
             "circle-color": [
-              "match", ["get", "status"],
-              "open", STATUS_COLORS.open,
-              "acknowledged", STATUS_COLORS.acknowledged,
-              "in_progress", STATUS_COLORS.in_progress,
-              "fixed", STATUS_COLORS.fixed,
-              "rejected", STATUS_COLORS.rejected,
-              STATUS_COLORS.open,
+              "match",
+              ["get", "status"],
+              "open", C_OPEN,
+              "acknowledged", C_PROGRESS,
+              "in_progress", C_PROGRESS,
+              "fixed", C_FIXED,
+              "rejected", C_REJECTED,
+              C_OPEN,
             ],
             "circle-radius": [
               "interpolate", ["linear"], ["get", "severity"],
-              0, 5,
-              2, 7,
-              4, 9,
-              5, 11,
+              0, 4,
+              2, 5,
+              4, 7,
+              5, 9,
             ],
-            "circle-stroke-width": 2.5,
-            "circle-stroke-color": "#ffffff",
+            "circle-stroke-width": 1,
+            "circle-stroke-color": dotStroke,
+            "circle-opacity": [
+              "match",
+              ["get", "status"],
+              "fixed", 0.65,      // faded — already solved
+              "rejected", 0.4,
+              1,
+            ],
           },
         });
 
-        // ── PULSE ANIMATION ──
-        let pulsePhase = 0;
-        const animatePulse = () => {
-          pulsePhase = (pulsePhase + 0.03) % (Math.PI * 2);
-          const scale = 1 + 0.35 * Math.sin(pulsePhase); // oscillates 0.65 to 1.35
-          const opacity = 0.4 + 0.4 * Math.sin(pulsePhase); // oscillates 0.0 to 0.8
-
-          if (map.getLayer("pulse-ring")) {
-            map.setPaintProperty("pulse-ring", "circle-radius", [
-              "interpolate", ["linear"], ["get", "severity"],
-              0, 14 * scale,
-              2, 18 * scale,
-              4, 24 * scale,
-              5, 30 * scale,
-            ]);
-            map.setPaintProperty("pulse-ring", "circle-opacity", opacity);
+        // ── Pulse animation on open dots ──
+        let phase = 0;
+        const step = () => {
+          phase = (phase + 0.025) % 1;   // 0..1 progress of one pulse cycle
+          const radius = 8 + phase * 14; // grows 8 → 22 px
+          const opacity = 0.65 * (1 - phase);
+          if (map.getLayer("pulse")) {
+            map.setPaintProperty("pulse", "circle-radius", radius);
+            map.setPaintProperty("pulse", "circle-opacity", opacity);
           }
-          pulseFrame = requestAnimationFrame(animatePulse);
+          pulseFrame = requestAnimationFrame(step);
         };
-        pulseFrame = requestAnimationFrame(animatePulse);
+        pulseFrame = requestAnimationFrame(step);
 
         // ── INTERACTIONS ──
 
@@ -287,25 +302,28 @@ export default function PublicMap({ reports }: Props) {
           if (geom.type !== "Point" || !props) return;
 
           const status = props.status || "open";
-          const dotColor = STATUS_COLORS[status] || STATUS_COLORS.open;
+          const dotColor =
+            status === "open" ? C_OPEN :
+            status === "fixed" ? C_FIXED :
+            status === "rejected" ? C_REJECTED :
+            C_PROGRESS;
 
           const el = document.createElement("div");
-          el.style.cssText = "font-family:system-ui;font-size:13px;padding:4px;min-width:140px;";
           el.innerHTML = `
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
               <span style="width:8px;height:8px;border-radius:50%;background:${dotColor};display:inline-block;"></span>
-              <strong style="text-transform:capitalize;color:#0f172a;">${props.title}</strong>
+              <strong style="text-transform:capitalize;font-weight:700;letter-spacing:0.02em;">${props.title}</strong>
             </div>
-            <div style="font-size:11px;color:#64748b;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">
-              ${status.replace("_", " ")}${props.severity ? " &middot; Severity " + props.severity + "/5" : ""}
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:6px;font-weight:700;">
+              ${status.replace("_", " ")}${props.severity ? " · Sev " + props.severity + "/5" : ""}
             </div>
-            <a href="/reports/${encodeURIComponent(props.publicId)}" style="color:#0d9488;font-weight:600;text-decoration:none;font-size:12px;">
-              View details &rarr;
+            <a href="/reports/${encodeURIComponent(props.publicId)}" style="color:var(--alarm);font-weight:700;text-decoration:none;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;">
+              View report →
             </a>
           `;
 
           popupInstance?.remove();
-          popupInstance = new maplibregl.Popup({ offset: 14, closeButton: false })
+          popupInstance = new maplibregl.Popup({ offset: 12, closeButton: false, className: "enteNaduPopup" })
             .setLngLat(geom.coordinates as [number, number])
             .setDOMContent(el)
             .addTo(map);
@@ -330,28 +348,40 @@ export default function PublicMap({ reports }: Props) {
       popupInstance?.remove();
       try {
         if (map && map.getSource && map.getSource(SRC)) {
-          ["pulse-ring", "cluster-glow", "clusters", "cluster-count", "point-glow", "points"].forEach((id) => {
+          ["pulse", "clusters", "cluster-count", "points"].forEach((id) => {
             try { if (map.getLayer(id)) map.removeLayer(id); } catch {}
           });
           try { map.removeSource(SRC); } catch {}
         }
       } catch {}
     };
-  }, [mapReady, mapUnavailable, geojsonData]);
+  }, [mapReady, mapUnavailable, geojsonData, dotStroke]);
 
   if (mapUnavailable) {
     return (
-      <div className="mapFrame" aria-label="Public issue map" style={{
-        display: "grid", placeItems: "center", padding: 32, textAlign: "center",
-        background: "linear-gradient(145deg, #ecfdf5 0%, #f0f9ff 50%, #f0fdf4 100%)", minHeight: "50vh",
-      }}>
-        <div style={{ maxWidth: 340, display: "grid", gap: 14 }}>
-          <div style={{ fontSize: 48 }}>&#x1F30D;</div>
-          <strong style={{ fontSize: 18, color: "#0f766e" }}>Kerala Civic Map</strong>
-          <p style={{ margin: 0, fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
-            Interactive map showing civic issues across Kerala. Report an issue to see it on the map!
+      <div
+        className="mapFrame"
+        aria-label="Public issue map"
+        style={{
+          display: "grid",
+          placeItems: "center",
+          padding: 32,
+          textAlign: "center",
+          background: "var(--bg-sunken)",
+          color: "var(--ink-1)",
+          minHeight: "50vh",
+          borderRadius: "var(--r-md)",
+          border: "1px solid var(--border)",
+        }}
+      >
+        <div style={{ maxWidth: 340, display: "grid", gap: 12 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: "0.16em", color: "var(--alarm)", textTransform: "uppercase" }}>
+            MAP UNAVAILABLE
+          </div>
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6 }}>
+            The live map couldn't initialize. Reports are still being collected and will appear once the map loads.
           </p>
-          <a href="/report" className="button" style={{ justifySelf: "center", marginTop: 4 }}>Report an Issue</a>
+          <a href="/report" className="button primary" style={{ justifySelf: "center" }}>Report an Issue</a>
         </div>
       </div>
     );
@@ -359,29 +389,54 @@ export default function PublicMap({ reports }: Props) {
 
   return (
     <div style={{ position: "relative" }}>
-      <div ref={mapContainerRef} className="mapFrame" aria-label="Public issue map" style={{
-        borderRadius: 14, border: "1px solid #e2e8f0", boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-      }} />
-      {/* Legend */}
-      <div style={{
-        position: "absolute", bottom: 28, left: 12, background: "rgba(255,255,255,0.92)",
-        backdropFilter: "blur(6px)", borderRadius: 10, padding: "8px 12px",
-        fontSize: 11, display: "flex", gap: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        border: "1px solid #e2e8f0",
-      }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#dc2626", display: "inline-block", boxShadow: "0 0 6px rgba(220,38,38,0.5)" }} />
-          Open
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#ea580c", display: "inline-block" }} />
-          In Progress
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#16a34a", display: "inline-block" }} />
-          Fixed
-        </span>
+      <div
+        ref={mapContainerRef}
+        className="mapFrame"
+        aria-label="Public issue map"
+      />
+      {/* Legend — institutional, echoes dashboard chrome */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 12,
+          left: 12,
+          display: "flex",
+          gap: 12,
+          padding: "6px 10px",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border)",
+          borderRadius: "var(--r-sm)",
+          fontSize: 10,
+          fontFamily: "var(--font-body)",
+          fontWeight: 700,
+          letterSpacing: "0.1em",
+          textTransform: "uppercase",
+          color: "var(--ink-1)",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <LegendItem color={C_OPEN} label="Open" />
+        <LegendItem color={C_PROGRESS} label="In Progress" />
+        <LegendItem color={C_FIXED} label="Fixed" />
       </div>
     </div>
+  );
+}
+
+function LegendItem({ color, label }: { color: string; label: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+      <span
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: color,
+          display: "inline-block",
+          boxShadow: `0 0 0 1px rgba(255,255,255,0.12)`,
+        }}
+      />
+      {label}
+    </span>
   );
 }

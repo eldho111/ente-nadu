@@ -1,96 +1,151 @@
 /* ═══════════════════════════════════════════════════════════
-   Ente Nadu — Kerala Heritage Artifact
-   Design language: Kasavu (cream + zari gold) + Panchavarna
-   (5 mural pigments: chayilyam / manayola / pacha / kari /
-   chaanthu) + Palm-leaf letter (ola grantham) typography.
-
-   Intent: the app should feel like a printed-on-kasavu
-   government notice, not a generic web UI.
+   Ente Nadu — Civic Operations Dashboard
+   Design reference: Johns Hopkins COVID-19 Dashboard (CSSE).
+   Dark = default; Light = inverted surfaces, same alarm accent.
+   Theme toggle writes [data-theme="dark"|"light"] on <html>.
 ═══════════════════════════════════════════════════════════ */
 
+/* ── Shared tokens (theme-independent) ───────────────────── */
 :root {
-  /* ── KASAVU BASE ─────────────────────────────────────────
-     Unbleached cotton body + antique zari gold thread.
-     This is Kerala's single most recognizable visual. */
-  --kasavu-cream: #fbf4e0;        /* main background */
-  --kasavu-surface: #fffdf5;      /* cards / paper */
-  --kasavu-gold: #b8860b;         /* antique zari */
-  --kasavu-gold-light: #d4a84a;
-  --kasavu-gold-dark: #8b6508;
+  /* JHU-style alarm palette (same across themes) */
+  --alarm:        #e63946;  /* saturated red — OPEN, map dots */
+  --alarm-deep:   #b4202f;
+  --alarm-glow:   rgba(230, 57, 70, 0.35);
+  --warn:         #f59e0b;  /* IN PROGRESS */
+  --warn-soft:    rgba(245, 158, 11, 0.12);
+  --ok:           #22c55e;  /* FIXED */
+  --ok-soft:      rgba(34, 197, 94, 0.12);
+  --info:         #3b82f6;
 
-  /* ── PANCHAVARNA MURAL ACCENTS ───────────────────────────
-     The 5 natural pigments of Kerala temple murals. */
-  --mural-red: #a8321e;           /* chayilyam (red ochre) */
-  --mural-red-deep: #7a2410;
-  --mural-yellow: #d4a017;        /* manayola (yellow ochre) */
-  --mural-green: #0e6b47;         /* pacha (manayola + indigo) */
-  --mural-green-deep: #063a28;
-  --mural-black: #1a1208;         /* kari (lamp soot) — outlines only */
-  --mural-white: #fffdf5;         /* chaanthu (conch lime) */
+  /* Semantic aliases */
+  --status-open:     var(--alarm);
+  --status-progress: var(--warn);
+  --status-fixed:    var(--ok);
 
-  /* ── Backgrounds ─────────────────────────────────────── */
-  --bg-0: var(--kasavu-cream);    /* Rich kasavu cream */
-  --bg-1: #f3e9ca;                /* Aged cream */
-  --bg-2: #ebdfb5;                /* Deeper sand */
-  --bg-surface: var(--kasavu-surface);
-  --bg-elev: #fffaea;             /* Elevated paper */
-  --bg-palm: #e8f0e3;             /* Palm leaf cream */
+  /* Legacy semantic aliases (kept so untouched pages don't break) */
+  --accent:       var(--info);
+  --accent-dark:  var(--info);
+  --accent-soft:  rgba(59, 130, 246, 0.12);
+  --saffron:      var(--alarm);
+  --saffron-dark: var(--alarm-deep);
+  --saffron-soft: rgba(230, 57, 70, 0.12);
+  --gold:         var(--warn);
+  --gold-dark:    #a57100;
+  --gold-soft:    var(--warn-soft);
+  --danger:       var(--alarm);
+  --danger-soft:  rgba(230, 57, 70, 0.12);
+  --success:      var(--ok);
+  --success-soft: var(--ok-soft);
+  --warning:      var(--warn);
+  --warning-soft: var(--warn-soft);
+  --kerala-red:   var(--alarm);
+  --kerala-green: var(--ok);
 
-  /* ── Ink — warm soot, never pure black ─────────────── */
-  --ink-0: var(--mural-black);    /* Body text */
-  --ink-1: #4a3820;               /* Faded ink */
-  --ink-soft: #7a6545;            /* Muted */
+  /* Typography */
+  --font-body:    var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    ui-monospace, 'JetBrains Mono', 'Roboto Mono', Menlo, monospace;
+  /* Legacy font aliases — point at Inter so any surviving refs fall back cleanly */
+  --font-ml:         var(--font-inter), system-ui, sans-serif;
+  --font-ml-display: var(--font-inter), system-ui, sans-serif;
+  --font-stamp:      var(--font-mono);
 
-  /* ── Primary — mural pacha green (slightly warmer) ─── */
-  --accent: var(--mural-green);
-  --accent-soft: #c8e0d3;
-  --accent-dark: var(--mural-green-deep);
-  --accent-darker: #042016;
-  --accent-glow: rgba(14, 107, 71, 0.2);
-
-  /* ── Secondary — chayilyam red + zari gold ─────────── */
-  --saffron: var(--mural-red);    /* used as "urgency / action" color */
-  --saffron-soft: #f5cfbf;
-  --saffron-dark: var(--mural-red-deep);
-  --gold: var(--kasavu-gold);
-  --gold-soft: #f5e0a8;
-  --gold-dark: var(--kasavu-gold-dark);
-
-  /* Legacy Kerala flag accents */
-  --kerala-green: var(--mural-green-deep);
-  --kerala-red: var(--mural-red);
-
-  /* ── Semantic status (Panchavarna-derived) ─────────── */
-  --status-open: var(--mural-red);
-  --status-progress: var(--mural-yellow);
-  --status-fixed: var(--mural-green);
-  --danger: var(--mural-red);
-  --danger-soft: #f5cfbf;
-  --warning: #a57100;
-  --warning-soft: #f5e0a8;
-  --success: var(--mural-green);
-  --success-soft: #d1e6d9;
-
-  /* ── Borders — kasavu gold threads ─────────────────── */
-  --border: var(--kasavu-gold-light);
-  --border-strong: var(--kasavu-gold);
-  --border-accent: var(--mural-green);
-
-  /* ── Shadows — warm soot ─────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(26, 18, 8, 0.1), 0 1px 3px rgba(26, 18, 8, 0.05);
-  --shadow: 0 2px 4px rgba(26, 18, 8, 0.08), 0 4px 12px rgba(26, 18, 8, 0.07);
-  --shadow-lg: 0 6px 10px rgba(26, 18, 8, 0.1), 0 20px 40px rgba(26, 18, 8, 0.1);
-  --shadow-green: 0 4px 12px rgba(14, 107, 71, 0.25);
-  --shadow-saffron: 0 4px 12px rgba(168, 50, 30, 0.28);
-  --shadow-gold: 0 2px 8px rgba(184, 134, 11, 0.22);
-
-  /* ── Border radii — kasavu is woven cloth, minimal rounding */
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 18px;
+  /* Radii — tight, institutional */
+  --r-sm: 2px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-xl: 8px;
   --r-pill: 999px;
 }
+
+/* ── DARK (default / brand) ──────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg-0:       #0b0b0d;   /* page background */
+  --bg-1:       #111216;
+  --bg-2:       #181a1f;
+  --bg-surface: #16171a;   /* panel/card */
+  --bg-elev:    #1e1f23;   /* hover / elevated */
+  --bg-sunken:  #070708;   /* map area */
+  --bg-palm:    #0f1a13;   /* legacy alias */
+
+  --ink-0:      #f1f3f5;   /* primary text (18.7:1) */
+  --ink-1:      #b8bcc2;   /* secondary */
+  --ink-soft:   #6b7078;   /* labels, axes */
+  --ink-muted:  #6b7078;
+
+  --border:        #2a2d33;
+  --border-strong: #3a3e45;
+  --border-accent: var(--alarm);
+  --grid-line:     #1f2126;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow:    0 2px 8px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-green: 0 2px 8px rgba(34, 197, 94, 0.25);
+  --shadow-saffron: 0 2px 8px rgba(230, 57, 70, 0.32);
+  --shadow-gold: 0 2px 8px rgba(245, 158, 11, 0.25);
+
+  color-scheme: dark;
+}
+
+/* ── LIGHT (inverted surfaces, same alarm accent) ──────── */
+[data-theme="light"] {
+  --bg-0:       #f7f8fa;
+  --bg-1:       #f1f2f5;
+  --bg-2:       #e8eaee;
+  --bg-surface: #ffffff;
+  --bg-elev:    #f1f2f5;
+  --bg-sunken:  #eaecef;
+  --bg-palm:    #eef4ee;
+
+  --ink-0:      #0b0b0d;   /* 18.9:1 */
+  --ink-1:      #3a3d42;
+  --ink-soft:   #6b7078;
+  --ink-muted:  #6b7078;
+
+  --border:        #e3e5e9;
+  --border-strong: #c9cdd3;
+  --border-accent: var(--alarm);
+  --grid-line:     #eef0f3;
+
+  --shadow-sm: 0 1px 2px rgba(11, 11, 13, 0.06);
+  --shadow:    0 2px 8px rgba(11, 11, 13, 0.08);
+  --shadow-lg: 0 8px 24px rgba(11, 11, 13, 0.12);
+  --shadow-green: 0 2px 8px rgba(34, 197, 94, 0.2);
+  --shadow-saffron: 0 2px 8px rgba(230, 57, 70, 0.22);
+  --shadow-gold: 0 2px 8px rgba(245, 158, 11, 0.22);
+
+  color-scheme: light;
+}
+
+/* ── System preference as default (before theme toggle runs) */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg-0: #f7f8fa;
+    --bg-1: #f1f2f5;
+    --bg-2: #e8eaee;
+    --bg-surface: #ffffff;
+    --bg-elev: #f1f2f5;
+    --bg-sunken: #eaecef;
+    --bg-palm: #eef4ee;
+    --ink-0: #0b0b0d;
+    --ink-1: #3a3d42;
+    --ink-soft: #6b7078;
+    --ink-muted: #6b7078;
+    --border: #e3e5e9;
+    --border-strong: #c9cdd3;
+    --grid-line: #eef0f3;
+    --shadow-sm: 0 1px 2px rgba(11, 11, 13, 0.06);
+    --shadow:    0 2px 8px rgba(11, 11, 13, 0.08);
+    --shadow-lg: 0 8px 24px rgba(11, 11, 13, 0.12);
+    color-scheme: light;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE ELEMENTS
+═══════════════════════════════════════════════════════════ */
 
 * {
   box-sizing: border-box;
@@ -100,6 +155,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  background: var(--bg-0);
 }
 
 html,
@@ -110,189 +166,170 @@ body {
 }
 
 body {
-  font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
   color: var(--ink-0);
   background: var(--bg-0);
-  /* Subtle palm-leaf pattern overlay */
-  background-image:
-    radial-gradient(at 15% 0%, rgba(200, 151, 40, 0.12) 0%, transparent 45%),
-    radial-gradient(at 85% 100%, rgba(15, 112, 86, 0.1) 0%, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(200, 90, 31, 0.04) 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%);
-  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.5;
+  font-feature-settings: "cv11", "ss01";  /* Inter stylistic sets */
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Enable Malayalam font for Malayalam text */
-:lang(ml),
-html[lang="ml"] {
-  font-family: var(--font-ml), var(--font-body), system-ui, sans-serif;
+/* Tabular numerics on anything marked .num */
+.num,
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 20px 16px 80px;
+  padding: 16px 20px 48px;
 }
 
-/* ── Hero ──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   CORE COMPONENTS
+═══════════════════════════════════════════════════════════ */
 
-.hero {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 24px 20px;
-  background:
-    linear-gradient(135deg, #fffbf0 0%, #fdf5e2 60%, #f5ead3 100%);
-  border: 2px solid var(--border);
-  border-left: 6px solid var(--accent);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
+/* ── Cards / panels ───────────────────────────────────── */
 
-/* Palm leaf decoration in hero corner */
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, rgba(15, 112, 86, 0.12) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.hero::after {
-  content: "🌴";
-  position: absolute;
-  top: 12px;
-  right: 16px;
-  font-size: 28px;
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.hero h1 {
-  margin: 0;
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, var(--accent-dark) 0%, var(--saffron) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
-}
-
-.hero p {
-  margin: 0;
-  color: var(--ink-1);
-  max-width: 62ch;
-  line-height: 1.6;
-  font-size: 15px;
-}
-
-/* ── Cards ─────────────────────────────────────────────── */
-
-.card {
+.card,
+.panel {
   background: var(--bg-surface);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--r-md);
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.mapShell {
-  overflow: hidden;
-  border-radius: var(--r-lg);
-  border: 2.5px solid var(--border-strong);
-  box-shadow: var(--shadow-lg);
-  background: #fff;
-}
-
-.mapFrame {
-  min-height: 55vh;
-  background: #e8f4ec;
-}
-
-/* ── Report Grid ───────────────────────────────────────── */
-
-.reportGrid {
-  margin-top: 16px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-}
-
-.reportCard {
-  padding: 14px;
-  border-radius: var(--r-md);
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border);
-  border-left: 4px solid var(--accent);
-  text-decoration: none;
-  color: var(--ink-0);
   box-shadow: var(--shadow-sm);
-  transition: all 0.2s ease;
-  position: relative;
-  display: block;
 }
 
-.reportCard:hover,
-.reportCard:active {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-  border-left-color: var(--saffron);
+.panel-heading {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
 }
 
-.reportCard:focus-visible {
-  outline: 2.5px solid var(--accent);
-  outline-offset: 2px;
+/* ── Live indicator ───────────────────────────────────── */
+
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--alarm);
+  box-shadow: 0 0 0 0 var(--alarm-glow);
+  animation: livePulse 1.6s ease-out infinite;
+  vertical-align: middle;
 }
 
-/* ── Chips & Tags ──────────────────────────────────────── */
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(230, 57, 70, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(230, 57, 70, 0);
+  }
+}
 
+/* ── Status pills — flat, no ornament ─────────────────── */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--r-sm);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  border: 1px solid currentColor;
+  line-height: 1;
+}
+
+.pill::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pill.open    { color: var(--alarm); }
+.pill.progress{ color: var(--warn); }
+.pill.fixed   { color: var(--ok); }
+
+/* Legacy .chip — kept so untouched pages still render */
 .chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 12px;
+  padding: 3px 10px;
   border-radius: var(--r-pill);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  background: var(--accent-soft);
-  color: var(--accent-dark);
-  border: 1.5px solid var(--accent);
-  letter-spacing: 0.01em;
+  background: var(--bg-elev);
+  color: var(--ink-1);
+  border: 1px solid var(--border);
   white-space: nowrap;
 }
 
-.chip.saffron {
-  background: var(--saffron-soft);
-  color: var(--saffron-dark);
-  border-color: var(--saffron);
+.chip.saffron { color: var(--alarm); border-color: var(--alarm); background: transparent; }
+.chip.gold    { color: var(--warn); border-color: var(--warn); background: transparent; }
+
+/* ── KPI tile (big number) ────────────────────────────── */
+
+.kpi-tile {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--border-strong);
+  padding: 14px 16px 16px;
+  display: grid;
+  gap: 6px;
 }
 
-.chip.gold {
-  background: var(--gold-soft);
-  color: var(--gold-dark);
-  border-color: var(--gold);
+.kpi-tile.open    { border-top-color: var(--alarm); }
+.kpi-tile.progress{ border-top-color: var(--warn); }
+.kpi-tile.fixed   { border-top-color: var(--ok); }
+.kpi-tile.info    { border-top-color: var(--info); }
+
+.kpi-tile .value {
+  font-size: clamp(34px, 5vw, 56px);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-0);
 }
 
-.muted {
+.kpi-tile .label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.kpi-tile .trend {
+  font-size: 11px;
+  font-weight: 600;
   color: var(--ink-1);
-  font-size: 14px;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ── Buttons — brass-bell primary + kasavu secondary ───── */
+.kpi-tile .trend.up    { color: var(--alarm); }
+.kpi-tile .trend.down  { color: var(--ok); }
+
+/* ── Buttons — institutional, flat ────────────────────── */
 
 .button {
   appearance: none;
@@ -300,190 +337,198 @@ main {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 44px;  /* iOS/Android touch target standard */
-  border: 1.5px solid var(--accent-dark);
-  color: var(--kasavu-surface);
-  background: linear-gradient(180deg, #147d54 0%, var(--accent) 55%, var(--accent-dark) 100%);
-  padding: 10px 20px;
+  min-height: 38px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-strong);
+  color: var(--ink-0);
+  background: var(--bg-surface);
   border-radius: var(--r-md);
   text-decoration: none;
-  font-weight: 700;
-  font-size: 15px;
+  font-weight: 600;
+  font-size: 13px;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-  /* Brass-bell bevel: gold top edge + warm inner highlight + outer green glow */
-  box-shadow:
-    inset 0 1px 0 rgba(232, 195, 74, 0.55),
-    inset 0 -1px 0 rgba(6, 58, 40, 0.6),
-    var(--shadow-green);
+  transition: background-color 0.12s ease, border-color 0.12s ease;
   letter-spacing: 0.02em;
   white-space: nowrap;
-  font-family: var(--font-body), inherit;
-  position: relative;
-}
-
-.button::before {
-  /* Thin zari top edge */
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, var(--kasavu-gold-light), transparent);
-  pointer-events: none;
-  border-radius: var(--r-md) var(--r-md) 0 0;
+  font-family: var(--font-body);
 }
 
 .button:hover {
-  filter: brightness(1.05);
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(232, 195, 74, 0.7),
-    inset 0 -1px 0 rgba(6, 58, 40, 0.6),
-    var(--shadow-lg);
+  background: var(--bg-elev);
+  border-color: var(--ink-muted);
 }
 
 .button:active {
-  transform: translateY(1px);
-  filter: brightness(0.95);
+  transform: translateY(0.5px);
 }
 
 .button:focus-visible {
-  outline: 2.5px solid var(--kasavu-gold);
+  outline: 2px solid var(--alarm);
   outline-offset: 2px;
 }
 
 .button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  filter: grayscale(0.3);
 }
 
-/* Kasavu secondary: cream body, gold zari inner rule, mural-green ink */
+.button.primary,
+.button.saffron {
+  background: var(--alarm);
+  border-color: var(--alarm);
+  color: #ffffff;
+}
+
+.button.primary:hover,
+.button.saffron:hover {
+  background: var(--alarm-deep);
+  border-color: var(--alarm-deep);
+}
+
 .button.secondary {
-  background: var(--kasavu-surface);
-  color: var(--mural-green-deep);
-  border: 1px solid var(--kasavu-gold);
-  box-shadow:
-    inset 0 0 0 3px var(--kasavu-cream),
-    inset 0 0 0 4px var(--kasavu-gold-light),
-    var(--shadow-sm);
-}
-
-.button.secondary::before {
-  display: none;
+  background: var(--bg-surface);
+  color: var(--ink-0);
+  border: 1px solid var(--border-strong);
 }
 
 .button.secondary:hover {
-  background: var(--kasavu-cream);
-  transform: translateY(-1px);
-  filter: none;
-}
-
-/* Saffron / chayilyam action button (for primary civic actions) */
-.button.saffron {
-  background: linear-gradient(180deg, #c24a2a 0%, var(--saffron) 55%, var(--saffron-dark) 100%);
-  border-color: var(--saffron-dark);
-  color: var(--kasavu-surface);
-  box-shadow:
-    inset 0 1px 0 rgba(232, 195, 74, 0.5),
-    inset 0 -1px 0 rgba(74, 22, 8, 0.6),
-    var(--shadow-saffron);
-}
-
-.button.saffron:hover {
-  background: linear-gradient(180deg, var(--saffron) 0%, var(--saffron-dark) 55%, #4a1608 100%);
+  background: var(--bg-elev);
 }
 
 .button.gold {
-  background: linear-gradient(180deg, #e8c34a 0%, var(--gold) 55%, var(--gold-dark) 100%);
-  border-color: var(--gold-dark);
-  color: var(--mural-black);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 253, 245, 0.6),
-    inset 0 -1px 0 rgba(74, 56, 32, 0.4),
-    var(--shadow-gold);
+  background: var(--warn);
+  border-color: var(--warn);
+  color: #111111;
 }
 
-/* ── Layout helpers ────────────────────────────────────── */
+/* ── Links ────────────────────────────────────────────── */
 
-.detail {
-  display: grid;
-  gap: 14px;
+a {
+  color: var(--info);
+  text-decoration: none;
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+a:hover {
+  text-decoration: underline;
 }
 
 .backLink {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--accent-dark);
-  text-decoration: none;
+  color: var(--ink-1);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border: 1.5px solid var(--accent);
+  padding: 6px 10px;
+  border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  background: var(--accent-soft);
-  transition: all 0.15s ease;
+  background: var(--bg-surface);
+}
+
+.backLink:hover {
+  background: var(--bg-elev);
+  color: var(--ink-0);
+  text-decoration: none;
+}
+
+/* ── Muted ────────────────────────────────────────────── */
+
+.muted {
+  color: var(--ink-1);
+  font-size: 13px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORMS
+═══════════════════════════════════════════════════════════ */
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="search"],
+textarea,
+select {
+  width: 100%;
   min-height: 40px;
-}
-
-.backLink:hover,
-.backLink:active {
-  background: var(--accent);
-  color: #fff;
-}
-
-.metaList {
-  display: grid;
-  gap: 6px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-/* ── Section dividers with Kerala flair ────────────────── */
-
-.section-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: linear-gradient(90deg, var(--accent-soft) 0%, var(--bg-surface) 100%);
-  border: 1.5px solid var(--border);
-  border-left: 5px solid var(--saffron);
-  border-radius: var(--r-md);
-  margin: 16px 0 12px;
-  font-weight: 700;
-  color: var(--accent-dark);
-  font-size: 16px;
-}
-
-.section-banner-icon {
-  font-size: 20px;
-}
-
-/* ── Loading skeleton ──────────────────────────────────── */
-
-.skeleton {
-  background: linear-gradient(90deg, var(--bg-1) 25%, var(--bg-surface) 50%, var(--bg-1) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink-0);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
   border-radius: var(--r-sm);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
 }
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--alarm);
+  box-shadow: 0 0 0 3px var(--alarm-glow);
 }
 
-/* ── Report Detail ─────────────────────────────────────── */
+label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REPORT FEED — legacy classes kept, restyled dark
+═══════════════════════════════════════════════════════════ */
+
+.reportGrid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+.reportCard {
+  padding: 12px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  color: var(--ink-0);
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+  display: block;
+}
+
+.reportCard:hover {
+  background: var(--bg-elev);
+  border-left-color: var(--alarm);
+  text-decoration: none;
+}
+
+.reportCard:focus-visible {
+  outline: 2px solid var(--alarm);
+  outline-offset: 2px;
+}
+
+/* ── Map shell ────────────────────────────────────────── */
+
+.mapShell {
+  overflow: hidden;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--bg-sunken);
+}
+
+.mapFrame {
+  min-height: 480px;
+  background: var(--bg-sunken);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   REPORT DETAIL (legacy)
+═══════════════════════════════════════════════════════════ */
 
 .reportDetailGrid {
   display: grid;
@@ -502,9 +547,9 @@ main {
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   padding: 14px;
-  background: var(--bg-elev);
+  background: var(--bg-surface);
   border-radius: var(--r-md);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
 }
 
 .metaItem {
@@ -512,7 +557,7 @@ main {
   flex-direction: column;
   gap: 2px;
   padding: 10px;
-  background: var(--bg-surface);
+  background: var(--bg-elev);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
 }
@@ -520,7 +565,7 @@ main {
 .metaLabel {
   font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--ink-soft);
   font-weight: 700;
 }
@@ -539,7 +584,7 @@ main {
 
 .mediaGallery img {
   border-radius: var(--r-sm);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
 }
 
 .mediaPending {
@@ -548,11 +593,11 @@ main {
   gap: 8px;
   padding: 20px;
   background: var(--bg-elev);
-  border: 1.5px dashed var(--border-strong);
+  border: 1px dashed var(--border-strong);
   border-radius: var(--r-sm);
 }
 
-/* ── Timeline ──────────────────────────────────────────── */
+/* ── Timeline ─────────────────────────────────────────── */
 
 .timeline {
   display: grid;
@@ -569,12 +614,11 @@ main {
 }
 
 .timelineDot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--accent);
-  border: 2px solid var(--bg-surface);
-  box-shadow: 0 0 0 2px var(--accent);
+  background: var(--alarm);
+  border: 2px solid var(--bg-0);
   margin-top: 5px;
   justify-self: center;
   z-index: 1;
@@ -585,8 +629,8 @@ main {
   left: 8px;
   top: 18px;
   bottom: 0;
-  width: 2px;
-  background: var(--border-strong);
+  width: 1px;
+  background: var(--border);
 }
 
 .timelineContent {
@@ -599,16 +643,17 @@ main {
 }
 
 .timelineEvent {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: capitalize;
   color: var(--ink-0);
 }
 
 .timelineDate {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-1);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .timelineActor {
@@ -618,80 +663,42 @@ main {
   width: 100%;
 }
 
-/* ── Form Elements — Mobile-friendly ──────────────────── */
+/* ── Section banner (legacy) ──────────────────────────── */
 
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-input[type="search"],
-textarea,
-select {
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 14px;
-  font-size: 16px;    /* 16px prevents iOS zoom */
-  font-family: inherit;
-  color: var(--ink-0);
-  background: var(--bg-surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-sm);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink-0);
-  margin-bottom: 6px;
-}
-
-/* ── Kerala cultural accents ───────────────────────────── */
-
-.kerala-ribbon {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--saffron-dark);
-  background: linear-gradient(90deg, var(--saffron-soft), var(--gold-soft));
-  padding: 4px 10px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--saffron);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.kerala-divider {
+.section-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 20px 0;
-  color: var(--ink-soft);
-  font-size: 11px;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--alarm);
+  border-radius: var(--r-sm);
+  margin: 12px 0;
   font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  color: var(--ink-0);
+  font-size: 13px;
 }
 
-.kerala-divider::before,
-.kerala-divider::after {
-  content: "";
-  flex: 1;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+.section-banner-icon {
+  font-size: 16px;
 }
 
-/* ── FAB (Floating Action Button) for mobile ───────────── */
+/* ── Skeleton ─────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-elev) 50%, var(--bg-surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r-sm);
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── FAB (mobile report button) ───────────────────────── */
 
 .fab {
   position: fixed;
@@ -700,70 +707,173 @@ label {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--saffron) 0%, var(--saffron-dark) 100%);
-  color: #fff;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 20px rgba(200, 90, 31, 0.4);
+  background: var(--alarm);
+  color: #ffffff;
+  border: 2px solid var(--bg-0);
+  box-shadow: 0 4px 16px var(--alarm-glow);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   cursor: pointer;
   z-index: 50;
-  transition: transform 0.15s ease;
+  transition: transform 0.12s ease;
   text-decoration: none;
 }
 
 .fab:hover,
 .fab:active {
   transform: scale(1.05);
+  text-decoration: none;
 }
 
-/* ── Responsive — Mobile-first ─────────────────────────── */
+/* ── Legacy layout helpers ────────────────────────────── */
+
+.detail {
+  display: grid;
+  gap: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.metaList {
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* ── Status dots ──────────────────────────────────────── */
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-dot.pulse {
+  animation: livePulse 1.6s ease-out infinite;
+}
+
+/* ── Horizontal rule ──────────────────────────────────── */
+
+hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 16px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAPLIBRE THEMING
+═══════════════════════════════════════════════════════════ */
+
+.maplibregl-popup-content {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: var(--shadow) !important;
+  padding: 10px 12px !important;
+  color: var(--ink-0) !important;
+  font-family: var(--font-body) !important;
+  font-size: 12px !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: var(--bg-surface) !important;
+}
+
+.maplibregl-ctrl-group {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+  border-radius: var(--r-sm) !important;
+}
+
+.maplibregl-ctrl-group button {
+  color: var(--ink-1) !important;
+}
+
+.maplibregl-ctrl-group button:hover {
+  background: var(--bg-elev) !important;
+}
+
+.maplibregl-ctrl-attrib-inner {
+  color: var(--ink-muted) !important;
+}
+
+.maplibregl-ctrl-attrib-inner a {
+  color: var(--ink-1) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBARS
+═══════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-0);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 10px;
+  border: 2px solid var(--bg-0);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-muted);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SELECTION
+═══════════════════════════════════════════════════════════ */
+
+::selection {
+  background: var(--alarm);
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
 
 @media (min-width: 768px) {
-  main {
-    padding: 28px 20px 56px;
-  }
   .reportDetailGrid {
     grid-template-columns: 2fr 1fr;
   }
   .reportGrid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
+  main {
+    padding: 20px 24px 64px;
+  }
 }
 
 @media (max-width: 640px) {
-  :root {
-    /* Slightly smaller spacings on mobile */
-    --r-md: 10px;
-    --r-lg: 14px;
-  }
   main {
     padding: 12px 12px 80px;
   }
-  .hero {
-    padding: 20px 16px;
-    border-left-width: 5px;
-  }
-  .hero::after {
-    font-size: 22px;
-    top: 10px;
-    right: 12px;
-  }
-  .mapFrame {
-    min-height: 50vh;
-  }
   .reportGrid {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
   }
   .reportCard {
-    padding: 12px;
+    padding: 10px 12px;
   }
   .button {
-    font-size: 14px;
-    padding: 10px 16px;
+    font-size: 13px;
   }
 }
 
@@ -776,251 +886,163 @@ label {
   }
 }
 
-/* ── Status dots (shared) ──────────────────────────────── */
-
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
-  box-shadow: 0 0 0 2px rgba(255,255,255,0.5);
-}
-
-.status-dot.pulse {
-  animation: statusPulse 2s infinite;
-}
-
-@keyframes statusPulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 0 0 0 var(--danger); }
-  50% { box-shadow: 0 0 0 2px rgba(255,255,255,0.5), 0 0 0 6px transparent; }
-}
-
-/* ── Horizontal rule ──────────────────────────────────── */
-
-hr {
-  border: none;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
-  margin: 20px 0;
-}
-
-/* ── MapLibre popup (Kerala theme) ─────────────────────── */
-
-.maplibregl-popup-content {
-  background: var(--bg-surface) !important;
-  border: 1.5px solid var(--border-strong) !important;
-  border-radius: var(--r-md) !important;
-  box-shadow: var(--shadow-lg) !important;
-  padding: 12px 16px !important;
-  color: var(--ink-0) !important;
-}
-
-.maplibregl-popup-tip {
-  border-top-color: var(--bg-surface) !important;
-}
-
-.maplibregl-ctrl-group {
-  background: var(--bg-surface) !important;
-  border: 1.5px solid var(--border) !important;
-  box-shadow: var(--shadow) !important;
-  border-radius: var(--r-md) !important;
-}
-
-.maplibregl-ctrl-group button {
-  color: var(--accent-dark) !important;
-}
-
-/* ── Scrollbar styling ─────────────────────────────────── */
-
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-1);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 10px;
-  border: 2px solid var(--bg-1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
-
-/* ── Selection color ───────────────────────────────────── */
-
-::selection {
-  background: var(--saffron-soft);
-  color: var(--saffron-dark);
-}
-
 /* ═══════════════════════════════════════════════════════════
-   KERALA HERITAGE COMPONENTS
-   Kasavu borders, pookalam rings, uttaravu stamps, lotus
-   dividers. Use these sparingly — overuse dilutes the effect.
+   LEGACY SHIMS — classes referenced by pages we haven't
+   rewritten yet. They get plain dashboard-style fallbacks so
+   old pages render cleanly during the phased rollout.
 ═══════════════════════════════════════════════════════════ */
 
-/* ── Kasavu border — the signature cream+zari frame ──── */
+.hero {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px 22px;
+  display: grid;
+  gap: 10px;
+  box-shadow: var(--shadow-sm);
+}
 
+.hero::before,
+.hero::after {
+  content: none;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.6vw, 34px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink-0);
+  font-weight: 800;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: currentColor;
+  background: none;
+}
+
+.hero p {
+  margin: 0;
+  color: var(--ink-1);
+  max-width: 62ch;
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+/* Kasavu border → plain card (structural wrapper preserved) */
 .kasavu-border {
-  position: relative;
-  background: var(--kasavu-surface);
-  border: 1px solid var(--kasavu-gold-light);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 0 0 6px var(--kasavu-cream),
-    inset 0 0 0 7px var(--kasavu-gold),
-    inset 0 0 0 11px var(--kasavu-cream),
-    inset 0 0 0 12px var(--kasavu-gold-light),
-    var(--shadow);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
 }
 
 .kasavu-border.soft {
-  /* Lighter single-rule variant for smaller cards */
-  box-shadow:
-    inset 0 0 0 4px var(--kasavu-cream),
-    inset 0 0 0 5px var(--kasavu-gold-light),
-    var(--shadow-sm);
+  padding: 14px;
 }
 
-/* ── Kasavu horizontal double-rule (for top/bottom edges) */
+.kasavu-border.animate-in {
+  animation: none;
+}
 
 .kasavu-rule {
-  height: 6px;
-  background:
-    linear-gradient(
-      to bottom,
-      var(--kasavu-gold) 0 1px,
-      var(--kasavu-cream) 1px 3px,
-      var(--kasavu-gold-light) 3px 4px,
-      transparent 4px 100%
-    );
+  display: none;  /* decorative-only */
 }
 
-/* ── Uttaravu-style stamp chip ────────────────────────── */
-
+/* Stamp chip → flat uppercase pill */
 .stamp-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 58px;
-  padding: 6px 12px;
-  font-family: var(--font-stamp), "Courier New", monospace;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--mural-red);
+  color: var(--alarm);
+  border: 1px solid currentColor;
   background: transparent;
-  border: 1.5px solid currentColor;
-  border-radius: var(--r-pill);
-  transform: rotate(-3deg);
-  transition: transform 0.15s ease;
+  transform: none !important;
+  line-height: 1;
 }
 
 .stamp-chip.circle {
-  border-radius: 50%;
-  width: 52px;
-  height: 52px;
-  min-width: 52px;
-  font-size: 9px;
-  line-height: 1;
-  padding: 0;
-  text-align: center;
+  border-radius: var(--r-pill);
 }
 
-.stamp-chip.fixed { color: var(--mural-green); }
-.stamp-chip.open { color: var(--mural-red); }
-.stamp-chip.progress { color: var(--kasavu-gold-dark); }
+.stamp-chip.fixed     { color: var(--ok); }
+.stamp-chip.open      { color: var(--alarm); }
+.stamp-chip.progress  { color: var(--warn); }
 
-/* ── Lotus divider (horizontal rule with Kerala flair) ─ */
+/* Ribbons → flat uppercase label */
+.kerala-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--r-sm);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+}
 
+.kerala-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.kerala-divider::before,
+.kerala-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Lotus + paper texture → no-ops (decorative only) */
 .lotus-divider {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 24px 0;
-  color: var(--kasavu-gold);
+  justify-content: center;
+  margin: 16px 0;
 }
 
 .lotus-divider::before,
 .lotus-divider::after {
   content: "";
   flex: 1;
-  height: 1.5px;
-  background:
-    linear-gradient(
-      to right,
-      transparent,
-      var(--kasavu-gold-light) 20%,
-      var(--kasavu-gold) 50%,
-      var(--kasavu-gold-light) 80%,
-      transparent
-    );
+  height: 1px;
+  background: var(--border);
 }
 
 .lotus-divider .lotus {
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
+  display: none;
 }
-
-/* ── Paper texture layer (faint palm-leaf rulings) ───── */
 
 .paper-texture {
   position: relative;
 }
+
 .paper-texture::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background-image:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0 23px,
-      var(--mural-black) 23px 24px
-    );
-  mix-blend-mode: multiply;
-  border-radius: inherit;
+  content: none;
 }
 
-/* ── Malayalam font utility ──────────────────────────── */
-
-.ml {
-  font-family: var(--font-ml), var(--font-body), system-ui, sans-serif;
-}
-
+/* Malayalam-only helper utilities — fall back to body font */
+.ml,
 .ml-display {
-  font-family: var(--font-ml-display), var(--font-ml), var(--font-display), serif;
-  font-weight: 700;
-}
-
-/* ── Kasavu-draw animation (hero border appears on load) */
-
-@keyframes kasavuDraw {
-  from {
-    box-shadow:
-      inset 0 0 0 6px var(--kasavu-cream),
-      inset 1000px 0 0 -988px var(--kasavu-gold),
-      inset 0 0 0 12px var(--kasavu-gold-light);
-  }
-  to {
-    box-shadow:
-      inset 0 0 0 6px var(--kasavu-cream),
-      inset 0 0 0 7px var(--kasavu-gold),
-      inset 0 0 0 11px var(--kasavu-cream),
-      inset 0 0 0 12px var(--kasavu-gold-light),
-      var(--shadow);
-  }
-}
-
-.kasavu-border.animate-in {
-  animation: kasavuDraw 0.7s ease-out both;
+  font-family: var(--font-body);
 }

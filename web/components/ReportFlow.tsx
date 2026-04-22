@@ -406,49 +406,53 @@ export default function ReportFlow() {
         </div>
       )}
 
-      {/* ── STEP 5: Done — kasavu acknowledgment letter ── */}
+      {/* ── STEP 5: Done — institutional logged-receipt ── */}
       {step === "done" && (
         <div
-          className="kasavu-border animate-in"
           style={{
-            position: "relative",
-            padding: "28px 22px 22px",
+            padding: "22px 20px 20px",
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border)",
+            borderLeft: "3px solid var(--ok)",
+            borderRadius: "var(--r-sm)",
             display: "grid",
-            gap: 14,
-            textAlign: "center",
-            overflow: "hidden",
+            gap: 12,
           }}
         >
-          {/* Official header */}
           <div
             style={{
               display: "inline-flex",
-              alignSelf: "center",
               alignItems: "center",
               gap: 8,
-              padding: "4px 12px",
-              background: "var(--kasavu-cream)",
-              border: "1px solid var(--kasavu-gold)",
-              borderRadius: 999,
-              fontFamily: "var(--font-stamp), monospace",
               fontSize: 10,
               fontWeight: 700,
-              letterSpacing: "0.18em",
-              color: "var(--mural-red)",
+              letterSpacing: "0.16em",
               textTransform: "uppercase",
+              color: "var(--ok)",
+              fontFamily: "var(--font-body)",
             }}
           >
-            ◉ Acknowledgment · അംഗീകാരപത്രം
+            <span
+              aria-hidden="true"
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "var(--ok)",
+                display: "inline-block",
+              }}
+            />
+            Logged · Acknowledged
           </div>
 
           <h2
             style={{
-              margin: "4px 0 0",
-              fontSize: 26,
-              lineHeight: 1.1,
-              color: "var(--mural-green-deep)",
-              fontFamily: "var(--font-ml-display), var(--font-ml), serif",
-              fontWeight: 700,
+              margin: 0,
+              fontSize: 22,
+              lineHeight: 1.15,
+              color: "var(--ink-0)",
+              fontWeight: 800,
+              letterSpacing: "-0.01em",
             }}
           >
             {t.success}
@@ -458,66 +462,71 @@ export default function ReportFlow() {
             style={{
               margin: 0,
               color: "var(--ink-1)",
-              fontSize: 14,
-              maxWidth: "42ch",
-              marginInline: "auto",
+              fontSize: 13,
               lineHeight: 1.55,
-              fontFamily: "var(--font-ml), serif",
             }}
           >
             {t.successSub}
           </p>
 
-          {/* Category + reference line */}
           <div
             style={{
-              display: "inline-flex",
-              alignSelf: "center",
+              display: "grid",
+              gridTemplateColumns: "auto 1fr auto",
+              gap: 12,
               alignItems: "center",
-              gap: 10,
-              padding: "10px 14px",
-              background: "var(--kasavu-cream)",
-              borderRadius: 8,
-              border: "1px solid var(--kasavu-gold-light)",
-              boxShadow: "inset 0 0 0 2px var(--kasavu-surface)",
+              padding: "10px 12px",
+              background: "var(--bg-elev)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--r-sm)",
             }}
           >
-            <span style={{ fontSize: 22 }}>{catIcon}</span>
-            <span style={{ fontWeight: 700, fontSize: 14, textTransform: "capitalize", color: "var(--mural-green-deep)" }}>
-              {catLabel}
-            </span>
-            <span style={{ color: "var(--kasavu-gold)" }}>·</span>
+            <span style={{ fontSize: 18, lineHeight: 1 }}>{catIcon}</span>
             <span
               style={{
-                fontSize: 13,
-                fontFamily: "var(--font-stamp), monospace",
                 fontWeight: 700,
-                color: "var(--mural-red-deep)",
-                letterSpacing: "0.05em",
+                fontSize: 13,
+                textTransform: "capitalize",
+                color: "var(--ink-0)",
+              }}
+            >
+              {catLabel}
+            </span>
+            <span
+              className="num"
+              style={{
+                fontSize: 12,
+                fontFamily: "var(--font-mono)",
+                fontWeight: 700,
+                color: "var(--alarm)",
+                letterSpacing: "0.04em",
+                whiteSpace: "nowrap",
               }}
             >
               REF #{resultId}
             </span>
           </div>
 
-          {/* The official seal, bottom-right, slightly rotated */}
-          <img
-            src="/icons/motifs/uttaravu-seal.svg"
-            alt=""
-            width="84"
-            height="84"
+          <div
             style={{
-              position: "absolute",
-              right: 14,
-              bottom: 14,
-              transform: "rotate(-8deg)",
-              opacity: 0.85,
-              pointerEvents: "none",
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "var(--ink-muted)",
+              fontFamily: "var(--font-mono)",
+              fontWeight: 700,
             }}
-          />
+          >
+            Filed · {new Date().toLocaleTimeString("en-IN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+              timeZone: "Asia/Kolkata",
+            })} IST
+          </div>
 
-          <div style={{ display: "grid", gap: 8, width: "100%", maxWidth: 280, marginInline: "auto", marginTop: 4 }}>
-            <Link href={resultUrl || "/"} className="button">
+          <div style={{ display: "grid", gap: 8, width: "100%", marginTop: 4 }}>
+            <Link href={resultUrl || "/"} className="button primary">
               {t.viewReport}
             </Link>
             <button
