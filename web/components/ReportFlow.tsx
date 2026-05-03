@@ -205,21 +205,32 @@ export default function ReportFlow() {
         throw new Error(`Photo upload failed (${putRes.status}): ${errText.slice(0, 200)}`);
       }
 
-      // Create report — use CURRENT time for captured_at to avoid "stale" errors
-      // if user stared at review screen too long
+      // Build the submit payload. When the AI couldn't pick a specific
+      // category (cat === "other"), the API requires a manual_issue_label.
+      // Use the AI summary if available, otherwise a generic fallback —
+      // either way, never let the user hit a 422 because of a label they
+      // didn't know to provide. They can edit the description afterwards.
+      const submitBody: Record<string, unknown> = {
+        lat: lat ?? 10.8505,
+        lon: lon ?? 76.2711,
+        category_final: cat,
+        capture_origin: "camera",
+        captured_at: new Date().toISOString(),
+        gps_accuracy_m: gpsAccuracy,
+        media_keys: [media_key],
+        device_id: getDeviceId(),
+      };
+      if (cat === "other") {
+        const fallbackLabel = (summary && summary.trim()) || "Unspecified civic issue";
+        submitBody.manual_issue_label = fallbackLabel.slice(0, 120);
+      }
+
+      // Create report — use CURRENT time for captured_at to avoid "stale"
+      // errors if user stared at review screen too long.
       const submitRes = await fetch(`${API_BASE}/v1/reports`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lat: lat ?? 10.8505,
-          lon: lon ?? 76.2711,
-          category_final: cat,
-          capture_origin: "camera",
-          captured_at: new Date().toISOString(),
-          gps_accuracy_m: gpsAccuracy,
-          media_keys: [media_key],
-          device_id: getDeviceId(),
-        }),
+        body: JSON.stringify(submitBody),
       });
       if (!submitRes.ok) {
         const errText = await submitRes.text();
