@@ -31,6 +31,68 @@ router = APIRouter()
 settings = get_settings()
 
 
+# ── Admin auth ping ────────────────────────────────────────────────
+# Lightweight endpoint used by the /admin login UI to validate that the
+# pasted admin key is correct. Doesn't touch the DB; just runs through
+# the require_admin dependency. Returns 200 when the key is valid,
+# 401/403 otherwise.
+
+class AdminPingResponse(BaseModel):
+    ok: bool
+    role: str | None
+    user_email: str | None
+
+
+@router.get("/ping", response_model=AdminPingResponse)
+def admin_ping(admin: User = Depends(require_admin)) -> AdminPingResponse:
+    return AdminPingResponse(
+        ok=True,
+        role=getattr(admin, "role", None),
+        user_email=getattr(admin, "email", None),
+    )
+
+
+# ── Single-report delete ───────────────────────────────────────────
+# Used by the admin Reports table to remove an individual report and
+# everything attached to it. Wipe-all already does the bulk path; this
+# is the per-row equivalent.
+
+@router.delete("/reports/{report_id}", response_model=ApiMessage)
+def delete_single_report(
+    report_id: str,
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> ApiMessage:
+    report = _find_report(db, report_id)
+    if report is None:
+        raise HTTPException(status_code=404, detail="report not found")
+    rid = report.id
+
+    # Delete dependents first (same order as wipe-all but scoped to one id).
+    statements = [
+        ("DELETE FROM notification_deliveries WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM notify_events            WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM notification_subscriptions WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM report_responsibility_snapshot WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM report_assignments       WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM resolution_proofs        WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM report_events            WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM report_checkins          WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM flags                    WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM media                    WHERE report_id = :rid", {"rid": rid}),
+        ("DELETE FROM reports                  WHERE id        = :rid", {"rid": rid}),
+    ]
+    for stmt, params in statements:
+        try:
+            db.execute(text(stmt), params)
+        except Exception:
+            # Skip missing-table errors silently; log if needed.
+            pass
+
+    db.commit()
+    return ApiMessage(message=f"deleted report {report.public_id}")
+
+
 def _find_report(db: Session, report_id: str) -> Report | None:
     report = db.scalar(select(Report).where(Report.public_id == report_id))
     if report is not None:
