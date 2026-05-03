@@ -349,52 +349,84 @@ class WipeReportsResponse(BaseModel):
 def wipe_all_reports(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
+    limit: int | None = None,  # ?limit=15 → delete the 15 most-recent reports
 ) -> WipeReportsResponse:
-    # Count first so we can report what was nuked.
+    """Wipe reports + everything attached to them.
+
+    Behaviour:
+      - No ?limit param → wipe ALL reports (full reset).
+      - ?limit=N        → wipe only the N most recent reports.
+
+    All FK-dependent rows (media, events, etc.) are scoped to the same
+    set of report IDs so partial wipes don't leave orphan rows.
+    """
     before = db.scalar(select(func.count()).select_from(Report))
 
-    # Order matters even with FK cascades — be explicit so this works on
-    # databases without ON DELETE CASCADE configured. Wrapped in one
-    # transaction so a partial failure rolls back cleanly.
-    statements = [
-        # Notification + delivery tables (any rows that reference reports)
-        "DELETE FROM notification_deliveries WHERE report_id IS NOT NULL",
-        "DELETE FROM notify_events WHERE report_id IS NOT NULL",
-        "DELETE FROM notification_subscriptions WHERE report_id IS NOT NULL",
-        # Per-report tables
-        "DELETE FROM report_responsibility_snapshot",
-        "DELETE FROM report_assignments",
-        "DELETE FROM resolution_proofs",
-        "DELETE FROM report_events",
-        "DELETE FROM report_checkins",
-        # Media + flags
-        "DELETE FROM flags WHERE report_id IS NOT NULL",
-        "DELETE FROM media",
-        # Reports themselves (drop the cluster FK first, then clusters)
-        "UPDATE reports SET cluster_id = NULL",
-        "DELETE FROM clusters",
-        "DELETE FROM reports",
-        # Abuse counters are COUNT(*) queries on reports — they reset
-        # automatically when reports are gone. No separate table to clear.
-    ]
+    if limit is not None and limit > 0:
+        # Scoped wipe: only the N most recent reports.
+        target_ids = list(db.scalars(
+            select(Report.id).order_by(Report.created_at.desc()).limit(limit)
+        ).all())
+
+        if not target_ids:
+            return WipeReportsResponse(deleted_reports=0, note="No reports to delete.")
+
+        # Each statement is parameterised on the target_ids list. Order
+        # matters: dependents first, then reports, then orphan clusters.
+        statements: list[tuple[str, dict]] = [
+            ("DELETE FROM notification_deliveries WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM notify_events            WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM notification_subscriptions WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM report_responsibility_snapshot WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM report_assignments       WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM resolution_proofs        WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM report_events            WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM report_checkins          WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM flags                    WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM media                    WHERE report_id = ANY(:ids)", {"ids": target_ids}),
+            ("DELETE FROM reports                  WHERE id        = ANY(:ids)", {"ids": target_ids}),
+            # Drop any clusters that no longer have any reports attached.
+            (
+                "DELETE FROM clusters WHERE id NOT IN (SELECT DISTINCT cluster_id FROM reports WHERE cluster_id IS NOT NULL)",
+                {},
+            ),
+        ]
+    else:
+        # Full wipe — same as before, no parameters needed.
+        statements = [
+            ("DELETE FROM notification_deliveries WHERE report_id IS NOT NULL", {}),
+            ("DELETE FROM notify_events            WHERE report_id IS NOT NULL", {}),
+            ("DELETE FROM notification_subscriptions WHERE report_id IS NOT NULL", {}),
+            ("DELETE FROM report_responsibility_snapshot", {}),
+            ("DELETE FROM report_assignments", {}),
+            ("DELETE FROM resolution_proofs", {}),
+            ("DELETE FROM report_events", {}),
+            ("DELETE FROM report_checkins", {}),
+            ("DELETE FROM flags WHERE report_id IS NOT NULL", {}),
+            ("DELETE FROM media", {}),
+            ("UPDATE reports SET cluster_id = NULL", {}),
+            ("DELETE FROM clusters", {}),
+            ("DELETE FROM reports", {}),
+        ]
 
     skipped: list[str] = []
-    for stmt in statements:
+    for stmt, params in statements:
         try:
-            db.execute(text(stmt))
+            db.execute(text(stmt), params)
         except Exception as exc:
-            # If a table doesn't exist (older schema), skip it. Don't fail
-            # the whole wipe just because one optional table is missing.
-            skipped.append(f"{stmt}: {str(exc)[:100]}")
+            skipped.append(f"{stmt[:60]}…: {str(exc)[:80]}")
 
     db.commit()
 
     after = db.scalar(select(func.count()).select_from(Report))
     deleted = (before or 0) - (after or 0)
 
-    note = f"Wiped {deleted} reports + related rows (media, events, clusters, abuse counters)."
+    if limit is not None:
+        note = f"Wiped {deleted} most-recent report(s) + their dependents."
+    else:
+        note = f"Wiped ALL {deleted} reports + related rows (media, events, clusters)."
     if skipped:
-        note += f" Skipped {len(skipped)} statement(s) for missing tables — see API logs."
+        note += f" Skipped {len(skipped)} statement(s) — see API logs."
         import structlog
         structlog.get_logger("admin").info("wipe_skipped_statements", skipped=skipped)
 

@@ -1,16 +1,19 @@
-# Wipe ALL reports + related rows (media, events, clusters, assignments,
-# resolution proofs, notifications, check-ins) from the deployed API.
+# Wipe reports + their dependent rows (media, events, clusters,
+# assignments, resolution proofs, notifications, check-ins) from the
+# deployed API. Reference data (reps, routing rules, wards, jurisdictions)
+# is NOT touched.
 #
-# Reference data (elected representatives, routing rules, wards,
-# jurisdictions) is NOT touched.
-#
-# DESTRUCTIVE — this cannot be undone. Used for clearing test data
-# before launch or during a debugging round.
+# DESTRUCTIVE — cannot be undone.
 #
 # Usage:
-#   .\wipe-reports.ps1 `
-#     -ApiBase "https://ente-nadu-production.up.railway.app" `
-#     -AdminApiKey "<your admin key>"
+#   # Wipe the 15 most-recent reports
+#   .\wipe-reports.ps1 -ApiBase "https://..." -AdminApiKey "<key>" -Limit 15
+#
+#   # Wipe ALL reports (full reset)
+#   .\wipe-reports.ps1 -ApiBase "https://..." -AdminApiKey "<key>"
+#
+#   # Skip the confirmation prompt (for scripting)
+#   .\wipe-reports.ps1 -ApiBase "..." -AdminApiKey "..." -Limit 5 -SkipConfirm
 
 param(
   [Parameter(Mandatory=$true)]
@@ -19,14 +22,22 @@ param(
   [Parameter(Mandatory=$true)]
   [string]$AdminApiKey,
 
+  # Optional: limit the wipe to the N most recent reports.
+  # Omit to wipe everything.
+  [int]$Limit = 0,
+
   [switch]$SkipConfirm
 )
+
+$endpoint = "$ApiBase/v1/admin/reports/wipe-all"
+$scopeText = if ($Limit -gt 0) { "the $Limit most-recent reports" } else { "ALL reports" }
 
 if (-not $SkipConfirm) {
   Write-Host ""
   Write-Host "╔══════════════════════════════════════════════════════════╗" -ForegroundColor Yellow
   Write-Host "║              DESTRUCTIVE OPERATION                       ║" -ForegroundColor Yellow
-  Write-Host "║  About to delete ALL reports + media + events + clusters ║" -ForegroundColor Yellow
+  Write-Host "║  About to delete $scopeText" -ForegroundColor Yellow
+  Write-Host "║  + their media, events, clusters, etc.                   ║" -ForegroundColor Yellow
   Write-Host "║                                                          ║" -ForegroundColor Yellow
   Write-Host "║  Target: $ApiBase" -ForegroundColor Yellow
   Write-Host "╚══════════════════════════════════════════════════════════╝" -ForegroundColor Yellow
@@ -38,7 +49,10 @@ if (-not $SkipConfirm) {
   }
 }
 
-$endpoint = "$ApiBase/v1/admin/reports/wipe-all"
+if ($Limit -gt 0) {
+  $endpoint = "${endpoint}?limit=$Limit"
+}
+
 $headers = @{ "X-Admin-Api-Key" = $AdminApiKey }
 
 Write-Host ""
