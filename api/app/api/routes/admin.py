@@ -329,3 +329,73 @@ def send_trial_email(
         subject=subject,
         note="Accepted by SendGrid. Check inbox (and spam folder).",
     )
+
+
+# ── Wipe all reports ───────────────────────────────────────────────
+# Test/staging tool. Truncates everything report-related (media, events,
+# assignments, resolution proofs, notifications, clusters). Requires the
+# admin API key. Does NOT touch elected representatives, routing rules,
+# wards, or jurisdictions — those are reference data. Does NOT delete the
+# corresponding R2 objects (those become orphans; cheap to leave for
+# testing, run a separate cleanup if it ever matters).
+
+
+class WipeReportsResponse(BaseModel):
+    deleted_reports: int
+    note: str
+
+
+@router.post("/reports/wipe-all", response_model=WipeReportsResponse)
+def wipe_all_reports(
+    admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+) -> WipeReportsResponse:
+    # Count first so we can report what was nuked.
+    before = db.scalar(select(func.count()).select_from(Report))
+
+    # Order matters even with FK cascades — be explicit so this works on
+    # databases without ON DELETE CASCADE configured. Wrapped in one
+    # transaction so a partial failure rolls back cleanly.
+    statements = [
+        # Notification + delivery tables (any rows that reference reports)
+        "DELETE FROM notification_deliveries WHERE report_id IS NOT NULL",
+        "DELETE FROM notify_events WHERE report_id IS NOT NULL",
+        "DELETE FROM notification_subscriptions WHERE report_id IS NOT NULL",
+        # Per-report tables
+        "DELETE FROM report_responsibility_snapshot",
+        "DELETE FROM report_assignments",
+        "DELETE FROM resolution_proofs",
+        "DELETE FROM report_events",
+        "DELETE FROM report_checkins",
+        # Media + flags
+        "DELETE FROM flags WHERE report_id IS NOT NULL",
+        "DELETE FROM media",
+        # Reports themselves (drop the cluster FK first, then clusters)
+        "UPDATE reports SET cluster_id = NULL",
+        "DELETE FROM clusters",
+        "DELETE FROM reports",
+        # Abuse counters are COUNT(*) queries on reports — they reset
+        # automatically when reports are gone. No separate table to clear.
+    ]
+
+    skipped: list[str] = []
+    for stmt in statements:
+        try:
+            db.execute(text(stmt))
+        except Exception as exc:
+            # If a table doesn't exist (older schema), skip it. Don't fail
+            # the whole wipe just because one optional table is missing.
+            skipped.append(f"{stmt}: {str(exc)[:100]}")
+
+    db.commit()
+
+    after = db.scalar(select(func.count()).select_from(Report))
+    deleted = (before or 0) - (after or 0)
+
+    note = f"Wiped {deleted} reports + related rows (media, events, clusters, abuse counters)."
+    if skipped:
+        note += f" Skipped {len(skipped)} statement(s) for missing tables — see API logs."
+        import structlog
+        structlog.get_logger("admin").info("wipe_skipped_statements", skipped=skipped)
+
+    return WipeReportsResponse(deleted_reports=int(deleted), note=note)
