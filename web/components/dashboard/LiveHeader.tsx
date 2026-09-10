@@ -128,6 +128,19 @@ export default function LiveHeader() {
           </select>
 
           <ThemeToggle />
+
+          {/* ── Temporary: private wedding planner ──────────────────────
+              Deliberately understated — this is a family tool, not part of
+              the civic product. The page itself is passcode-gated and
+              noindex. To remove it, delete this Link and the .weddingLink
+              rule below; nothing else depends on it. */}
+          <Link
+            href="/wedding"
+            className={`weddingLink ${pathname === "/wedding" ? "active" : ""}`}
+            title="Private wedding planner"
+          >
+            Wedding
+          </Link>
         </div>
       </div>
 
@@ -289,6 +302,27 @@ export default function LiveHeader() {
           color: var(--accent);
         }
 
+        /* Temporary — private wedding planner. Quiet by design: sits at the
+           far corner, dimmer than the nav, and brightens only on hover. */
+        .weddingLink {
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--ink-soft);
+          text-decoration: none;
+          padding: 5px 2px;
+          opacity: 0.7;
+          transition: color 0.18s ease, opacity 0.18s ease;
+          white-space: nowrap;
+        }
+        .weddingLink:hover {
+          color: var(--accent);
+          opacity: 1;
+          text-decoration: none;
+        }
+        .weddingLink.active { color: var(--accent); opacity: 1; }
+
         @media (max-width: 900px) {
           .brandDivider, .brandTag { display: none; }
         }
@@ -300,6 +334,9 @@ export default function LiveHeader() {
         }
         @media (max-width: 480px) {
           .mainNav { display: none; }
+          /* Main nav is gone at this width, so the corner link is one of the
+             few things left — keep it legible but tight. */
+          .weddingLink { font-size: 8.5px; letter-spacing: 0.12em; }
         }
       `}</style>
     </header>
