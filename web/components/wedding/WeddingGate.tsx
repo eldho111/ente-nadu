@@ -21,7 +21,12 @@
 import { useEffect, useState } from "react";
 
 const UNLOCK_KEY = "enteNadu.wedding.unlocked";
-const PASSCODE = process.env.NEXT_PUBLIC_WEDDING_PASSCODE ?? "";
+// Fallback so the page works without any env var config. The passcode
+// is a curtain not a lock — the data behind it lives only in each
+// visitor's localStorage, so there is nothing sensitive on the server
+// to protect. To override on any specific deploy, set
+// NEXT_PUBLIC_WEDDING_PASSCODE in that environment.
+const PASSCODE = (process.env.NEXT_PUBLIC_WEDDING_PASSCODE ?? "mithun2026").trim();
 
 export default function WeddingGate({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"checking" | "locked" | "open">("checking");
