@@ -20,6 +20,8 @@
  */
 import { useEffect, useState } from "react";
 
+import { getAuthor, logChange, setAuthor } from "@/lib/wedding/audit";
+
 const UNLOCK_KEY = "enteNadu.wedding.unlocked";
 // Fallback so the page works without any env var config. The passcode
 // is a curtain not a lock — the data behind it lives only in each
@@ -31,11 +33,15 @@ const PASSCODE = (process.env.NEXT_PUBLIC_WEDDING_PASSCODE ?? "mithun2026").trim
 export default function WeddingGate({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<"checking" | "locked" | "open">("checking");
   const [entry, setEntry] = useState("");
-  const [error, setError] = useState(false);
+  const [name, setName] = useState("");
+  const [error, setError] = useState<"passcode" | "name" | null>(null);
 
   const configured = PASSCODE.trim() !== "";
 
   useEffect(() => {
+    // Prefill the name field from any prior session so the family member
+    // doesn't have to retype it every time they open the page.
+    setName(getAuthor());
     if (!configured) {
       setStatus("locked");
       return;
@@ -47,22 +53,44 @@ export default function WeddingGate({ children }: { children: React.ReactNode })
     }
   }, [configured]);
 
+  // Force light theme for the wedding pages regardless of the site-wide
+  // toggle. The rest of Ente Nadu is a dark ops-console; this section is
+  // a family document and reads better on a bright surface. Undo when we
+  // unmount so the civic pages get their dark chrome back.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const html = document.documentElement;
+    const prior = html.getAttribute("data-theme");
+    html.setAttribute("data-theme", "light");
+    return () => {
+      if (prior === null) html.removeAttribute("data-theme");
+      else html.setAttribute("data-theme", prior);
+    };
+  }, []);
+
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Without this guard an unset passcode would make the empty string a
-    // valid answer, unlocking the section for anyone who pressed Enter.
     if (!configured) return;
-    if (entry.trim().toLowerCase() === PASSCODE.trim().toLowerCase()) {
-      try {
-        sessionStorage.setItem(UNLOCK_KEY, "1");
-      } catch {
-        /* private mode — unlock lasts for this page view only */
-      }
-      setStatus("open");
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setError("name");
       return;
     }
-    setError(true);
-    setEntry("");
+    if (entry.trim().toLowerCase() !== PASSCODE.trim().toLowerCase()) {
+      setError("passcode");
+      setEntry("");
+      return;
+    }
+    // Passcode matches AND we have a name — remember who this is so every
+    // subsequent edit gets attributed correctly in the audit log.
+    setAuthor(trimmedName);
+    logChange("Signed in", `via ${navigator.userAgent.slice(0, 60)}`);
+    try {
+      sessionStorage.setItem(UNLOCK_KEY, "1");
+    } catch {
+      /* private mode — unlock lasts for this page view only */
+    }
+    setStatus("open");
   };
 
   if (status === "checking") {
@@ -81,20 +109,41 @@ export default function WeddingGate({ children }: { children: React.ReactNode })
 
         {configured ? (
           <>
-            <p>This part of the site is for family. Enter the passcode to continue.</p>
+            <p>This part of the site is for family. Enter your name and the passcode to continue.</p>
+            <input
+              type="text"
+              value={name}
+              autoFocus={!name}
+              placeholder="Your name"
+              aria-label="Your name"
+              autoComplete="name"
+              onChange={(e) => {
+                setName(e.target.value);
+                if (error === "name") setError(null);
+              }}
+            />
             <input
               type="password"
               value={entry}
-              autoFocus
+              autoFocus={!!name}
               placeholder="Passcode"
               aria-label="Passcode"
               onChange={(e) => {
                 setEntry(e.target.value);
-                setError(false);
+                if (error === "passcode") setError(null);
               }}
             />
-            {error ? <div className="wGateError">That passcode didn&rsquo;t match.</div> : null}
+            {error === "passcode" ? (
+              <div className="wGateError">That passcode didn&rsquo;t match.</div>
+            ) : null}
+            {error === "name" ? (
+              <div className="wGateError">Please tell us your name — it&rsquo;s used to sign changes you make.</div>
+            ) : null}
             <button type="submit">Unlock</button>
+            <div className="wGateNote">
+              Your name is saved on this device only and is used to label any changes you make
+              in the plan history.
+            </div>
           </>
         ) : (
           <p className="wGateSetup">
@@ -185,6 +234,14 @@ export default function WeddingGate({ children }: { children: React.ReactNode })
         .wGateError {
           font-size: 12px;
           color: var(--alarm);
+        }
+        .wGateNote {
+          font-size: 11px;
+          color: var(--ink-muted);
+          line-height: 1.5;
+          margin-top: 4px;
+          padding-top: 10px;
+          border-top: 1px solid var(--border);
         }
         .wGateSetup {
           font-size: 12.5px;

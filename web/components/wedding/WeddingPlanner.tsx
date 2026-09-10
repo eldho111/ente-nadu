@@ -7,11 +7,13 @@
  * fixed bottom tab bar (four primary sections plus a More sheet), which is
  * the pattern the rest of the /app routes use.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { getAuthor } from "@/lib/wedding/audit";
 import { runEngine } from "@/lib/wedding/engine";
 import { useWeddingStore } from "@/lib/wedding/store";
 
+import History from "./History";
 import { Budget, Dashboard, SettingsPanel } from "./SectionsMoney";
 import { Contacts, Guests, Vendors } from "./SectionsPeople";
 import { Church, Runsheets, Shopping, Tasks } from "./SectionsPlan";
@@ -26,6 +28,7 @@ type SectionId =
   | "runsheets"
   | "shopping"
   | "church"
+  | "history"
   | "settings";
 
 const SECTIONS: { id: SectionId; icon: string; label: string; short: string }[] = [
@@ -38,6 +41,7 @@ const SECTIONS: { id: SectionId; icon: string; label: string; short: string }[] 
   { id: "runsheets", icon: "◷", label: "Event Runsheets", short: "Runsheet" },
   { id: "shopping", icon: "◇", label: "Shopping", short: "Shopping" },
   { id: "church", icon: "✝", label: "Church Formalities", short: "Church" },
+  { id: "history", icon: "⌛", label: "History & Sign-in", short: "History" },
   { id: "settings", icon: "⚙", label: "Settings & Backup", short: "Settings" },
 ];
 
@@ -47,8 +51,28 @@ export default function WeddingPlanner() {
   const { state, update, replace, reset } = useWeddingStore();
   const [section, setSection] = useState<SectionId>("dash");
   const [moreOpen, setMoreOpen] = useState(false);
+  const [author, setAuthor] = useState("");
 
   const engine = useMemo(() => (state ? runEngine(state) : null), [state]);
+
+  // Read the signed-in author name once mounted and re-read whenever we
+  // switch to the History section (where the user can change it).
+  useEffect(() => {
+    setAuthor(getAuthor());
+  }, [section]);
+
+  // Keep the wedding pages on light theme regardless of the site-wide
+  // toggle — this section is a family document, and it reads better bright.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const html = document.documentElement;
+    const prior = html.getAttribute("data-theme");
+    html.setAttribute("data-theme", "light");
+    return () => {
+      if (prior === null) html.removeAttribute("data-theme");
+      else html.setAttribute("data-theme", prior);
+    };
+  }, []);
 
   const go = (id: SectionId) => {
     setSection(id);
@@ -76,6 +100,19 @@ export default function WeddingPlanner() {
             and the church wedding with reception.
           </p>
         </div>
+        {author ? (
+          <button
+            type="button"
+            className="wSignedChip"
+            onClick={() => go("history")}
+            title="View change history — click to open"
+          >
+            <span className="wSignedChipDot" aria-hidden="true" />
+            <span>
+              Signed in as <strong>{author}</strong>
+            </span>
+          </button>
+        ) : null}
       </header>
 
       <nav className="wRail" aria-label="Planner sections">
@@ -103,6 +140,7 @@ export default function WeddingPlanner() {
         {section === "runsheets" && <Runsheets state={state} update={update} />}
         {section === "shopping" && <Shopping state={state} update={update} />}
         {section === "church" && <Church />}
+        {section === "history" && <History />}
         {section === "settings" && (
           <SettingsPanel
             state={state}
@@ -173,7 +211,39 @@ export default function WeddingPlanner() {
           padding: 26px 24px 40px;
         }
 
-        .wHead { margin-bottom: 18px; }
+        .wHead {
+          margin-bottom: 18px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 16px;
+        }
+        .wSignedChip {
+          appearance: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 12px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: 999px;
+          font-size: 11px;
+          color: var(--ink-1);
+          cursor: pointer;
+          font-family: inherit;
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+          transition: border-color 0.15s ease, color 0.15s ease;
+        }
+        .wSignedChip:hover { border-color: var(--accent); color: var(--accent); }
+        .wSignedChip strong { color: var(--ink-0); font-weight: 600; }
+        .wSignedChip:hover strong { color: var(--accent); }
+        .wSignedChipDot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--accent);
+        }
         .wKicker {
           font-size: 9px;
           font-weight: 700;
@@ -489,6 +559,7 @@ export default function WeddingPlanner() {
 
         @media (max-width: 840px) {
           .wWrap { padding: 16px 12px calc(78px + env(safe-area-inset-bottom)); }
+          .wHead { flex-direction: column; align-items: flex-start; gap: 10px; }
           .wHead h1 { font-size: 19px; }
           .wHead p { font-size: 12.5px; }
           .wRail { display: none; }

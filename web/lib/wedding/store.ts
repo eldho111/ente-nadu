@@ -9,6 +9,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { logChange } from "./audit";
 import { getCounter, seedState, setCounter } from "./seed";
 import type { WeddingSave, WeddingState } from "./types";
 
@@ -51,7 +52,13 @@ export function isValidSave(value: unknown): value is WeddingSave {
 export type WeddingStore = {
   /** Null until the first client render has read localStorage. */
   state: WeddingState | null;
-  update: (mutate: (draft: WeddingState) => void) => void;
+  /**
+   * Mutate the plan. Optional `label` describes the change for the audit
+   * log — e.g. "Added guest", "Updated Wedding budget". When omitted, a
+   * generic "Updated plan" entry is written so we still know something
+   * changed and who did it.
+   */
+  update: (mutate: (draft: WeddingState) => void, label?: string) => void;
   replace: (save: WeddingSave) => void;
   reset: () => void;
 };
@@ -76,7 +83,7 @@ export function useWeddingStore(): WeddingStore {
     }
   }, []);
 
-  const update = useCallback((mutate: (draft: WeddingState) => void) => {
+  const update = useCallback((mutate: (draft: WeddingState) => void, label?: string) => {
     const current = stateRef.current;
     if (!current) return;
     // Structural clone keeps React's identity check honest without pulling in
@@ -86,6 +93,8 @@ export function useWeddingStore(): WeddingStore {
     stateRef.current = draft;
     setState(draft);
     writeSave(draft);
+    // Log the change so the family can see who did what and when.
+    logChange(label || "Updated plan");
   }, []);
 
   const replace = useCallback((save: WeddingSave) => {
@@ -93,6 +102,7 @@ export function useWeddingStore(): WeddingStore {
     stateRef.current = save.state;
     setState(save.state);
     writeSave(save.state);
+    logChange("Imported plan from backup");
   }, []);
 
   const reset = useCallback(() => {
@@ -100,6 +110,7 @@ export function useWeddingStore(): WeddingStore {
     stateRef.current = fresh;
     setState(fresh);
     writeSave(fresh);
+    logChange("Reset plan to defaults");
   }, []);
 
   return { state, update, replace, reset };
