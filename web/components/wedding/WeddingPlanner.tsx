@@ -17,6 +17,7 @@ import History from "./History";
 import { Budget, Dashboard, SettingsPanel } from "./SectionsMoney";
 import { Contacts, Guests, Vendors } from "./SectionsPeople";
 import { Church, Runsheets, Shopping, Tasks } from "./SectionsPlan";
+import WeddingLanding, { type LandingId } from "./WeddingLanding";
 
 type SectionId =
   | "dash"
@@ -49,6 +50,10 @@ const PRIMARY: SectionId[] = ["dash", "budget", "guests", "tasks"];
 
 export default function WeddingPlanner() {
   const { state, update, replace, reset, locked, unlock, save, cancel } = useWeddingStore();
+  // "view" is the top-level: the tile grid (landing) or a specific section.
+  // Users land on the grid, click a tile to descend, and can back out to
+  // it any time. Every section reachable this way maps 1:1 to a LandingId.
+  const [view, setView] = useState<"landing" | "section">("landing");
   const [section, setSection] = useState<SectionId>("dash");
   const [moreOpen, setMoreOpen] = useState(false);
   const [author, setAuthor] = useState("");
@@ -83,6 +88,13 @@ export default function WeddingPlanner() {
 
   const go = (id: SectionId) => {
     setSection(id);
+    setView("section");
+    setMoreOpen(false);
+    if (typeof window !== "undefined") window.scrollTo(0, 0);
+  };
+
+  const backToLanding = () => {
+    setView("landing");
     setMoreOpen(false);
     if (typeof window !== "undefined") window.scrollTo(0, 0);
   };
@@ -141,30 +153,42 @@ export default function WeddingPlanner() {
         </div>
       </header>
 
-      <nav className="wRail" aria-label="Planner sections">
-        {SECTIONS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={item.id === section ? "active" : ""}
-            onClick={() => go(item.id)}
+      {view === "landing" ? (
+        <WeddingLanding
+          engine={engine}
+          contactsCount={state.contacts.length}
+          shoppingBought={state.shopping.filter((s) => s.bought).length}
+          shoppingTotal={state.shopping.length}
+          vendorsBooked={state.vendors.filter((v) => v.status === "Booked").length}
+          vendorsShortlisted={state.vendors.filter((v) => v.status === "Shortlisted").length}
+          onOpen={(id) => go(id as SectionId)}
+        />
+      ) : null}
+
+      {view === "section" ? (
+        <>
+          <div className="wSectionBar">
+            <button
+              type="button"
+              className="wBackChip"
+              onClick={backToLanding}
+              aria-label="Back to sections"
+            >
+              <span aria-hidden="true">←</span> Sections
+            </button>
+            <div className="wSectionTitle">{active?.label}</div>
+            <div aria-hidden="true" />
+          </div>
+
+          {/* aria-disabled guides screen readers around the disabled surface when
+              locked; the pointer-events: none in CSS blocks mouse + touch.
+              History (name / audit log) stays interactive when locked — those
+              controls only touch the log, not the plan itself. Settings
+              contains reset() and mutating fields, so it is lock-gated too. */}
+          <main
+            className={`wBody ${locked && section !== "history" ? "wLocked" : "wUnlocked"}`}
+            aria-disabled={locked && section !== "history"}
           >
-            {item.label}
-          </button>
-        ))}
-      </nav>
-
-      <div className="wSectionTitle">{active?.label}</div>
-
-      {/* aria-disabled guides screen readers around the disabled surface when
-          locked; the pointer-events: none in CSS blocks mouse + touch.
-          History (name / audit log) stays interactive when locked — those
-          controls only touch the log, not the plan itself. Settings
-          contains reset() and mutating fields, so it is lock-gated too. */}
-      <main
-        className={`wBody ${locked && section !== "history" ? "wLocked" : "wUnlocked"}`}
-        aria-disabled={locked && section !== "history"}
-      >
         {section === "dash" && <Dashboard state={state} engine={engine} />}
         {section === "budget" && <Budget state={state} engine={engine} update={update} />}
         {section === "guests" && <Guests state={state} engine={engine} update={update} />}
@@ -185,14 +209,26 @@ export default function WeddingPlanner() {
           />
         )}
       </main>
+        </>
+      ) : null}
 
-      {/* Mobile bottom bar — four primary sections plus More. */}
+      {/* Mobile bottom bar — Home tile + four primary sections + More.
+          Home takes the user back to the landing grid. */}
       <nav className="wTabs" aria-label="Planner sections (mobile)">
-        {SECTIONS.filter((s) => PRIMARY.includes(s.id)).map((item) => (
+        <button
+          type="button"
+          className={view === "landing" ? "active" : ""}
+          onClick={backToLanding}
+          aria-label="Home — section tiles"
+        >
+          <span className="wTabIcon">◱</span>
+          <span>Home</span>
+        </button>
+        {SECTIONS.filter((s) => PRIMARY.includes(s.id) && s.id !== "dash").map((item) => (
           <button
             key={item.id}
             type="button"
-            className={item.id === section ? "active" : ""}
+            className={view === "section" && item.id === section ? "active" : ""}
             onClick={() => go(item.id)}
           >
             <span className="wTabIcon">{item.icon}</span>
@@ -201,7 +237,7 @@ export default function WeddingPlanner() {
         ))}
         <button
           type="button"
-          className={!PRIMARY.includes(section) ? "active" : ""}
+          className={view === "section" && !PRIMARY.includes(section) ? "active" : ""}
           onClick={() => setMoreOpen(true)}
         >
           <span className="wTabIcon">⋯</span>
@@ -224,7 +260,7 @@ export default function WeddingPlanner() {
                 <button
                   key={item.id}
                   type="button"
-                  className={item.id === section ? "active" : ""}
+                  className={view === "section" && item.id === section ? "active" : ""}
                   onClick={() => go(item.id)}
                 >
                   <span className="wTabIcon">{item.icon}</span>
@@ -382,33 +418,45 @@ export default function WeddingPlanner() {
           max-width: 70ch;
         }
 
-        .wRail {
-          display: flex;
-          gap: 2px;
-          overflow-x: auto;
+        /* Old desktop rail retired in favour of the tile landing.
+           Kept the .wSectionTitle rule below because the mobile media
+           query still uses it as the sole section-name affordance. */
+
+        /* Bar shown above every section: Back-to-tiles chip + section title. */
+        .wSectionBar {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          gap: 12px;
+          padding-bottom: 12px;
           border-bottom: 1px solid var(--border);
           margin-bottom: 18px;
-          scrollbar-width: thin;
         }
-        .wRail button {
-          flex: 0 0 auto;
-          background: none;
-          border: none;
-          border-bottom: 2px solid transparent;
+        .wBackChip {
+          appearance: none;
+          background: transparent;
+          border: 1px solid var(--border-strong);
           color: var(--ink-1);
           font-family: inherit;
-          font-size: 11px;
-          font-weight: 500;
-          letter-spacing: 0.13em;
-          text-transform: uppercase;
-          padding: 10px 14px;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.06em;
+          padding: 6px 12px;
+          border-radius: 999px;
           cursor: pointer;
-          transition: color 0.16s ease, border-color 0.16s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: color 0.15s ease, border-color 0.15s ease;
         }
-        .wRail button:hover { color: var(--accent); }
-        .wRail button.active { color: var(--ink-0); border-bottom-color: var(--accent); }
-
-        .wSectionTitle { display: none; }
+        .wBackChip:hover { color: var(--accent); border-color: var(--accent); }
+        .wSectionTitle {
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          color: var(--ink-0);
+          text-align: center;
+        }
 
         /* ── Alerts ───────────────────────────────────────────── */
         .wAlerts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
@@ -685,17 +733,21 @@ export default function WeddingPlanner() {
           .wHead h1 { font-size: 19px; }
           .wHead p { font-size: 12.5px; }
           .wRail { display: none; }
-
+          /* Section bar shrinks to just the title on mobile — the bottom Home tab
+             gives users a quicker way back to the landing than a back chip up top. */
+          .wSectionBar {
+            grid-template-columns: 1fr;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+          }
+          .wBackChip { display: none; }
           .wSectionTitle {
-            display: block;
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.16em;
             text-transform: uppercase;
             color: var(--ink-soft);
-            padding: 4px 2px 12px;
-            border-bottom: 1px solid var(--border);
-            margin-bottom: 16px;
+            text-align: left;
           }
 
           .wStats { grid-template-columns: 1fr 1fr; gap: 10px; }
