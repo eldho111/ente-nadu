@@ -9,6 +9,7 @@ import { isValidSave } from "@/lib/wedding/store";
 import { SEGMENTS } from "@/lib/wedding/types";
 import type { EngineResult, Segment, WeddingSave, WeddingState } from "@/lib/wedding/types";
 
+import Countdown from "./Countdown";
 import { AddButton, DeleteButton, NumberInput, Panel, Stat, TextInput } from "./ui";
 
 type Mutate = (mutate: (draft: WeddingState) => void) => void;
@@ -23,6 +24,22 @@ export function Dashboard({ state, engine }: { state: WeddingState; engine: Engi
 
   return (
     <>
+      {/* Live countdowns to the two anchor events. Engagement usually
+          precedes the wedding by a few months; both are shown together
+          so the family can see both cadences at a glance. */}
+      <div className="wCountdowns">
+        <Countdown
+          label="Engagement"
+          dateISO={settings.engagementDate}
+          tone="gold"
+        />
+        <Countdown
+          label="Wedding day"
+          dateISO={settings.weddingDate}
+          tone="sage"
+        />
+      </div>
+
       {engine.alerts.length > 0 ? (
         <div className="wAlerts">
           {engine.alerts.map((alert, index) => (

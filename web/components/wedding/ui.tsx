@@ -84,6 +84,55 @@ export function TextInput({
   );
 }
 
+/**
+ * PhoneCell — an editable phone input paired with a tap-to-call button.
+ * Used for the phone column in Contacts and Vendors. The call button
+ * appears only when a value is present and always stays interactive,
+ * even when the surrounding section is locked, so the family can dial
+ * without first entering edit mode.
+ */
+export function PhoneCell({
+  value,
+  onChange,
+  ariaLabel,
+  placeholder = "phone…",
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  ariaLabel?: string;
+  placeholder?: string;
+}) {
+  const cleaned = value.trim().replace(/[^\d+]/g, "");
+  const hasNumber = cleaned.length >= 4;
+  return (
+    <div className="wPhoneCell">
+      <input
+        className="wCellInput"
+        type="tel"
+        inputMode="tel"
+        autoComplete="tel"
+        value={value}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {hasNumber ? (
+        <a
+          href={`tel:${cleaned}`}
+          className="wCallBtn"
+          aria-label={`Call ${value}`}
+          title={`Call ${value}`}
+          // pointer-events:auto keeps this clickable even when the
+          // section is locked (parent applies pointer-events:none).
+          style={{ pointerEvents: "auto" }}
+        >
+          <span aria-hidden="true">☎</span>
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 export function NumberInput({
   value,
   onChange,

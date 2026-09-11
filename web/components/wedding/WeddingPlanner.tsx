@@ -459,6 +459,90 @@ export default function WeddingPlanner() {
         }
 
         /* ── Alerts ───────────────────────────────────────────── */
+        /* ── Countdown cards ─────────────────────────────────────
+           Two large event countdown blocks — engagement (gold) and
+           wedding (sage). Live tick down to the day, hour, minute,
+           second. Sit above the alerts on the dashboard. */
+        .wCountdowns {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+          margin-bottom: 18px;
+        }
+        .wCd {
+          border-radius: 18px;
+          padding: 18px 20px 16px;
+          display: grid;
+          gap: 12px;
+          border: 1px solid transparent;
+          position: relative;
+          overflow: hidden;
+        }
+        .wCd-sage {
+          background: linear-gradient(135deg, rgba(62, 104, 92, 0.14), rgba(255, 255, 255, 0.65));
+          border-color: rgba(62, 104, 92, 0.28);
+        }
+        .wCd-gold {
+          background: linear-gradient(135deg, rgba(138, 106, 56, 0.18), rgba(255, 255, 255, 0.65));
+          border-color: rgba(138, 106, 56, 0.32);
+        }
+        .wCdLabel {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--ink-soft);
+        }
+        .wCd-sage .wCdLabel { color: var(--accent-deep, var(--accent)); }
+        .wCd-gold .wCdLabel { color: var(--gold-deep, var(--gold)); }
+        .wCdGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+        }
+        .wCdCell {
+          text-align: center;
+          padding: 8px 4px 6px;
+          background: rgba(255, 255, 255, 0.55);
+          border-radius: 12px;
+          box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+        }
+        .wCdNum {
+          font-size: 26px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: var(--ink-0);
+          font-variant-numeric: tabular-nums;
+          line-height: 1;
+        }
+        .wCdUnit {
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          color: var(--ink-muted);
+          text-transform: uppercase;
+          margin-top: 4px;
+        }
+        .wCdDate {
+          font-size: 12px;
+          color: var(--ink-1);
+        }
+        .wCdEmpty {
+          font-size: 12px;
+          color: var(--ink-muted);
+          font-style: italic;
+        }
+        .wCdPast {
+          font-size: 22px;
+          font-weight: 600;
+          color: var(--ink-0);
+          letter-spacing: -0.01em;
+        }
+        @media (max-width: 700px) {
+          .wCountdowns { grid-template-columns: 1fr; }
+          .wCdNum { font-size: 22px; }
+        }
+
         .wAlerts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
         .wAlert {
           font-size: 13px;
@@ -618,6 +702,41 @@ export default function WeddingPlanner() {
           color: var(--accent);
           text-decoration: none;
           padding: 0 8px;
+        }
+        /* ── Phone-with-call cell ─────────────────────────────────
+           Input + tap-to-call round button, laid out inline. The call
+           button stays interactive even when the section is locked
+           thanks to pointer-events:auto inline on the anchor. */
+        .wPhoneCell {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .wPhoneCell .wCellInput { min-width: 132px; }
+        .wCallBtn {
+          display: inline-grid;
+          place-items: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 999px;
+          background: var(--accent);
+          color: #fff;
+          text-decoration: none;
+          font-size: 14px;
+          line-height: 1;
+          flex-shrink: 0;
+          transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .wCallBtn:hover { background: var(--accent-deep, var(--accent)); transform: scale(1.05); }
+        .wCallBtn:active { transform: scale(0.95); }
+        .wCallBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        /* Locked-section overrides applied to inputs would grey the call
+           button too. Keep it saturated so it reads as actionable even
+           when the surrounding row is muted. */
+        .wLocked .wCallBtn {
+          background: var(--accent) !important;
+          color: #fff !important;
+          opacity: 1 !important;
         }
 
         .wDel {

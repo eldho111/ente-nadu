@@ -13,6 +13,7 @@ import {
   DeleteButton,
   NumberInput,
   Panel,
+  PhoneCell,
   SelectInput,
   Stat,
   TextInput,
@@ -285,9 +286,8 @@ export function Vendors({
                     />
                   </td>
                   <td>
-                    <TextInput
+                    <PhoneCell
                       value={vendor.phone}
-                      placeholder="phone…"
                       ariaLabel="Vendor phone"
                       onChange={(v) =>
                         update((draft) => {
@@ -423,14 +423,8 @@ export function Contacts({ state, update }: { state: WeddingState; update: Mutat
                   />
                 </td>
                 <td>
-                  {contact.phone ? (
-                    <a className="wPhone" href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}>
-                      {contact.phone}
-                    </a>
-                  ) : null}
-                  <TextInput
+                  <PhoneCell
                     value={contact.phone}
-                    placeholder="phone…"
                     ariaLabel="Contact phone"
                     onChange={(v) =>
                       update((draft) => {
