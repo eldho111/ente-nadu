@@ -48,12 +48,19 @@ const SECTIONS: { id: SectionId; icon: string; label: string; short: string }[] 
 const PRIMARY: SectionId[] = ["dash", "budget", "guests", "tasks"];
 
 export default function WeddingPlanner() {
-  const { state, update, replace, reset } = useWeddingStore();
+  const { state, update, replace, reset, locked, unlock, save, cancel } = useWeddingStore();
   const [section, setSection] = useState<SectionId>("dash");
   const [moreOpen, setMoreOpen] = useState(false);
   const [author, setAuthor] = useState("");
 
   const engine = useMemo(() => (state ? runEngine(state) : null), [state]);
+
+  // Confirm before discarding buffered edits — clicking Cancel is the
+  // one destructive action on this page and warrants an extra click.
+  const askAndCancel = () => {
+    if (!confirm("Discard the changes you just made and go back to the last saved state?")) return;
+    cancel();
+  };
 
   // Read the signed-in author name once mounted and re-read whenever we
   // switch to the History section (where the user can change it).
@@ -100,19 +107,38 @@ export default function WeddingPlanner() {
             and the church wedding with reception.
           </p>
         </div>
-        {author ? (
-          <button
-            type="button"
-            className="wSignedChip"
-            onClick={() => go("history")}
-            title="View change history — click to open"
-          >
-            <span className="wSignedChipDot" aria-hidden="true" />
-            <span>
-              Signed in as <strong>{author}</strong>
-            </span>
-          </button>
-        ) : null}
+        <div className="wHeadActions">
+          {author ? (
+            <button
+              type="button"
+              className="wSignedChip"
+              onClick={() => go("history")}
+              title="View change history — click to open"
+            >
+              <span className="wSignedChipDot" aria-hidden="true" />
+              <span>
+                Signed in as <strong>{author}</strong>
+              </span>
+            </button>
+          ) : null}
+          {/* Edit / Save / Cancel — the single source of "am I in edit mode?"
+              in the UI. All input interaction below is gated on `locked`. */}
+          {locked ? (
+            <button type="button" className="wEditBtn" onClick={unlock}>
+              <span aria-hidden="true">✎</span> Edit
+            </button>
+          ) : (
+            <div className="wEditActions" role="group" aria-label="Edit mode actions">
+              <span className="wEditPill">Editing</span>
+              <button type="button" className="wCancelBtn" onClick={askAndCancel}>
+                Cancel
+              </button>
+              <button type="button" className="wSaveBtn" onClick={save}>
+                Save
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       <nav className="wRail" aria-label="Planner sections">
@@ -130,7 +156,15 @@ export default function WeddingPlanner() {
 
       <div className="wSectionTitle">{active?.label}</div>
 
-      <main className="wBody">
+      {/* aria-disabled guides screen readers around the disabled surface when
+          locked; the pointer-events: none in CSS blocks mouse + touch.
+          History (name / audit log) stays interactive when locked — those
+          controls only touch the log, not the plan itself. Settings
+          contains reset() and mutating fields, so it is lock-gated too. */}
+      <main
+        className={`wBody ${locked && section !== "history" ? "wLocked" : "wUnlocked"}`}
+        aria-disabled={locked && section !== "history"}
+      >
         {section === "dash" && <Dashboard state={state} engine={engine} />}
         {section === "budget" && <Budget state={state} engine={engine} update={update} />}
         {section === "guests" && <Guests state={state} engine={engine} update={update} />}
@@ -218,6 +252,88 @@ export default function WeddingPlanner() {
           align-items: flex-start;
           gap: 16px;
         }
+        .wHeadActions {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        /* ── Edit / Save / Cancel toolbar ────────────────────────────── */
+        .wEditBtn, .wSaveBtn, .wCancelBtn {
+          appearance: none;
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.06em;
+          padding: 8px 16px;
+          border-radius: 999px;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+        .wEditBtn {
+          background: var(--accent);
+          color: #fff;
+          border: 1px solid var(--accent);
+        }
+        .wEditBtn:hover { background: var(--accent-deep); border-color: var(--accent-deep); }
+        .wEditActions {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .wEditPill {
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          padding: 5px 10px;
+          border-radius: 999px;
+          background: var(--gold-soft);
+          color: var(--gold-deep, var(--gold));
+          border: 1px solid var(--gold);
+          margin-right: 4px;
+        }
+        .wSaveBtn {
+          background: var(--accent);
+          color: #fff;
+          border: 1px solid var(--accent);
+        }
+        .wSaveBtn:hover { background: var(--accent-deep); }
+        .wCancelBtn {
+          background: transparent;
+          color: var(--ink-1);
+          border: 1px solid var(--border-strong);
+        }
+        .wCancelBtn:hover {
+          border-color: var(--alarm);
+          color: var(--alarm);
+        }
+        /* ── Locked body — fields visibly fixed, no interaction ─────── */
+        .wLocked {
+          position: relative;
+        }
+        .wLocked > * {
+          pointer-events: none;
+          user-select: text;   /* still let the user select+copy fixed values */
+        }
+        .wLocked input,
+        .wLocked textarea,
+        .wLocked select,
+        .wLocked button {
+          background: var(--bg-elev) !important;
+          color: var(--ink-1) !important;
+          border-color: var(--border) !important;
+          cursor: default !important;
+        }
+        .wLocked input:disabled,
+        .wLocked textarea:disabled,
+        .wLocked select:disabled { opacity: 1; }
+        .wLocked button {
+          opacity: 0.55;
+        }
+        .wUnlocked { /* editing — no visual change; the "Editing" pill in the header conveys mode */ }
         .wSignedChip {
           appearance: none;
           display: inline-flex;
@@ -559,7 +675,13 @@ export default function WeddingPlanner() {
 
         @media (max-width: 840px) {
           .wWrap { padding: 16px 12px calc(78px + env(safe-area-inset-bottom)); }
-          .wHead { flex-direction: column; align-items: flex-start; gap: 10px; }
+          .wHead { flex-direction: column; align-items: stretch; gap: 10px; }
+          .wHeadActions {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+          }
           .wHead h1 { font-size: 19px; }
           .wHead p { font-size: 12.5px; }
           .wRail { display: none; }
