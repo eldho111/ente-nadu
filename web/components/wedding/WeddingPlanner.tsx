@@ -543,6 +543,117 @@ export default function WeddingPlanner() {
           .wCdNum { font-size: 22px; }
         }
 
+        /* ── Weather card ─────────────────────────────────────────
+           Venue forecast (Kodencherry). Glass card style matching the
+           countdowns. When far out from the wedding, shows a Kerala
+           season hint instead of a specific forecast. */
+        .wWeather {
+          border-radius: 18px;
+          padding: 18px 20px 16px;
+          margin-bottom: 18px;
+          background: linear-gradient(135deg, rgba(76, 119, 132, 0.14), rgba(255, 255, 255, 0.68));
+          border: 1px solid rgba(76, 119, 132, 0.28);
+          display: grid;
+          gap: 14px;
+        }
+        .wWeatherHead {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .wWeatherRegion { font-size: 11px; color: var(--ink-muted); }
+        .wWeatherMain {
+          display: grid;
+          grid-template-columns: 72px 1fr;
+          align-items: center;
+          gap: 14px;
+        }
+        .wWeatherIcon {
+          width: 72px;
+          height: 72px;
+          border-radius: 18px;
+          display: grid;
+          place-items: center;
+          font-size: 42px;
+          background: rgba(255, 255, 255, 0.7);
+          box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 4px 10px rgba(15, 23, 42, 0.06);
+          line-height: 1;
+        }
+        .wTone-sun    { background: linear-gradient(135deg, #ffe4a1, #ffb84a); }
+        .wTone-cloud  { background: linear-gradient(135deg, #e2e8f0, #b4bfd0); }
+        .wTone-rain   { background: linear-gradient(135deg, #a9c9e6, #4c7784); }
+        .wTone-storm  { background: linear-gradient(135deg, #6d7cad, #34395c); color: #fff; }
+        .wTone-fog    { background: linear-gradient(135deg, #edeff2, #c2c8d2); }
+        .wWeatherHeadline {
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--ink-0);
+          margin-bottom: 4px;
+        }
+        .wWeatherTemps {
+          font-size: 26px;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+          color: var(--ink-0);
+          letter-spacing: -0.02em;
+          display: inline-flex;
+          gap: 6px;
+          align-items: baseline;
+        }
+        .wWeatherHigh { color: var(--alarm); }
+        .wWeatherLow { color: var(--accent); font-size: 18px; }
+        .wWeatherSep { color: var(--ink-muted); font-weight: 400; }
+        .wWeatherStats {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        .wWeatherStats > div {
+          background: rgba(255, 255, 255, 0.6);
+          border-radius: 12px;
+          padding: 8px 10px;
+          display: grid;
+          gap: 3px;
+        }
+        .wWeatherStatLabel {
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          color: var(--ink-muted);
+          text-transform: uppercase;
+        }
+        .wWeatherStatValue {
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--ink-0);
+          font-variant-numeric: tabular-nums;
+        }
+        .wWeatherAdvice {
+          font-size: 12.5px;
+          padding: 8px 12px;
+          border-radius: 10px;
+          line-height: 1.5;
+        }
+        .wWeatherAdvice-ok   { background: rgba(62, 104, 92, 0.14); color: var(--accent-deep, var(--accent)); }
+        .wWeatherAdvice-warn { background: rgba(138, 106, 56, 0.16); color: var(--gold-deep, var(--gold)); }
+        .wWeatherAdvice-rain { background: rgba(176, 66, 80, 0.14); color: var(--alarm); font-weight: 500; }
+        .wWeatherMuted { font-size: 12.5px; color: var(--ink-muted); font-style: italic; }
+        .wWeatherSeason { display: grid; gap: 6px; }
+        .wWeatherSeasonHead {
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--ink-0);
+        }
+        .wWeatherSeasonNote { font-size: 12.5px; color: var(--ink-1); line-height: 1.55; }
+        .wWeatherFineprint { font-size: 11px; color: var(--ink-muted); margin-top: 2px; }
+        @media (max-width: 560px) {
+          .wWeatherMain { grid-template-columns: 60px 1fr; }
+          .wWeatherIcon { width: 60px; height: 60px; font-size: 34px; }
+          .wWeatherStats { grid-template-columns: 1fr 1fr 1fr; }
+        }
+
         .wAlerts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
         .wAlert {
           font-size: 13px;

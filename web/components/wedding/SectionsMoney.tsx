@@ -10,6 +10,7 @@ import { SEGMENTS } from "@/lib/wedding/types";
 import type { EngineResult, Segment, WeddingSave, WeddingState } from "@/lib/wedding/types";
 
 import Countdown from "./Countdown";
+import WeddingWeather from "./WeddingWeather";
 import { AddButton, DeleteButton, NumberInput, Panel, Stat, TextInput } from "./ui";
 
 type Mutate = (mutate: (draft: WeddingState) => void) => void;
@@ -39,6 +40,12 @@ export function Dashboard({ state, engine }: { state: WeddingState; engine: Engi
           tone="sage"
         />
       </div>
+
+      {/* Weather forecast for the venue (Kodencherry — open-air auditorium).
+          Uses Open-Meteo's free forecast API when within 16 days; falls
+          back to a Kerala-season hint (monsoon / dry / etc) for anything
+          further out so the card is useful even months in advance. */}
+      <WeddingWeather dateISO={settings.weddingDate} />
 
       {engine.alerts.length > 0 ? (
         <div className="wAlerts">
