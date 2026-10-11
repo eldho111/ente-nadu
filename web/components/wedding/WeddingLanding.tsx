@@ -25,6 +25,7 @@ export type LandingId =
   | "runsheets"
   | "shopping"
   | "church"
+  | "venue"
   | "history"
   | "settings";
 
@@ -148,6 +149,14 @@ export default function WeddingLanding({
       title: "Church formalities",
       subtitle: "Banns · certificates · registrar",
       tone: "plan",
+    },
+    {
+      id: "venue",
+      icon: "◬",
+      title: "Venue 3D — KH Club lawn",
+      subtitle: "Stage · canopy · seating · dining, to scale",
+      tone: "plan",
+      span: 2,
     },
     {
       id: "history",

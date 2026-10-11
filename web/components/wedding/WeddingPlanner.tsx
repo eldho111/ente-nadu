@@ -17,6 +17,7 @@ import History from "./History";
 import { Budget, Dashboard, SettingsPanel } from "./SectionsMoney";
 import { Contacts, Guests, Vendors } from "./SectionsPeople";
 import { Church, Runsheets, Shopping, Tasks } from "./SectionsPlan";
+import VenueSection from "./VenueSection";
 import WeddingLanding, { type LandingId } from "./WeddingLanding";
 
 type SectionId =
@@ -29,6 +30,7 @@ type SectionId =
   | "runsheets"
   | "shopping"
   | "church"
+  | "venue"
   | "history"
   | "settings";
 
@@ -42,6 +44,7 @@ const SECTIONS: { id: SectionId; icon: string; label: string; short: string }[] 
   { id: "runsheets", icon: "◷", label: "Event Runsheets", short: "Runsheet" },
   { id: "shopping", icon: "◇", label: "Shopping", short: "Shopping" },
   { id: "church", icon: "✝", label: "Church Formalities", short: "Church" },
+  { id: "venue", icon: "◬", label: "Venue 3D — KH Club lawn", short: "Venue" },
   { id: "history", icon: "⌛", label: "History & Sign-in", short: "History" },
   { id: "settings", icon: "⚙", label: "Settings & Backup", short: "Settings" },
 ];
@@ -186,8 +189,8 @@ export default function WeddingPlanner() {
               controls only touch the log, not the plan itself. Settings
               contains reset() and mutating fields, so it is lock-gated too. */}
           <main
-            className={`wBody ${locked && section !== "history" ? "wLocked" : "wUnlocked"}`}
-            aria-disabled={locked && section !== "history"}
+            className={`wBody ${locked && section !== "history" && section !== "venue" ? "wLocked" : "wUnlocked"}`}
+            aria-disabled={locked && section !== "history" && section !== "venue"}
           >
         {section === "dash" && <Dashboard state={state} engine={engine} />}
         {section === "budget" && <Budget state={state} engine={engine} update={update} />}
@@ -198,6 +201,7 @@ export default function WeddingPlanner() {
         {section === "runsheets" && <Runsheets state={state} update={update} />}
         {section === "shopping" && <Shopping state={state} update={update} />}
         {section === "church" && <Church />}
+        {section === "venue" && <VenueSection />}
         {section === "history" && <History />}
         {section === "settings" && (
           <SettingsPanel

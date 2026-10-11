@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KH Club Kodanchery — Wedding Lawn Site Model</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0d1117;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:#e7ebf0}
+  #c{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+  #c.measuring{cursor:crosshair}
+  #ov,#labels{position:absolute;inset:0;pointer-events:none}
+  .lb{position:absolute;transform:translate(-50%,-100%);font-size:11px;line-height:1.25;background:rgba(10,14,22,.8);
+      border:1px solid rgba(255,255,255,.16);padding:3px 7px;border-radius:4px;white-space:nowrap;text-align:center}
+  .lb small{display:block;color:#a9bccf;font-size:10px}
+  .lb.u{border-style:dashed}
+  #panel{position:absolute;top:10px;left:10px;width:318px;max-height:calc(100% - 20px);overflow:auto;background:rgba(13,17,23,.92);
+         border:1px solid #2a3442;border-radius:9px;padding:12px 14px;font-size:12.5px;box-shadow:0 6px 24px rgba(0,0,0,.4)}
+  #panel h1{font-size:15px;margin:0 0 2px}
+  #panel .sub{color:#8ea3b8;font-size:11.5px;margin-bottom:10px}
+  #panel h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8ea3b8;margin:14px 0 6px}
+  details.sec summary{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8ea3b8;margin:14px 0 6px;cursor:pointer}
+  .row{display:flex;flex-wrap:wrap;gap:6px}
+  button{background:#1c2633;color:#e7ebf0;border:1px solid #33425a;border-radius:6px;padding:6px 9px;font-size:12px;cursor:pointer;font-family:inherit}
+  button:hover{border-color:#6d9bd1}
+  button.on{background:#2b4a6f;border-color:#6d9bd1}
+  table{width:100%;border-collapse:collapse;font-size:11.5px}
+  td{padding:4px 3px;border-top:1px solid #222c38;vertical-align:top}
+  td:first-child{color:#c9d5e2}
+  td.v{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
+  .c1,.c2,.c3{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  .c1{background:#4cc38a}.c2{background:#e3b341}.c3{background:#8b949e}
+  .note{color:#9fb0c2;font-size:11.5px;line-height:1.5}
+  #meas{margin-top:6px;color:#ffd166;font-size:12px;min-height:16px}
+  #hide{position:absolute;top:10px;right:10px}
+  #tip{position:fixed;display:none;max-width:290px;pointer-events:none;z-index:20;background:rgba(10,14,22,.94);
+       border:1px solid #ffd166;border-radius:7px;padding:8px 10px;font-size:12px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+  #tip b{display:block;color:#ffd166;font-size:12.5px;margin-bottom:3px}
+  #tip span{color:#d8e1ea}
+  #help{position:absolute;bottom:10px;right:10px;font-size:11px;color:#9fb0c2;background:rgba(13,17,23,.75);padding:5px 9px;border-radius:6px}
+  @media (max-width:900px){#panel{width:calc(100% - 64px);max-height:55%;padding:10px 12px}#panel .sub{display:none}#help{display:none}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<canvas id="ov"></canvas>
+<div id="labels"></div>
+
+<div id="panel">
+  <h1>KH Club Kodanchery — Night Function Layout</h1>
+  <div class="sub">To scale · 11.4370° N, 76.0174° E · north is up in plan view</div>
+
+  <h2>Event views</h2>
+  <div class="row">
+    <button data-view="event">Event overview</button>
+    <button data-view="aisle">Guest walk-in</button>
+    <button data-view="stage">Stage close-up</button>
+    <button data-view="dining">Dining</button>
+  </div>
+  <h2>Site views</h2>
+  <div class="row">
+    <button data-view="overview">Overview</button>
+    <button data-view="plan">Plan (top-down)</button>
+    <button data-view="lawn">Lawn eye-level</button>
+    <button data-view="photo">Match photo 2</button>
+    <button data-view="entrance">From entrance</button>
+  </div>
+
+  <h2>Show</h2>
+  <div class="row">
+    <button id="tEvent" class="on">Event set-up</button>
+    <button id="tNight" class="on">Night</button>
+    <button id="tBld">Clubhouse &amp; pool</button>
+    <button id="tLabels">All labels</button>
+    <button id="tDims">Dimensions</button>
+    <button id="tMeasure">📏 Measure</button>
+    <button id="tClear">Clear</button>
+  </div>
+  <div id="meas"></div>
+
+  <details class="sec" open><summary>Event layout (to scale)</summary>
+  <table id="evTable"></table>
+  <div class="note" id="evCap" style="margin-top:6px"></div>
+  </details>
+
+  <details class="sec" open><summary>Night lighting checklist</summary>
+  <div class="note">
+    <b>Faces first.</b> Front-light the stage from the two wash towers at ~45°, 2700–3200 K, CRI ≥ 90 —
+    decorative bulbs alone leave faces dark in photos and video.<br>
+    <b>Flicker-free fixtures</b> for anything on camera; cheap LED strings and PARs flicker on video.<br>
+    <b>Keep it warm</b> (2200–2700 K) for Edison bulbs and arches; use colour only on the backdrop, never on faces.<br>
+    <b>On dimmers</b>, split into zones: stage, canopy, aisle arches, dining, perimeter.<br>
+    <b>No dark patches</b>: the cross-aisle, stage steps, lawn edges and the path from parking need low path lights; mark step edges with LED strip.<br>
+    <b>Power</b>: silent generator plus standby, separate circuits per zone, RCCB/ELCB on every outdoor run, IP65 fixtures and connectors (night dew), cables under mats.<br>
+    <b>Rain plan</b>: the fabric swags aren't waterproof; keep a clear-roof option or a covered fallback, and check the forecast a week out.<br>
+    <b>Insects</b>: lights draw bugs — put bug-zappers away from dining and the stage, use citronella along the palm row.<br>
+    <b>Clubhouse spill</b>: ask the club to switch off or warm up the facade lights so they don't overpower the décor.
+  </div>
+  </details>
+
+  <details class="sec"><summary>Measurements</summary>
+  <table>
+    <tr><td><span class="c1"></span>Wedding lawn (starts at stage front)</td><td class="v">20 × 42 m<br>≈ 840 m²</td></tr>
+    <tr><td><span class="c1"></span>Clubhouse block (G+2)</td><td class="v">17 × 55 m</td></tr>
+    <tr><td><span class="c2"></span>Stage (permanent, centred)</td><td class="v">≈ 14.5 × 12 m</td></tr>
+    <tr><td><span class="c3"></span>Clubhouse height</td><td class="v">≈ 11 m</td></tr>
+    <tr><td><span class="c2"></span>Lawn → building face<br><small class="note">hedge + walkway + verandah</small></td><td class="v">≈ 8 m</td></tr>
+    <tr><td><span class="c2"></span>Paved walkway</td><td class="v">≈ 4.3 m</td></tr>
+    <tr><td><span class="c2"></span>Palm row (west edge)</td><td class="v">8 palms, ≈ 5.5 m apart</td></tr>
+    <tr><td><span class="c1"></span>Red-earth ground (W)</td><td class="v">≈ 32 × 68 m<br>≈ 1,700 m²</td></tr>
+    <tr><td><span class="c1"></span>Swimming pool (water)</td><td class="v">≈ 12 × 20 m</td></tr>
+    <tr><td><span class="c3"></span>Cottages east of pool</td><td class="v">5 × (4.5 × 16 m)</td></tr>
+    <tr><td><span class="c1"></span>Handball goal</td><td class="v">3.0 × 2.0 m</td></tr>
+  </table>
+  <div class="note" style="margin-top:6px">
+    <span class="c1"></span>satellite, ±2 m &nbsp; <span class="c2"></span>from your photos &nbsp; <span class="c3"></span>estimate
+  </div>
+  </details>
+
+  <details class="sec"><summary>How these were measured</summary>
+  <div class="note">
+    Footprints are read off Esri World Imagery at 0.585 m/pixel with a 5 m grid laid over it.
+    Three independent checks agree: the lawn fits the club's own 40 × 20 m handball pitch
+    (KH = Kodanchery <i>Handball</i> Club); the 3 × 2 m handball goal in photo 2 puts the
+    camera 5.3 m away from both its width and height; and the ~45-car ring in the drone shot
+    fits a ≈30 m circle on the red ground. Heights come from floor counts (~3.5 m per floor).
+  </div>
+  </details>
+
+  <details class="sec"><summary>Planning implications</summary>
+  <div class="note">
+    The stage sits behind the lawn, so the whole lawn in front of it is usable: about 20 × 42 m
+    (~840 m²). With a centre aisle that seats roughly <b>600–700</b> theatre-style, or
+    <b>420–520</b> at banquet rounds. For 700–1,500 guests, the red-earth ground
+    beside it (~1,700 m², level, directly connected) is the natural overflow for dining or
+    parking.
+  </div>
+  </details>
+
+  <details class="sec"><summary>Still unverified</summary>
+  <div class="note">
+    Lawn level / slope · power points · stage height and whether it has a roof or back wall ·
+    whether the pergola frame in the club's photo is permanent · building height ·
+    satellite date (cottages east of the pool may now be tents — the drone shot differs).
+  </div>
+  </details>
+</div>
+<button id="hide" title="Hide panel">☰</button>
+<div id="help">Hover (or tap) anything for details · Drag: rotate · Right-drag / Shift-drag: pan · Wheel / pinch: zoom</div>
+
+<script>
+"use strict";
+/* ================================================================
+   Minimal WebGL renderer — no external libraries, works offline.
+   World axes: X = east, Y = up, Z = south. Origin = lawn centre.
+   ================================================================ */
+const cv = document.getElementById("c");
+const gl = cv.getContext("webgl", { antialias: true });
+if (!gl) { document.body.innerHTML = "<p style='padding:20px'>WebGL is not available in this browser.</p>"; throw 0; }
+
+/* ---------- small vector helpers ---------- */
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const mulS=(a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const norm=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return[a[0]/l,a[1]/l,a[2]/l];};
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const R = rng(20261011);
+
+/* ---------- geometry buffers: M = lit scene, G = glow (fairy lights) ---------- */
+let M={p:[],n:[],c:[]}, G={p:[],n:[],c:[]};
+function pushV(B,v,n,c){B.p.push(v[0],v[1],v[2]);B.n.push(n[0],n[1],n[2]);B.c.push(c[0],c[1],c[2]);}
+function tri(a,b,c,col,n,B=M){ if(!n){ n=norm(cross(sub(b,a),sub(c,a))); if(n[1]<0) n=mulS(n,-1); } pushV(B,a,n,col);pushV(B,b,n,col);pushV(B,c,n,col); }
+function quad(a,b,c,d,col,n,B=M){ tri(a,b,c,col,n,B); tri(a,c,d,col,n,B); }
+function box(x0,y0,z0,x1,y1,z1,col,top,B=M){
+  const t=top||col;
+  quad([x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1],t,[0,1,0],B);
+  quad([x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],col,[0,0,1],B);
+  quad([x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],col,[0,0,-1],B);
+  quad([x1,y0,z0],[x1,y0,z1],[x1,y1,z1],[x1,y1,z0],col,[1,0,0],B);
+  quad([x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],col,[-1,0,0],B);
+}
+function flat(pts,y,col){ for(let i=1;i<pts.length-1;i++) tri([pts[0][0],y,pts[0][1]],[pts[i][0],y,pts[i][1]],[pts[i+1][0],y,pts[i+1][1]],col,[0,1,0]); }
+function ellipse(cx,cz,rx,rz,seg=48){const a=[];for(let i=0;i<seg;i++){const t=i/seg*Math.PI*2;a.push([cx+rx*Math.cos(t),cz+rz*Math.sin(t)]);}return a;}
+function cyl(x,z,y0,h,r,col,seg=8,rTop,B=M){
+  rTop=rTop??r;
+  for(let i=0;i<seg;i++){
+    const a0=i/seg*Math.PI*2,a1=(i+1)/seg*Math.PI*2;
+    const c0=Math.cos(a0),s0=Math.sin(a0),c1=Math.cos(a1),s1=Math.sin(a1);
+    quad([x+c0*r,y0,z+s0*r],[x+c1*r,y0,z+s1*r],[x+c1*rTop,y0+h,z+s1*rTop],[x+c0*rTop,y0+h,z+s0*rTop],col,norm([(c0+c1)/2,0,(s0+s1)/2]),B);
+    tri([x,y0+h,z],[x+c0*rTop,y0+h,z+s0*rTop],[x+c1*rTop,y0+h,z+s1*rTop],col,[0,1,0],B);
+  }
+}
+function blob(x,y,z,r,col,sy=1,lat=5,lon=9){
+  for(let i=0;i<lat;i++){const t0=i/lat*Math.PI,t1=(i+1)/lat*Math.PI;
+    for(let j=0;j<lon;j++){const p0=j/lon*Math.PI*2,p1=(j+1)/lon*Math.PI*2;
+      const P=(t,p)=>[x+r*Math.sin(t)*Math.cos(p),y+r*sy*Math.cos(t),z+r*Math.sin(t)*Math.sin(p)];
+      const N=(t,p)=>[Math.sin(t)*Math.cos(p),Math.cos(t),Math.sin(t)*Math.sin(p)];
+      const a=P(t0,p0),b=P(t1,p0),c=P(t1,p1),d=P(t0,p1);
+      quad(a,b,c,d,col,N((t0+t1)/2,(p0+p1)/2));}}
+}
+function ribbon(pts,w,y,col){
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz),nx=-dz/l*w/2,nz=dx/l*w/2;
+    quad([a[0]+nx,y,a[1]+nz],[b[0]+nx,y,b[1]+nz],[b[0]-nx,y,b[1]-nz],[a[0]-nx,y,a[1]-nz],col,[0,1,0]);
+    flat(ellipse(b[0],b[1],w/2,w/2,12),y,col);
+  }
+}
+const bulb=(x,y,z,c=[1,.78,.42],s=.04)=>box(x-s,y-s,z-s,x+s,y+s,z+s,c,null,G);
+
+/* ================================================================
+   TERRAIN — the club sits on a flat hilltop; ground falls away to
+   plantations, with the Western Ghats ridges to the north and east.
+   ================================================================ */
+const SC=[20,20];                       // site centre used for terrain
+function groundY(x,z){
+  const dx=x-SC[0],dz=z-SC[1],r=Math.hypot(dx,dz),th=Math.atan2(dz,dx);
+  if(r<115) return 0;
+  const n=Math.sin(th*5+1.3)*3+Math.sin(th*11)*1.6;
+  let y=-(r-115)*0.17+n*Math.min(1,(r-115)/60);
+  if(r>360){
+    const ne=Math.max(0,Math.cos(th+Math.PI*0.35));            // strongest to the NE
+    const m=(55+110*ne+Math.sin(th*7)*18+Math.sin(th*3+2)*25);
+    const k=Math.min(1,(r-360)/170);
+    y+=m*k*k*(3-2*k)+(r-360)*0.17*k;
+  }
+  return y;
+}
+(function terrain(){
+  const rings=[0,40,80,115,135,165,200,245,300,360,410,460,520,600], A=72;
+  for(let i=0;i<rings.length-1;i++)for(let j=0;j<A;j++){
+    const t0=j/A*Math.PI*2,t1=(j+1)/A*Math.PI*2;
+    const P=(r,t)=>{const x=SC[0]+r*Math.cos(t),z=SC[1]+r*Math.sin(t);return[x,groundY(x,z),z];};
+    const a=P(rings[i],t0),b=P(rings[i+1],t0),c=P(rings[i+1],t1),d=P(rings[i],t1);
+    const h=(a[1]+b[1]+c[1]+d[1])/4;
+    const col=h>20?[.24,.33,.27]:h<-5?[.18,.3,.14]:[.16,.26,.12];
+    let n=norm(cross(sub(b,a),sub(d,a))); if(n[1]<0)n=mulS(n,-1);
+    quad(a,b,c,d,col,n);
+  }
+})();
+
+/* ================================================================
+   SITE — dimensions read from satellite (±2 m) unless noted
+   ================================================================ */
+const COL={
+  clearing:[.38,.42,.27], laterite:[.66,.38,.24], lawnA:[.34,.57,.24], lawnB:[.3,.51,.21],
+  pave1:[.62,.63,.64], pave2:[.8,.81,.82], hedgeR:[.46,.13,.12], hedgeG:[.2,.38,.17],
+  white:[.93,.93,.9], slab:[.8,.8,.78], glass:[.55,.69,.76], win:[.22,.28,.34], roof:[.55,.58,.6],
+  brown:[.42,.28,.2], road:[.33,.33,.34], water:[.18,.62,.78], deck:[.82,.76,.62]
+};
+
+/* Ground layers (stacked a few cm apart to avoid z-fighting) */
+flat([[-47,-35],[108,-35],[108,78],[-47,78]],0.01,COL.clearing);           // cleared plateau
+flat(ellipse(-26,6,16,34),0.02,COL.laterite);                                 // red-earth oval, ≈32 × 68 m
+flat([[-30,25],[-10,22],[10,24],[14,40],[5,47],[-15,45],[-30,38]],0.02,COL.laterite); // red ground in front of entrance
+
+/* Wedding lawn — 20 × 42 m, from the stage front (level with the first palm) south; stripes every 3 m */
+for(let i=0;i<14;i++){const z0=-19.5+i*3; flat([[-10,z0],[10,z0],[10,z0+3],[-10,z0+3]],0.03,i%2?COL.lawnA:COL.lawnB);}
+
+/* Handball goals at the pitch ends — 3.0 × 2.0 m, 8 cm posts, 20 cm bands (IHF) */
+function goal(z){
+  const s=.04;
+  for(let y=0;y<2;y+=.2){const c=(Math.round(y/.2)%2)?[.95,.95,.95]:[.08,.08,.08];
+    box(-1.5-s,y,z-s,-1.5+s,y+.2,z+s,c); box(1.5-s,y,z-s,1.5+s,y+.2,z+s,c);}
+  for(let x=-1.5;x<1.5;x+=.2){const c=(Math.round((x+1.5)/.2)%2)?[.95,.95,.95]:[.08,.08,.08];
+    box(x,2-s,z-s,Math.min(x+.2,1.5),2+s,z+s,c);}
+}
+goal(20);
+
+/* Palm row on the west edge — 8 date palms ≈ 5.5 m apart, benches between (photo 2) */
+function datePalm(x,z,fairy){
+  const H=2.1;
+  cyl(x,z,0,H,.27,[.43,.33,.22],9,.22);
+  const F=14;
+  for(let i=0;i<F;i++){
+    const a=i/F*Math.PI*2+R()*.2, L=2.3+R()*.4, up=.55-R()*.5;
+    const dx=Math.cos(a),dz=Math.sin(a),px=-dz*.22,pz=dx*.22;
+    const base=[x,H,z], mid=[x+dx*L*.55,H+up*L*.5+.35,z+dz*L*.55], tip=[x+dx*L,H+up*L*.15-.2,z+dz*L];
+    const col=[.22+R()*.05,.43+R()*.06,.19];
+    quad(base,[mid[0]+px,mid[1],mid[2]+pz],tip,[mid[0]-px,mid[1],mid[2]-pz],col);
+    if(fairy){ bulb(...mid); bulb((mid[0]+tip[0])/2,(mid[1]+tip[1])/2,(mid[2]+tip[2])/2); }
+  }
+  if(fairy) for(let k=0;k<34;k++){const t=k/34,a=t*Math.PI*2*7; bulb(x+Math.cos(a)*.3,t*H,z+Math.sin(a)*.3);}
+}
+const PALM_X=-11, palmZ=[];
+for(let i=0;i<8;i++) palmZ.push(-19.25+i*5.5);
+palmZ.forEach(z=>datePalm(PALM_X,z,true));
+for(let i=0;i<palmZ.length-1;i++){                     // fairy string between palm crowns
+  const z0=palmZ[i],z1=palmZ[i+1];
+  for(let k=1;k<12;k++){const t=k/12; bulb(PALM_X,2.3-Math.sin(t*Math.PI)*.6,z0+(z1-z0)*t);}
+}
+function bench(x,zc){                                   // ≈1.5 m cast-iron park bench facing the lawn
+  const L=.75, c=[.52,.36,.2], iron=[.12,.12,.12];
+  box(x-.25,.42,zc-L,x+.25,.48,zc+L,c);
+  box(x-.3,.5,zc-L,x-.24,.95,zc+L,c);
+  for(const dz of [-L+.05,L-.1]) box(x-.25,0,zc+dz,x+.2,.42,zc+dz+.05,iron);
+}
+for(let i=0;i<palmZ.length-1;i++) bench(-9.6,(palmZ[i]+palmZ[i+1])/2);
+
+/* Permanent stage at the lawn's north end — centred on the lawn, ≈14.5 m wide × 12 m deep.
+   Footprint read from the Google satellite close-up (scale from the 20 m lawn width and palm spacing);
+   the white front edge in that image is the step line. Height ≈1.2 m is an estimate (photo 2). */
+const STG={x0:-7.25,x1:7.25,zBack:-31.5,zFront:-19.5,h:1.2};   // front edge level with the first (northmost) palm
+box(STG.x0,0,STG.zBack,STG.x1,STG.h,STG.zFront,[.78,.78,.76],[.84,.84,.82]);
+for(let i=0;i<3;i++)                                         // three 30 cm steps across the full front
+  box(STG.x0,0,STG.zFront,STG.x1,STG.h-.3*(i+1),STG.zFront+.35*(3-i),[.94,.94,.92]);
+
+/* Hedge strip + paved walkway between lawn and clubhouse (photos 1 & 4) */
+box(14.5,0,-24,15.6,.45,40,COL.hedgeG);                       // planter strip on the clubhouse side (photos 1 & 4)
+for(let z=-23.4;z<40;z+=1.3) blob(15.05,.62,z,.42,[.2+R()*.05,.36+R()*.06,.17],.7,3,6);
+for(let i=0,x=10.1;x<14.4;i++,x+=.54) flat([[x,-24],[Math.min(x+.54,14.4),-24],[Math.min(x+.54,14.4),44],[x,44]],0.05,i%2?COL.pave1:COL.pave2);   // 4.3 m walkway, straight off the lawn
+for(let z=-20;z<=34;z+=9){                               // lamp posts
+  cyl(10.35,z,0,3.2,.06,[.2,.21,.23],6);
+  box(10.15,3.2,z-.2,10.55,3.38,z+.2,[.25,.25,.27]);
+  bulb(10.35,3.12,z,[1,.88,.6],.12);
+}
+
+/* ---- Buildings (clubhouse, pool, cottages, shed) go into their own buffers so
+   they can be hidden — the default view keeps the focus on the lawn. ---- */
+const SB={p:[],n:[],c:[]}, SBG={p:[],n:[],c:[]};
+const _siteM=M, _siteG=G; M=SB; G=SBG;
+/* Clubhouse — G+2, ≈17 × 55 m, west face has continuous glass-railed balconies */
+const B={x0:19,x1:35,z0:-17,z1:38};
+box(16,0,B.z0,B.x1,.3,B.z1,COL.slab);                           // plinth incl. verandah
+box(B.x0,.3,B.z0,B.x1,3.6,B.z1,COL.white);                      // ground floor
+for(let z=B.z0+1;z<=B.z1-1;z+=4.5) box(16.25,.3,z-.2,16.65,3.6,z+.2,COL.white); // verandah columns
+for(const [y0,y1] of [[3.6,7.2],[7.2,10.8]]){
+  box(16,y0,B.z0,B.x1,y0+.3,B.z1,COL.slab);                     // slab / balcony
+  box(B.x0,y0+.3,B.z0,B.x1,y1,B.z1,COL.white);
+  box(16,y0+.3,B.z0,16.08,y0+1.35,B.z1,COL.glass);              // glass railing
+}
+for(const y0 of [.3,3.9,7.5]) for(let z=B.z0+1.2;z<B.z1-2.5;z+=4.5){
+  box(B.x0-.05,y0+.8,z,B.x0,y0+2.7,z+2.6,COL.win);             // west windows
+  box(B.x1,y0+.8,z,B.x1+.05,y0+2.7,z+2.6,COL.win);             // east windows
+  quad([B.x0-.07,y0+.8,z],[B.x0-.07,y0+.8,z+2.6],[B.x0-.07,y0+2.7,z+2.6],[B.x0-.07,y0+2.7,z],[1,.72,.4],[-1,0,0],G); // night glow
+}
+const rx0=15.5,rx1=35.6,rxm=(rx0+rx1)/2,ry=10.8,rr=12.1,rz0=B.z0-.8,rz1=B.z1+.8;   // pitched metal roof
+quad([rx0,ry,rz0],[rxm,rr,rz0],[rxm,rr,rz1],[rx0,ry,rz1],COL.roof);
+quad([rx1,ry,rz0],[rxm,rr,rz0],[rxm,rr,rz1],[rx1,ry,rz1],COL.roof);
+tri([rx0,ry,rz0],[rx1,ry,rz0],[rxm,rr,rz0],COL.roof); tri([rx0,ry,rz1],[rx1,ry,rz1],[rxm,rr,rz1],COL.roof);
+box(16.5,0,35.5,25.5,13.5,39.6,COL.brown); box(16.3,13.5,35.3,25.7,13.85,39.8,COL.white);   // KH CLUB sign tower
+box(11.5,3.5,37.5,19,3.85,45,COL.white);                                                  // entrance porch canopy
+for(const [x,z] of [[12,44.4],[18.5,44.4]]) cyl(x,z,0,3.5,.18,COL.white,8);
+[[10.6,46.5,[.85,.2,.2]],[10.6,48,[.95,.6,.1]],[10.6,49.5,[.2,.4,.85]]].forEach(([x,z,c])=>{
+  cyl(x,z,0,7,.05,[.75,.75,.75],6); quad([x,6.2,z],[x,6.9,z],[x,6.9,z+1.1],[x,6.2,z+1.1],c,[1,0,0]);
+});
+
+/* Pool + deck (east of clubhouse) */
+flat([[36.5,2],[52,2],[52,28],[36.5,28]],0.04,COL.deck);
+flat([[38,5],[50,5],[50,25],[38,25]],0.06,COL.water);
+
+/* Cottages / rooms east of the pool — type unverified */
+for(const z of [-3,5,13,21,29]){
+  box(53,0,z-2.2,69,2.6,z+2.2,[.86,.83,.77]);
+  quad([52.6,2.6,z-2.6],[69.4,2.6,z-2.6],[69.4,4,z],[52.6,4,z],[.92,.92,.9]);
+  quad([52.6,2.6,z+2.6],[69.4,2.6,z+2.6],[69.4,4,z],[52.6,4,z],[.92,.92,.9]);
+}
+box(83,0,9,104,5.5,30,[.62,.63,.64],[.5,.53,.56]);               // shed / hall, unverified
+M=_siteM; G=_siteG;
+
+/* Access road — climbs from the south-west and arrives at the entrance */
+const ROAD=[[-75,73],[-40,72],[-5,71],[12,68],[17,60],[17,47]];
+ribbon(ROAD,5,0.035,COL.road);
+
+/* Scale references: Maruti Wagon R (3.66 × 1.62 × 1.68 m) and three 1.7 m people */
+(function car(x,z){
+  box(x-.81,.28,z-1.83,x+.81,1.0,z+1.83,[.72,.74,.76]);
+  box(x-.74,1.0,z-1.15,x+.74,1.68,z+1.05,[.32,.38,.44],[.72,.74,.76]);
+  for(const [dx,dz] of [[-.75,-1.2],[.75,-1.2],[-.75,1.2],[.75,1.2]]) box(x+dx-.1,0,z+dz-.3,x+dx+.1,.56,z+dz+.3,[.06,.06,.06]);
+})(-16,-2);
+for(const [x,z,c] of [[-2,8,[.75,.3,.35]],[3,-5,[.25,.4,.7]],[9.6,-3,[.85,.75,.3]]]){
+  cyl(x,z,0,1.45,.2,c,8,.17); blob(x,1.6,z,.13,[.55,.38,.28]);
+}
+
+/* Forest — coconut palms and broadleaf canopy around the clearing */
+function coconut(x,z){
+  const y0=groundY(x,z), H=10+R()*7, lx=(R()-.5)*1.4, lz=(R()-.5)*1.4;
+  const segs=4; for(let s=0;s<segs;s++){const t0=s/segs,t1=(s+1)/segs;
+    const a=[x+lx*t0*t0,y0+H*t0,z+lz*t0*t0], b=[x+lx*t1*t1,y0+H*t1,z+lz*t1*t1];
+    box(Math.min(a[0],b[0])-.17,a[1],Math.min(a[2],b[2])-.17,Math.max(a[0],b[0])+.17,b[1],Math.max(a[2],b[2])+.17,[.45,.38,.3]);}
+  const top=[x+lx,y0+H,z+lz];
+  for(let i=0;i<11;i++){const a=i/11*Math.PI*2+R(),L=3.6+R(),dx=Math.cos(a),dz=Math.sin(a);
+    const mid=[top[0]+dx*L*.5,top[1]+.6,top[2]+dz*L*.5], tip=[top[0]+dx*L,top[1]-1.4,top[2]+dz*L];
+    quad(top,[mid[0]-dz*.4,mid[1],mid[2]+dx*.4],tip,[mid[0]+dz*.4,mid[1],mid[2]-dx*.4],[.2+R()*.06,.4+R()*.08,.16]);}
+}
+function broadleaf(x,z){
+  const y0=groundY(x,z), r=2.6+R()*3;
+  cyl(x,z,y0,2.6,.25,[.35,.27,.2],6);
+  blob(x,y0+2.6+r*.7,z,r,[.13+R()*.06,.29+R()*.09,.11],.78,4,7);
+}
+function inClearing(x,z){
+  if(x>-48&&x<109&&z>-36&&z<79) return true;
+  for(let i=0;i<ROAD.length-1;i++){const a=ROAD[i],b=ROAD[i+1],dx=b[0]-a[0],dz=b[1]-a[1];
+    const t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz)));
+    if(Math.hypot(x-a[0]-dx*t,z-a[1]-dz*t)<6) return true;}
+  return false;
+}
+for(let n=0;n<900;){
+  const r=40+Math.sqrt(R())*300, t=R()*Math.PI*2, x=SC[0]+r*Math.cos(t), z=SC[1]+r*Math.sin(t);
+  if(inClearing(x,z)) continue; n++;
+  (R()<.55?coconut:broadleaf)(x,z);
+}
+
+/* ================================================================
+   EVENT SET-UP — night function on the lawn (all dimensions in metres)
+   Lawn: x −10 … 10, z −19.5 (stage front) … 22.5 (south / entry end)
+   Built into its own buffers so it can be toggled on and off.
+   ================================================================ */
+const EM={p:[],n:[],c:[]}, EG={p:[],n:[],c:[]};
+const baseM=M, baseG=G;
+M=EM; G=EG;
+
+const EV={
+  carpetW:1.8,            // white aisle carpet
+  archHalf:1.8,           // arch legs at x = ±1.8 (3.6 m span)
+  seatX0:2.4,             // first chair centre either side of the aisle
+  seatPitch:.6,           // chair-to-chair along a row (0.15 m gap between chairs)
+  seatsPerSide:10,
+  rows:10, rowPitch:1.0,  // 0.5 m chair + 0.5 m knee room
+  frontGap:3.0,           // stage steps → front of row 1
+  poleX:10.3, poleH:6.0,       // east poles line up with the buffet stall fronts
+  poleZ:[-19,-16,-13,-10,-7,-1,5,11,17,22.3],   // 3 m bays over the seating, 6 m over dining
+  archZ0:21.5, archStep:2.5, archN:15,
+};
+const ST=STG.h;                       // stage top level
+const STEPS_Z=STG.zFront+1.05;        // front of the stage steps
+const COUNT={edison:0, archLed:0, uplight:0, wash:0, chairsC:0, tables:0, chairsD:0};
+const GOLD=[.74,.58,.33], WHITEF=[.96,.95,.92], TEAL=[.12,.52,.58];
+const FLO=[[.97,.96,.93],[.96,.83,.73],[.93,.71,.72],[.98,.9,.86],[.27,.44,.26]];
+
+/* ---- helpers specific to the event ---- */
+function rbox(cx,cz,ang,x0,y0,z0,x1,y1,z1,col){
+  const c=Math.cos(ang),s=Math.sin(ang);
+  const P=(x,y,z)=>[cx+x*c-z*s,y,cz+x*s+z*c], Nv=(x,z)=>[x*c-z*s,0,x*s+z*c];
+  quad(P(x0,y1,z0),P(x1,y1,z0),P(x1,y1,z1),P(x0,y1,z1),col,[0,1,0]);
+  quad(P(x0,y0,z1),P(x1,y0,z1),P(x1,y1,z1),P(x0,y1,z1),col,Nv(0,1));
+  quad(P(x0,y0,z0),P(x1,y0,z0),P(x1,y1,z0),P(x0,y1,z0),col,Nv(0,-1));
+  quad(P(x1,y0,z0),P(x1,y0,z1),P(x1,y1,z1),P(x1,y1,z0),col,Nv(1,0));
+  quad(P(x0,y0,z0),P(x0,y0,z1),P(x0,y1,z1),P(x0,y1,z0),col,Nv(-1,0));
+}
+function bandXY(pts,w,z,col){              // flat ribbon in the x–y plane at depth z
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,nx=-dy/l*w/2,ny=dx/l*w/2;
+    quad([a[0]+nx,a[1]+ny,z],[b[0]+nx,b[1]+ny,z],[b[0]-nx,b[1]-ny,z],[a[0]-nx,a[1]-ny,z],col,[0,0,1]);
+  }
+}
+function glowBlob(x,y,z,r,col){const sv=M;M=G;blob(x,y,z,r,col,1,4,7);M=sv;}
+function flora(x,y,z,n,spread,mix=1){       // a cluster of flowers + leaves
+  for(let i=0;i<n;i++){
+    const c=FLO[Math.min(FLO.length-1,Math.floor(R()*(FLO.length-1+mix*.6)))];
+    blob(x+(R()-.5)*spread,y+(R()-.5)*spread*.6,z+(R()-.5)*spread*.5,.09+R()*.1,c,1,3,6);
+  }
+}
+const lerp3=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];
+function hangCurve(a,b,sag,t){const p=lerp3(a,b,t);p[1]-=sag*4*t*(1-t);return p;}
+
+/* ================================================================
+   1. STAGE DÉCOR — after reference image 1
+   12 m blush backdrop · white slat panels (flat + arched) · central
+   draped portal with flower canopy & crystal chandeliers · tufted
+   sofa · wooden plinths · uplights · geometric lanterns along the front
+   ================================================================ */
+const BD=-25.2;                                   // backdrop plane (5.7 m behind stage front)
+box(-6,ST,BD-.15,6,ST+4.6,BD,[.86,.7,.6]);        // textured blush wall, 12 × 4.6 m
+box(-6.05,ST+4.6,BD-.2,6.05,ST+4.75,BD+.05,[.93,.88,.8]);
+
+function slatPanel(xc,w,h,arch,z){
+  const n=Math.round(w/.11);
+  for(let i=0;i<=n;i++){
+    const x=xc-w/2+i*w/n; let hh=h;
+    if(arch){const r=w/2,dx=x-xc; hh=h-r+Math.sqrt(Math.max(0,r*r-dx*dx));}
+    box(x-.022,ST,z-.03,x+.022,ST+hh,z+.03,WHITEF);
+  }
+  for(const y of [.06,1.25,2.45]) box(xc-w/2,ST+y,z-.04,xc+w/2,ST+y+.05,z+.04,WHITEF);
+  if(arch){const r=w/2,pts=[];for(let k=0;k<=18;k++){const a=Math.PI*k/18;pts.push([xc+r*Math.cos(a),ST+h-r+r*Math.sin(a)]);}
+    bandXY(pts,.06,z+.045,WHITEF);}
+  else box(xc-w/2,ST+h-.05,z-.04,xc+w/2,ST+h,z+.04,WHITEF);
+}
+for(const s of [-1,1]){
+  slatPanel(s*5.25,1.5,4.0,false,BD+.45);         // outer flat-top panel
+  slatPanel(s*4.0,1.4,3.5,true,BD+.75);           // short arched panel
+  slatPanel(s*2.95,1.3,4.25,true,BD+.4);          // tall arched panel framing the portal
+  flora(s*4.0,ST+2.3,BD+.95,22,.9);               // wreath clusters on the arched panels
+  flora(s*5.15,ST+1.6,BD+.7,26,1.1);
+  flora(s*5.0,ST+.35,BD+.9,24,1.6);               // base florals
+  flora(s*2.2,ST+.3,BD+1.0,16,1.0);
+}
+/* central portal: champagne drapes tied back */
+for(const s of [-1,1]){
+  const col=[.94,.85,.73], z=BD+.3;
+  quad([s*.95,ST+4.25,z],[s*2.35,ST+4.4,z],[s*2.3,ST+1.7,z],[s*1.6,ST+1.7,z],col,[0,0,1]);
+  quad([s*1.6,ST+1.7,z],[s*2.3,ST+1.7,z],[s*2.4,ST,z],[s*1.75,ST,z],col,[0,0,1]);
+}
+/* flower canopy over the portal + cascades */
+for(let i=0;i<=26;i++){const t=i/26,x=-2.7+5.4*t,y=ST+4.15+.45*Math.sin(t*Math.PI);flora(x,y,BD+.55,5,.5);}
+for(let i=0;i<10;i++){flora(2.45,ST+4.1-i*.24,BD+.6,4,.4);}
+for(let i=0;i<8;i++){flora(-2.45,ST+4.1-i*.24,BD+.6,4,.4);}
+/* crystal chandeliers + globe pendants inside the portal */
+function chandelier(x,y,z,s){
+  box(x-.01,y+.3,z-.01,x+.01,ST+4.3,z+.01,[.6,.55,.45]);
+  cyl(x,z,y+.15,.12,.1*s,GOLD,8);
+  cyl(x,z,y-.25,.4,.08*s,[.92,.93,.97],10,.36*s);
+  cyl(x,z,y-.55,.3,.04*s,[.92,.93,.97],10,.1*s);
+  for(let k=0;k<10;k++){const a=k/10*Math.PI*2; bulb(x+Math.cos(a)*.33*s,y+.12,z+Math.sin(a)*.33*s,[1,.9,.7],.03);}
+  bulb(x,y-.1,z,[1,.92,.75],.09*s);
+}
+chandelier(-.85,ST+3.35,BD+.9,1.0); chandelier(.25,ST+2.95,BD+1.1,1.15); chandelier(1.2,ST+3.45,BD+.85,.9);
+for(const [x,y] of [[-1.55,2.6],[-1.15,2.2],[-.35,2.55],[.7,2.35],[1.55,2.7],[-.55,3.65],[.95,2.0]]){
+  box(x-.008,ST+y+.12,BD+.95,x+.008,ST+4.3,BD+.97,[.6,.55,.45]);
+  glowBlob(x,ST+y,BD+.96,.11,[1,.8,.52]);
+}
+/* tufted sofa (2.2 m) + wooden plinths with lanterns */
+(function sofa(){
+  const z0=-22.5,z1=-21.75,c=[.84,.74,.62],cd=[.76,.66,.55];
+  box(-1.15,ST+.08,z0,1.15,ST+.46,z1,c);
+  for(let i=0;i<9;i++){const x=-1.1+i*.245; box(x,ST+.46,z0,x+.235,ST+1.08,z0+.24,i%2?c:cd);}
+  box(-1.3,ST+.08,z0,-1.1,ST+.78,z1,c); box(1.1,ST+.08,z0,1.3,ST+.78,z1,c);
+  for(const x of [-1.05,1.05]) box(x-.04,ST,z1-.12,x+.04,ST+.08,z1-.04,GOLD);
+})();
+for(const s of [-1,1]){
+  box(s*1.95-.48,ST,-22.6,s*1.95+.48,ST+.9,-21.95,[.86,.76,.6]);
+  box(s*1.95-.11,ST+.9,-22.38,s*1.95+.11,ST+1.25,-22.16,[.15,.13,.12]);
+  bulb(s*1.95,ST+1.06,-22.27,[1,.75,.4],.07);
+}
+/* uplights (white spot fixtures) washing the backdrop */
+for(const x of [-5.8,-4.3,-3.0,3.0,4.3,5.8]){
+  box(x-.1,ST,BD+1.5,x+.1,ST+.22,BD+1.7,[.93,.93,.93]); bulb(x,ST+.24,BD+1.55,[1,.85,.7],.06); COUNT.uplight++;
+}
+/* front edge: geometric gold lanterns + rose arrangements */
+for(let x=-6.6;x<=6.61;x+=1.2){
+  if(Math.abs(x)<.7) continue;
+  box(x-.15,ST,-19.95,x+.15,ST+.03,-19.65,GOLD); box(x-.15,ST+.4,-19.95,x+.15,ST+.43,-19.65,GOLD);
+  const sv=M;M=G;cyl(x,-19.8,ST+.03,.37,.13,[1,.78,.45],6);M=sv;
+}
+for(const x of [-5.4,-2.7,2.7,5.4]) flora(x,ST+.25,-19.85,14,.6,2);
+
+/* ================================================================
+   2. AISLE — 1.8 m white carpet from the lawn entrance to the
+   stage steps, floral borders, and a tunnel of light arches
+   (reference image 3: pointed arches veiled in micro-lights)
+   ================================================================ */
+flat([[-EV.carpetW/2,STEPS_Z],[EV.carpetW/2,STEPS_Z],[EV.carpetW/2,22.5],[-EV.carpetW/2,22.5]],0.045,[.97,.97,.95]);
+for(const s of [-1,1]) for(let z=STEPS_Z+.4;z<22.3;z+=.42){
+  if(z>-6.4&&z<-4.4) continue;                        // keep the cross-aisle clear
+  const c=FLO[Math.floor(R()*4)];
+  blob(s*(1.2+R()*.25),.14,z+(R()-.5)*.2,.13+R()*.08,c,.8,3,6);
+  if(R()<.5) blob(s*(1.45+R()*.15),.1,z,.1,[.27,.44,.26],.7,3,5);
+}
+function archPt(u,Rr){                                 // u 0→1 from left foot to apex
+  const aA=Math.acos(-1/Rr), leg=1.0, arc=Rr*(Math.PI-aA), s=u*(leg+arc);
+  if(s<leg) return [1-Rr, s];
+  const a=Math.PI-(s-leg)/Rr; return [1+Rr*Math.cos(a), 1+Rr*Math.sin(a)];
+}
+function lightArch(z){
+  for(const Rr of [2.8,2.3]){
+    const L=[],Rt=[];for(let k=0;k<=24;k++){const p=archPt(k/24,Rr);L.push(p);Rt.unshift([-p[0],p[1]]);}
+    bandXY(L.concat(Rt.slice(1)),.05,z,GOLD);
+  }
+  for(let k=0;k<230;k++){
+    const u=R(),Rr=2.3+R()*.5,p=archPt(u,Rr),sx=R()<.5?-1:1;
+    bulb(sx*p[0],p[1],z+(R()-.5)*.04,[1,.93,.78],.022); COUNT.archLed++;
+  }
+  for(const s of [-1,1]) flora(s*1.6,.25,z,10,.6);       // flower mounds at the arch feet
+}
+for(let i=0;i<EV.archN;i++) lightArch(EV.archZ0-i*EV.archStep);
+
+/* ================================================================
+   3. CEREMONY SEATING — reference image 2: gold chiavari chairs
+   with teal sashes, 10 rows, 12 each side of the aisle = 240
+   ================================================================ */
+function chiavari(x,z){
+  const w=.21,d=.21,bz=z+d;
+  box(x-w,.43,z-d,x+w,.49,z+d,[.95,.94,.9]);
+  for(const [dx,dz] of [[-w,-d],[w,-d],[-w,d],[w,d]]) box(x+dx-.017,0,z+dz-.017,x+dx+.017,.43,z+dz+.017,GOLD);
+  for(const dx of [-w,w]) box(x+dx-.018,.43,bz-.018,x+dx+.018,.93,bz+.018,GOLD);
+  for(const y of [.6,.74,.88]) box(x-w,y,bz-.012,x+w,y+.025,bz+.012,GOLD);
+  box(x-.17,.56,bz+.02,x+.17,.94,bz+.05,TEAL);               // sash over the back
+  COUNT.chairsC++;
+}
+const ROW1=STEPS_Z+EV.frontGap+.21;
+for(let r=0;r<EV.rows;r++){
+  const z=ROW1+r*EV.rowPitch;
+  for(const s of [-1,1]) for(let i=0;i<EV.seatsPerSide;i++) chiavari(s*(EV.seatX0+i*EV.seatPitch),z);
+}
+const CER_END=ROW1+(EV.rows-1)*EV.rowPitch+.21;              // back edge of row 10
+
+/* ================================================================
+   4. DINING — reference image 4: 20 round tables, 1.5 m (5 ft),
+   8 white chairs each, staggered and open (no enclosure)
+   ================================================================ */
+function tubChair(x,z,ang){
+  const c=[.97,.97,.96];
+  rbox(x,z,ang,-.23,.42,-.22,.23,.47,.22,c);
+  rbox(x,z,ang,-.23,.47,.18,.23,.82,.25,c);
+  for(const sx of [-1,1]) rbox(x,z,ang,sx*.25-.02,.47,-.16,sx*.25+.02,.64,.22,c);
+  for(const [lx,lz] of [[-.2,-.19],[.2,-.19],[-.2,.19],[.2,.19]]) rbox(x,z,ang,lx-.02,0,lz-.02,lx+.02,.42,lz+.02,c);
+  COUNT.chairsD++;
+}
+function roundTable(x,z){
+  cyl(x,z,0,.74,.78,[.95,.95,.93],18);
+  cyl(x,z,.74,.03,.79,[.98,.98,.96],18);
+  cyl(x,z,.56,.07,.792,[.8,.64,.34],18);                      // gold band
+  cyl(x,z,.77,.24,.05,[.86,.87,.92],6);
+  blob(x,1.1,z,.17,[.88,.66,.7],1,4,7); flora(x,1.08,z,6,.35,2);
+  for(const a of [0,2.1,4.2]) bulb(x+Math.cos(a)*.3,.83,z+Math.sin(a)*.3,[1,.72,.38],.025);
+  for(let k=0;k<8;k++){const th=k/8*Math.PI*2+Math.PI/8; tubChair(x+1.08*Math.sin(th),z+1.08*Math.cos(th),-th);}
+  COUNT.tables++;
+}
+const DIN0=CER_END+2.0+1.55;                                   // 2 m cross-aisle, then table radius
+const TABLES=[];
+for(let i=0;i<5;i++){
+  TABLES.push([-4.1,DIN0+4.6*i],[4.1,DIN0+4.6*i],[-7.6,DIN0+2.3+4.6*i],[7.6,DIN0+2.3+4.6*i]);
+}
+TABLES.forEach(([x,z])=>roundTable(x,z));
+
+/* ================================================================
+   5. CANOPY — after reference image 2. 20 white-wrapped poles (10 each
+   side). Over the seating: wide white fabric swags gathered at the poles
+   and sagging softly, one across every 3 m bay plus crossing diagonals,
+   with Edison bulbs on long, varied drops underneath. Over dining:
+   criss-cross Edison festoons. Open on every side.
+   ================================================================ */
+for(const s of [-1,1]) for(const z of EV.poleZ){
+  const x=s*EV.poleX;
+  box(x-.25,0,z-.25,x+.25,.12,z+.25,[.2,.2,.21]);             // weighted base plate
+  cyl(x,z,0,EV.poleH,.055,[.94,.94,.92],8);                     // white-wrapped pole
+  blob(x,EV.poleH-.25,z,.32,[.97,.96,.93],.8,3,6);              // fabric gathered at the pole top
+}
+function drape(a,b,w,sag,col,dip=.18){
+  const dir=norm([b[0]-a[0],0,b[2]-a[2]]), wv=norm(cross(dir,[0,1,0])), N=26, K=[-1,-.5,0,.5,1];
+  const P=(t,k)=>{
+    const p=hangCurve(a,b,sag,t), g=.22+.78*Math.sin(Math.PI*t);      // gathered (narrow) at the ends
+    const fold=dip*g*(1-k*k);                                          // soft belly across the width
+    return [p[0]+wv[0]*k*w*g/2, p[1]-fold, p[2]+wv[2]*k*w*g/2];
+  };
+  for(let i=0;i<N;i++) for(let j=0;j<K.length-1;j++)
+    quad(P(i/N,K[j]),P(i/N,K[j+1]),P((i+1)/N,K[j+1]),P((i+1)/N,K[j]),col);
+}
+function festoon(a,b,sag,spacing,dmin,dmax){
+  const len=Math.hypot(b[0]-a[0],b[2]-a[2]), n=Math.max(2,Math.floor(len/spacing));
+  for(let i=0;i<n;i++){                                         // cable
+    const p=hangCurve(a,b,sag,i/n),q=hangCurve(a,b,sag,(i+1)/n);
+    quad(p,q,[q[0],q[1]-.018,q[2]],[p[0],p[1]-.018,p[2]],[.14,.14,.14]);
+  }
+  for(let i=1;i<n;i++){
+    const p=hangCurve(a,b,sag,i/n), d=dmin+R()*(dmax-dmin);
+    box(p[0]-.004,p[1]-d,p[2]-.004,p[0]+.004,p[1],p[2]+.004,[.1,.1,.1]);
+    box(p[0]-.032,p[1]-d-.11,p[2]-.032,p[0]+.032,p[1]-d,p[2]+.032,[1,.7,.34],null,G);   // Edison bulb
+    COUNT.edison++;
+  }
+}
+const TOP=EV.poleH-.15, X=EV.poleX;
+const CZ=EV.poleZ.slice(0,5);                                    // −19 … −7: the seating bays
+for(const z of CZ) drape([-X,TOP,z],[X,TOP,z],2.1,1.15,WHITEF);               // one swag per pole line
+for(let i=0;i<CZ.length-1;i++){                                               // crossing diagonals per bay
+  drape([-X,TOP-.12,CZ[i]],[X,TOP-.12,CZ[i+1]],1.5,1.25,[.98,.97,.95]);
+  drape([X,TOP-.12,CZ[i]],[-X,TOP-.12,CZ[i+1]],1.5,1.25,[.98,.97,.95]);
+}
+/* Edison bulbs under the fabric — long, varied drops as in the photo */
+for(const z of CZ) festoon([-X,TOP-.4,z],[X,TOP-.4,z],1.0,.62,.3,.95);
+for(const x of [-6.6,-3.4,3.4,6.6]) festoon([x,TOP-.55,CZ[0]],[x,TOP-.55,CZ[CZ.length-1]],.45,.7,.35,1.0);
+/* criss-cross festoons over the dining area */
+for(let i=CZ.length-1;i<EV.poleZ.length-1;i++){
+  const z0=EV.poleZ[i], z1=EV.poleZ[i+1];
+  festoon([-X,TOP,z0],[X,TOP,z1],1.25,.72,.12,.35);
+  festoon([X,TOP,z0],[-X,TOP,z1],1.25,.72,.12,.35);
+}
+/* perimeter runs along both long sides, pole to pole */
+for(const s of [-1,1]) for(let i=0;i<EV.poleZ.length-1;i++)
+  festoon([s*X,TOP-.1,EV.poleZ[i]],[s*X,TOP-.1,EV.poleZ[i+1]],.45,.8,.1,.25);
+
+/* ================================================================
+   5b. BUFFET — the whole side walkway is filled with covered stalls.
+   14 modules × 3 m = 42 m, the full length of the lawn. Each stall is
+   ~4.1 m deep (x 10.3 → 14.45): serving counter set 1.1 m back from the
+   lawn edge so guests queue on the paving + lawn strip in front (≈ 2 m
+   to the nearest dining chairs); servers behind the counter; back table
+   for refills; back wall on the clubhouse side, where the kitchen is.
+   Stations run south → north so drinks meet guests at the entrance and
+   desserts/tea sit beside the ceremony seating for after dinner.
+   ================================================================ */
+const STALLS=[
+  ["Welcome drinks & water","Fresh juices, mocktails, lime soda · bottled water · first stop at the entrance"],
+  ["Starters","Chicken 65, cutlets, fish fingers, veg samosa"],
+  ["Soups & salads","Soup tureens · green salad, Russian salad, pickles"],
+  ["Live counter — appam & stew","Appam made to order with chicken / veg stew"],
+  ["Chicken","Kerala chicken roast, pepper chicken"],
+  ["Beef","Beef ularthiyathu (Syrian Christian classic), beef curry"],
+  ["Fish","Fish moilee, fish fry, meen curry"],
+  ["Biriyani","Chicken biriyani with raita and pickle"],
+  ["Veg, rice & curries","Rice, sambar, avial, thoran, veg kurma, papad"],
+  ["Live counter — porotta & breads","Kerala porotta, chapathi, neer dosa made fresh"],
+  ["Desserts","Payasam, caramel pudding, cakes"],
+  ["Ice cream","Two or three flavours with toppings"],
+  ["Tea & coffee","Tea, coffee, suleimani · after dinner"],
+  ["Hand-wash & plate return","Hand-wash basins, tissue, used-plate drop · keep it lit"],
+];
+const SX0=10.3, SX1=14.45, CNT0=11.2, CNT1=11.95, BT0=13.3, BT1=13.9;
+const STALL_Z=[];
+for(let i=0;i<STALLS.length;i++){
+  const z1=22.5-3*i, z0=z1-3, zc=(z0+z1)/2; STALL_Z.push([z0,z1]);
+  const live=STALLS[i][0].startsWith("Live"), wash=STALLS[i][0].startsWith("Hand");
+  // pagoda roof: white pyramid with a gold valance
+  const e=2.55, pk=3.75, xm=(SX0+SX1)/2, W0=[SX0-.1,e,z0], W1=[SX1+.1,e,z0], W2=[SX1+.1,e,z1], W3=[SX0-.1,e,z1], PK=[xm,pk,zc];
+  tri(W0,W1,PK,[.97,.97,.95]); tri(W1,W2,PK,[.97,.97,.95]); tri(W2,W3,PK,[.97,.97,.95]); tri(W3,W0,PK,[.97,.97,.95]);
+  for(let k=0;k<6;k++){const za=z0+k*.5; box(SX0-.12,e-.28,za,SX0-.08,e,za+.5,k%2?[.98,.97,.94]:[.8,.64,.34]);}
+  box(SX1+.05,0,z0,SX1+.1,e,z1,[.95,.94,.91]);                       // back wall
+  // serving counter (white skirt, gold top band) with chafing dishes
+  box(CNT0,0,z0+.15,CNT1,.88,z1-.15,[.97,.97,.95]);
+  box(CNT0-.02,.82,z0+.15,CNT1+.02,.9,z1-.15,[.8,.64,.34]);
+  if(!wash) for(let k=0;k<3;k++){const zz=z0+.55+k*.95;
+    box(CNT0+.1,.9,zz,CNT1-.1,1.04,zz+.6,[.78,.79,.82]);
+    box(CNT0+.12,1.04,zz+.02,CNT1-.12,1.12,zz+.58,[.86,.87,.9]);}
+  else for(let k=0;k<2;k++){const zz=z0+.7+k*1.2; cyl((CNT0+CNT1)/2,zz+.3,.9,.12,.25,[.9,.92,.95],10);}
+  // back table for refills + server / chef
+  box(BT0,0,z0+.3,BT1,.8,z1-.3,[.9,.9,.88]);
+  if(live) box(BT0+.05,.8,zc-.4,BT1-.05,.86,zc+.4,[.1,.1,.1]);          // hot plate / tawa
+  cyl(12.6,zc,0,1.45,.2,live?[.96,.96,.96]:[.25,.25,.3],8,.17); blob(12.6,1.6,zc,.13,[.55,.38,.28]);
+  // name board above the counter + warm lights under the roof
+  box(SX0+.05,2.05,zc-.7,SX0+.1,2.4,zc+.7,[.42,.28,.2]);
+  for(let k=0;k<4;k++) bulb(11.6,2.45,z0+.45+k*.7,[1,.85,.6],.05);
+}
+for(let i=0;i<=STALLS.length;i++){const z=22.5-3*i;
+  for(const x of [SX0,SX1]) if(!(x===SX0&&EV.poleZ.some(pz=>Math.abs(pz-z)<.4))) cyl(x,z,0,2.55,.04,[.95,.95,.95],6);}
+
+/* ================================================================
+   6. STAGE WASH — two lighting towers behind the last row, aimed at
+   the stage (faces need front light at night for photo & video)
+   ================================================================ */
+for(const s of [-1,1]){
+  const x=s*9.6, z=CER_END+1.0;
+  box(x-.15,0,z-.15,x+.15,5.6,z+.15,[.68,.7,.72]);
+  box(x-.6,5.4,z-.12,x+.6,5.6,z+.12,[.68,.7,.72]);
+  for(const dx of [-.45,-.15,.15,.45]){
+    box(x+dx-.11,5.1,z-.24,x+dx+.11,5.4,z,[.08,.08,.08]);
+    box(x+dx-.09,5.13,z-.26,x+dx+.09,5.37,z-.24,[1,.95,.85],null,G); COUNT.wash++;
+  }
+}
+
+/* ---- restore the base buffers ---- */
+M=baseM; G=baseG;
+
+/* Night lights used by the shader (position, softness k, colour × intensity, reach) */
+const EVENT_LIGHTS=[
+  [[0,5.5,-15],7,[1.0,.96,.88],1.25,20],          // stage key (from the wash towers)
+  [[0,ST+1.4,-23.6],3.2,[1.0,.7,.58],.95,9],      // blush uplights on the backdrop
+  [[.2,ST+3.4,-24.2],2.6,[1.0,.82,.58],.8,8],     // chandeliers
+  [[-5,4.4,-14],4.5,[1,.76,.48],.6,11],[[5,4.4,-14],4.5,[1,.76,.48],.6,11],
+  [[-5,4.4,-8.5],4.5,[1,.76,.48],.6,11],[[5,4.4,-8.5],4.5,[1,.76,.48],.6,11],
+  [[-5.5,4.3,DIN0+1],5,[1,.74,.45],.6,12],[[5.5,4.3,DIN0+1],5,[1,.74,.45],.6,12],
+  [[-5.5,4.3,DIN0+9],5,[1,.74,.45],.6,12],[[5.5,4.3,DIN0+9],5,[1,.74,.45],.6,12],
+  [[-5.5,4.3,DIN0+17],5,[1,.74,.45],.6,12],[[5.5,4.3,DIN0+17],5,[1,.74,.45],.6,12],
+  [[0,2.3,19],2.6,[1,.93,.8],.6,7],[[0,2.3,9],2.6,[1,.93,.8],.6,7],
+  [[0,2.3,-1],2.6,[1,.93,.8],.6,7],[[0,2.3,-11],2.6,[1,.93,.8],.6,7],
+  [[11.8,2.4,17],3.5,[1,.85,.62],.75,8],[[11.8,2.4,7],3.5,[1,.85,.62],.75,8],[[11.8,2.4,-3],3.5,[1,.85,.62],.75,8],[[11.8,2.4,-13],3.5,[1,.85,.62],.75,8],
+];
+
+/* ================================================================
+   GPU upload + shaders
+   ================================================================ */
+function upload(B){
+  const mk=(arr,loc)=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.STATIC_DRAW);return b;};
+  return {p:mk(B.p),n:mk(B.n),c:mk(B.c),count:B.p.length/3};
+}
+const MAXL=Math.max(4,Math.min(24,Math.floor((gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS)-12)/2)));
+const VS=`attribute vec3 p;attribute vec3 n;attribute vec3 c;
+uniform mat4 m;uniform vec3 eye;
+varying vec3 vc;varying vec3 wp;varying vec3 wn;varying float vf;
+void main(){gl_Position=m*vec4(p,1.0);vc=c;wp=p;wn=n;
+  vf=clamp((length(p-eye)-160.0)/520.0,0.0,1.0);}`;
+const FS=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#define MAXL ${MAXL}
+varying vec3 vc;varying vec3 wp;varying vec3 wn;varying float vf;
+uniform vec3 L;uniform float amb;uniform float dif;uniform float unlit;uniform vec3 fog;uniform float fogk;
+uniform float nl;uniform vec4 lp[MAXL];uniform vec4 lc[MAXL];
+void main(){
+  vec3 nn=normalize(wn);
+  float d=max(dot(nn,L),0.0)*0.85+abs(dot(nn,L))*0.15;
+  float hemi=0.62+0.38*nn.y;
+  vec3 col=vc*(amb*hemi+dif*d);
+  vec3 acc=vec3(0.0);
+  for(int i=0;i<MAXL;i++){
+    if(float(i)>=nl) break;
+    vec3 dv=lp[i].xyz-wp;
+    if(abs(dv.x)>lc[i].w||abs(dv.z)>lc[i].w) continue;
+    float dd=length(dv);
+    float att=clamp(1.0-dd/lc[i].w,0.0,1.0)/(1.0+dd*dd/(lp[i].w*lp[i].w));
+    acc+=lc[i].rgb*att*(0.35+0.65*abs(dot(nn,dv/max(dd,0.001))));
+  }
+  col+=vc*acc;
+  col=mix(col,vc,unlit);
+  gl_FragColor=vec4(mix(col,fog,vf*fogk),1.0);}`;
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
+const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
+const A={p:gl.getAttribLocation(prog,"p"),n:gl.getAttribLocation(prog,"n"),c:gl.getAttribLocation(prog,"c")};
+const U={};["m","L","eye","amb","dif","unlit","fog","fogk","nl","lp","lc"].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
+const meshM=upload(M), meshG=upload(G), meshEM=upload(EM), meshEG=upload(EG), meshB=upload(SB), meshBG=upload(SBG);
+const LP=new Float32Array(MAXL*4), LC=new Float32Array(MAXL*4);
+EVENT_LIGHTS.slice(0,MAXL).forEach(([pos,k,c,I,r],i)=>{LP.set([pos[0],pos[1],pos[2],k],i*4);LC.set([c[0]*I,c[1]*I,c[2]*I,r],i*4);});
+gl.enable(gl.DEPTH_TEST);
+
+/* ================================================================
+   Camera
+   ================================================================ */
+const cam={T:[8,0,8],D:150,yaw:.55,pitch:.72,fov:50*Math.PI/180};
+const VIEWS={
+  overview:{T:[8,0,8],D:150,yaw:.55,pitch:.72},
+  plan:{T:[18,0,12],D:150,yaw:0,pitch:1.55},
+  lawn:{T:[0,1.6,-6],D:30,yaw:0,pitch:.06},
+  photo:{T:[-11,1.4,4],D:19,yaw:1.3,pitch:.03},
+  entrance:{T:[12,2,10],D:44,yaw:.08,pitch:.12},
+  event:{T:[0,0,-2],D:58,yaw:.62,pitch:.55},
+  aisle:{T:[0,2.0,-16],D:38,yaw:0,pitch:.03},
+  stage:{T:[0,2.7,-22.5],D:7.5,yaw:0,pitch:.06},
+  dining:{T:[-4,1,6],D:20,yaw:-2.3,pitch:.22},
+};
+Object.assign(cam,VIEWS.event,{T:[...VIEWS.event.T]});
+function persp(f,a,n,F){const t=1/Math.tan(f/2);return[t/a,0,0,0,0,t,0,0,0,0,(F+n)/(n-F),-1,0,0,2*F*n/(n-F),0];}
+function lookAt(e,c,u){const z=norm(sub(e,c)),x=norm(cross(u,z)),y=cross(z,x);
+  return[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,e),-dot(y,e),-dot(z,e),1];}
+function mmul(a,b){const o=new Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s;}return o;}
+let MVP, EYE, W=1, H=1;
+function eyePos(){const cp=Math.cos(cam.pitch);return add(cam.T,[cam.D*cp*Math.sin(cam.yaw),cam.D*Math.sin(cam.pitch),cam.D*cp*Math.cos(cam.yaw)]);}
+function project(v){
+  const x=v[0],y=v[1],z=v[2],m=MVP;
+  const cx=m[0]*x+m[4]*y+m[8]*z+m[12], cy=m[1]*x+m[5]*y+m[9]*z+m[13], cw=m[3]*x+m[7]*y+m[11]*z+m[15];
+  if(cw<=0.1) return null;
+  return [(cx/cw*.5+.5)*W,(1-(cy/cw*.5+.5))*H];
+}
+
+/* ================================================================
+   Labels, dimensions, measuring
+   ================================================================ */
+const LABELS=[
+  ["Wedding lawn","≈ 20 × 42 m · ~840 m²",[0,.6,0],0,2],
+  ["Clubhouse (G+2)","≈ 17 × 55 m · ~11 m high",[27,13,8],0,3],
+  ["Palm row + benches","8 date palms with fairy lights",[-11,4.2,-14],0,2],
+  ["Paved walkway","≈ 4.3 m path",[12.2,1.2,-12],0,2],
+  ["Red-earth open ground","≈ 32 × 68 m · parking / overflow",[-26,.6,6]],
+  ["KH CLUB entrance","sign tower + porch",[21,15,38],0,3],
+  ["Swimming pool","≈ 12 × 20 m",[44,.6,15],0,3],
+  ["Cottages / rooms","type unverified",[61,4.6,13],1,3],
+  ["Shed / hall","unverified",[93,6.5,20],1,3],
+  ["Stage (permanent)","≈ 14.5 × 12 m · centred · behind the lawn",[0,2.4,-25.5],0,2],
+  ["Access road","from Thiruvambady–Adivaram Rd",[-30,.6,72]],
+  ["Wagon R","3.66 m — scale reference",[-16,2.1,-2],0,2],
+  ["Stage décor","12 m backdrop · portal · sofa",[0,ST+5.4,BD],0,1],
+  ["Ceremony seating",`${COUNT.chairsC} chairs · 10 rows`,[-5.4,1.4,ROW1+4.3],0,1],
+  ["Light-arch walkway",`${EV.archN} arches · white carpet`,[0,4.2,12],0,1],
+  ["Dining",`${COUNT.tables} round tables · ${COUNT.chairsD} seats`,[5.85,1.6,DIN0+9.2],0,1],
+  ["Fabric canopy + Edison bulbs",`${COUNT.edison} bulbs on ${EV.poleZ.length*2} poles`,[6,6.3,-13],0,1],
+  ["Stage wash tower","4 × LED PAR",[9.6,6.2,CER_END+1],0,1],
+  ["Buffet stalls",`${STALLS.length} covered stalls along the side walkway`,[12.4,4.3,2],0,1],
+];
+const labelsEl=document.getElementById("labels");
+const labelDivs=LABELS.map(([t,s,,u,ev])=>{const d=document.createElement("div");d.className="lb"+(u?" u":"");d.innerHTML=`${t}<small>${s}</small>`;labelsEl.appendChild(d);return d;});
+const DIMS=[
+  [[-10,.1,24.5],[10,.1,24.5],"20 m"],
+  [[8.5,.1,-19.5],[8.5,.1,22.5],"42 m"],
+  [[STG.x0,STG.h+.1,STG.zFront-.4],[STG.x1,STG.h+.1,STG.zFront-.4],"14.5 m"],
+  [[-8.5,.15,STG.zBack],[-8.5,.15,STG.zFront],"12 m"],
+  [[36.2,.2,-17],[36.2,.2,38],"55 m",3],
+  [[19,.2,-19],[35,.2,-19],"17 m",3],
+  [[10,.2,-21.5],[19,.2,-21.5],"≈ 8–9 m",3],
+  [[-42,.2,6],[-10,.2,6],"≈ 32 m"],
+  [[-.9,.12,STEPS_Z+1.2],[.9,.12,STEPS_Z+1.2],"1.8 m",1],
+  [[-6,.12,STEPS_Z],[-6,.12,STEPS_Z+EV.frontGap],"3 m",1],
+  [[-9.4,.12,ROW1-.21],[-9.4,.12,CER_END],EV.rows+" rows · "+(CER_END-ROW1+.21).toFixed(1)+" m",1],
+  [[EV.seatX0-.22,.12,ROW1-.6],[EV.seatX0+(EV.seatsPerSide-1)*EV.seatPitch+.22,.12,ROW1-.6],EV.seatsPerSide+" seats · "+((EV.seatsPerSide-1)*EV.seatPitch+.44).toFixed(1)+" m",1],
+  [[-1.8,.12,EV.archZ0+.6],[1.8,.12,EV.archZ0+.6],"arch 3.6 m",1],
+  [[2.6,.12,EV.archZ0-EV.archStep],[2.6,.12,EV.archZ0],"2.5 m",1],
+  [[4.1,.12,DIN0],[4.1,.12,DIN0+4.6],"4.6 m",1],
+  [[-6,ST+4.95,BD],[6,ST+4.95,BD],"12 m backdrop",1],
+];
+let showEvent=true, showBld=false, showLabels=false, showDims=false, night=true, measuring=false, mpts=[];
+const ov=document.getElementById("ov"), oc=ov.getContext("2d");
+
+function drawOverlay(){
+  oc.clearRect(0,0,ov.width,ov.height);
+  const dpr=ov.width/W; oc.save(); oc.scale(dpr,dpr);
+  const seg=(a,b,txt,color)=>{
+    const p=project(a),q=project(b); if(!p||!q) return;
+    oc.strokeStyle=color;oc.lineWidth=1.6;oc.beginPath();oc.moveTo(p[0],p[1]);oc.lineTo(q[0],q[1]);oc.stroke();
+    const ang=Math.atan2(q[1]-p[1],q[0]-p[0]),tx=Math.sin(ang)*6,ty=-Math.cos(ang)*6;
+    for(const s of [p,q]){oc.beginPath();oc.moveTo(s[0]-tx,s[1]-ty);oc.lineTo(s[0]+tx,s[1]+ty);oc.stroke();}
+    if(txt){const mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2;oc.font="bold 12px Segoe UI, sans-serif";
+      const w=oc.measureText(txt).width+10;oc.fillStyle="rgba(10,14,22,.85)";oc.fillRect(mx-w/2,my-9,w,18);
+      oc.fillStyle=color;oc.textAlign="center";oc.textBaseline="middle";oc.fillText(txt,mx,my);}
+  };
+  drawHover();
+  if(showDims) DIMS.forEach(([a,b,t,e])=>{if(!e||(e===1&&showEvent)||(e===3&&showBld))seg(a,b,t,e===1?"#ffcf7a":"#7fd4ff");});
+  for(let i=0;i<mpts.length;i++){
+    const p=project(mpts[i]); if(p){oc.fillStyle="#ffd166";oc.beginPath();oc.arc(p[0],p[1],4,0,7);oc.fill();}
+    if(i>0) seg(mpts[i-1],mpts[i],Math.hypot(mpts[i][0]-mpts[i-1][0],mpts[i][2]-mpts[i-1][2]).toFixed(1)+" m","#ffd166");
+  }
+  // compass — north is −Z
+  const c0=project(cam.T), c1=project(add(cam.T,[0,0,-5]));
+  if(c0&&c1){const a=Math.atan2(c1[1]-c0[1],c1[0]-c0[0]);const cx=W-38,cy=H-70;
+    oc.save();oc.translate(cx,cy);oc.fillStyle="rgba(13,17,23,.8)";oc.beginPath();oc.arc(0,0,22,0,7);oc.fill();
+    oc.rotate(a+Math.PI/2);oc.fillStyle="#ff6b6b";oc.beginPath();oc.moveTo(0,-16);oc.lineTo(6,2);oc.lineTo(-6,2);oc.fill();
+    oc.fillStyle="#cfd8e3";oc.beginPath();oc.moveTo(0,16);oc.lineTo(6,2);oc.lineTo(-6,2);oc.fill();
+    oc.rotate(-(a+Math.PI/2));oc.fillStyle="#fff";oc.font="bold 11px sans-serif";oc.textAlign="center";oc.textBaseline="middle";
+    oc.fillText("N",Math.cos(a)*30,Math.sin(a)*30);oc.restore();}
+  oc.restore();
+}
+function updateLabels(){
+  LABELS.forEach((L,i)=>{const d=labelDivs[i],p=showLabels&&project(L[2]);
+    if((L[4]===1&&!showEvent)||(L[4]===2&&showEvent)||(L[4]===3&&!showBld)){d.style.display="none";return;}
+    if(!p||p[0]<-50||p[0]>W+50||p[1]<-20||p[1]>H+40){d.style.display="none";return;}
+    d.style.display="block";d.style.left=p[0]+"px";d.style.top=p[1]+"px";});
+}
+
+
+/* ================================================================
+   Hover descriptions — point at anything (tap on phones) to see
+   what it is and its size. Regions are world-space boxes.
+   ================================================================ */
+const HOVER=[];
+const hv=(t,d,b,g)=>HOVER.push({t,d,b,g});
+const seatW=EV.seatX0+(EV.seatsPerSide-1)*EV.seatPitch+.25;
+hv("Stage décor","12 m × 4.6 m blush backdrop · white slat panels (flat + arched) · draped portal with flower canopy and 3 crystal chandeliers · 2.2 m tufted sofa · wooden plinths with lanterns · uplights",[-6.2,ST,-25.6,6.2,ST+5,-21.6],"ev");
+hv("Stage (permanent)","≈ 14.5 × 12 m, ≈ 1.2 m high (height unverified) · 3 steps across the front · ~6 m free behind the backdrop for décor crew",[-7.25,0,-31.5,7.25,ST,STEPS_Z],"site");
+for(const s of [-1,1]) hv("Ceremony seating",`${COUNT.chairsC} gold chiavari chairs with teal sashes · ${EV.rows} rows × ${EV.seatsPerSide} each side · row pitch ${EV.rowPitch} m, seat pitch ${EV.seatPitch} m · first row ${EV.frontGap} m from the stage steps`,
+  s<0?[-seatW,0,ROW1-.25,-EV.seatX0+.25,1.0,CER_END]:[EV.seatX0-.25,0,ROW1-.25,seatW,1.0,CER_END],"ev");
+hv("Light-arch walkway",`${EV.carpetW} m white carpet, ${(22.5-STEPS_Z).toFixed(0)} m from the lawn entrance to the stage steps · ${EV.archN} pointed arches 3.6 m wide × 3.6 m high every ${EV.archStep} m, veiled in warm micro-lights · floral borders both sides`,[-1.95,0,STEPS_Z,1.95,3.7,22.5],"ev");
+hv("Cross-aisle","2 m clear walkway between the ceremony seating and dining — keep it lit at ground level",[-10,0,CER_END,10,.15,CER_END+2],"ev");
+TABLES.forEach(([x,z],i)=>hv(`Dining table ${i+1} of ${TABLES.length}`,"1.5 m (5 ft) round, white skirt with gold band · 8 white chairs · floral centrepiece with candles · ≥ 1.1 m between neighbouring chair backs",[x-1.5,0,z-1.5,x+1.5,1.25,z+1.5],"ev"));
+hv("Fabric canopy",`White fabric swags over the seating, gathered at the poles: one across every 3 m bay plus crossing diagonals · low point ≈ 4.2 m, above the 3.6 m arches · Edison bulbs on long drops underneath`,[-X,3.9,CZ[0]-.6,X,EV.poleH+.3,CZ[CZ.length-1]+.6],"ev");
+hv("Edison festoons",`${COUNT.edison} warm filament bulbs in total · criss-cross runs over dining plus perimeter runs on both sides · plan 2200–2700 K, dimmable`,[-X,4.3,CZ[CZ.length-1]+.6,X,EV.poleH+.3,22.6],"ev");
+for(const s of [-1,1]) hv("Stage wash tower","5.6 m truss with 4 LED PARs aimed at the stage — front light for faces in photos and video",[s*9.6-.7,0,CER_END+.6,s*9.6+.7,5.7,CER_END+1.4],"ev");
+for(const s of [-1,1]) for(const z of EV.poleZ) hv("Canopy pole",`${EV.poleH} m white-wrapped pole on a weighted base · ${EV.poleZ.length*2} poles in total`,[s*X-.3,0,z-.3,s*X+.3,EV.poleH,z+.3],"ev");
+STALLS.forEach(([n,d],i)=>hv(`Buffet ${i+1}/${STALLS.length} — ${n}`,`${d} · covered stall 3 m × ≈4 m, counter set 1.1 m back from the lawn edge`,[SX0-.12,0,STALL_Z[i][0],SX1+.1,3.75,STALL_Z[i][1]],"ev"));
+hv("Buffet queue lane","≈ 2 m between the counters and the nearest dining chairs (1.1 m paving + lawn strip) · the canopy poles stand on the stall-front line",[9.15,0,-19.5,CNT0,.15,22.5],"ev");
+hv("Wedding lawn","≈ 20 × 42 m ≈ 840 m² · starts at the stage front, level with the first palm",[-10,0,-19.5,10,.1,22.5],"site");
+hv("Paved side walkway","≈ 4.3 m paved path running straight off the lawn's east edge, lamp posts every 9 m · planter strip on the clubhouse side",[10.1,0,-24,14.4,.9,44],"site");
+hv("Palm row","8 date palms ≈ 5.5 m apart on the lawn's west edge, wrapped in fairy lights, park benches between",[-11.8,0,-21,-9.3,4.2,21],"site");
+hv("Red-earth open ground","≈ 32 × 68 m ≈ 1,700 m², level, beside the lawn · parking, or overflow dining (room for ~40 more tables)",[-42,0,-28,-11.9,.1,40],"site");
+hv("Entrance forecourt","Open ground at the south end — arrival, drop-off and the start of the aisle",[-30,0,22.6,10,.1,46],"site");
+hv("Access road","Arrives from the south-west (Thiruvambady–Adivaram Rd) and turns up to the entrance",[14,0,44,20,.1,70],"site");
+hv("Wagon R","Parked for scale — 3.66 m long",[-16.85,0,-3.9,-15.15,1.7,-.1],"site");
+hv("Clubhouse (G+2)","≈ 17 × 55 m, ~11 m high · rooms with glass-railed balconies facing the lawn",[16,0,-17.8,35.6,12.2,38.8],"bld");
+hv("Swimming pool","≈ 12 × 20 m water, deck around",[36.5,0,2,52,.2,28],"bld");
+hv("Cottages / rooms","5 units · type unverified (may now be tents)",[52.6,0,-5.6,69.4,4,31.6],"bld");
+
+const tip=document.createElement("div");tip.id="tip";document.body.appendChild(tip);
+let hovered=null;
+function rayAt(px,py){
+  const rect=cv.getBoundingClientRect(),x=(px-rect.left)/W*2-1,y=1-(py-rect.top)/H*2;
+  const f=norm(sub(cam.T,EYE)),r=norm(cross(f,[0,1,0])),u=cross(r,f),t=Math.tan(cam.fov/2);
+  return norm(add(f,add(mulS(r,x*t*W/H),mulS(u,y*t))));
+}
+function boxHit(o,d,b){
+  let t0=0,t1=1e9;
+  for(let k=0;k<3;k++){
+    const inv=1/(d[k]||1e-9), a=(b[k]-o[k])*inv, c=(b[k+3]-o[k])*inv;
+    t0=Math.max(t0,Math.min(a,c)); t1=Math.min(t1,Math.max(a,c));
+  }
+  return t1>=t0?t0:Infinity;
+}
+function pick(px,py){
+  if(!EYE) return null;
+  const d=rayAt(px,py); let best=null,bt=Infinity;
+  for(const h of HOVER){
+    if((h.g==="ev"&&!showEvent)||(h.g==="bld"&&!showBld)) continue;
+    const t=boxHit(EYE,d,h.b); if(t<bt){bt=t;best=h;}
+  }
+  return best;
+}
+function showTip(h,px,py){
+  if(!h){tip.style.display="none";return;}
+  tip.innerHTML=`<b>${h.t}</b><span>${h.d}</span>`;tip.style.display="block";
+  const r=tip.getBoundingClientRect();
+  let x=px+16,y=py+16; if(x+r.width>innerWidth-8)x=px-r.width-12; if(y+r.height>innerHeight-8)y=py-r.height-12;
+  tip.style.left=Math.max(8,x)+"px";tip.style.top=Math.max(8,y)+"px";
+}
+cv.addEventListener("pointermove",e=>{
+  if(e.pointerType!=="mouse"||e.buttons) return;
+  const h=pick(e.clientX,e.clientY);
+  if(h!==hovered){hovered=h;requestRender();}
+  showTip(h,e.clientX,e.clientY);
+});
+cv.addEventListener("pointerleave",()=>{hovered=null;showTip(null);requestRender();});
+function tapPick(e){ if(e.pointerType==="mouse"||measuring) return; const h=pick(e.clientX,e.clientY); hovered=h; showTip(h,e.clientX,e.clientY); requestRender(); }
+function drawHover(){
+  if(!hovered) return;
+  const b=hovered.b, P=(i,j,k)=>project([b[i?3:0],b[j?4:1],b[k?5:2]]);
+  const E=[[0,0,0,1,0,0],[0,1,0,1,1,0],[0,0,1,1,0,1],[0,1,1,1,1,1],[0,0,0,0,1,0],[1,0,0,1,1,0],[0,0,1,0,1,1],[1,0,1,1,1,1],[0,0,0,0,0,1],[1,0,0,1,0,1],[0,1,0,0,1,1],[1,1,0,1,1,1]];
+  oc.strokeStyle="#ffd166";oc.lineWidth=1.5;oc.setLineDash([5,4]);
+  for(const e of E){const p=P(e[0],e[1],e[2]),q=P(e[3],e[4],e[5]);if(p&&q){oc.beginPath();oc.moveTo(p[0],p[1]);oc.lineTo(q[0],q[1]);oc.stroke();}}
+  oc.setLineDash([]);
+}
+
+/* ================================================================
+   Render
+   ================================================================ */
+let queued=false;
+function requestRender(){if(!queued){queued=true;requestAnimationFrame(render);}}
+function resize(){
+  const dpr=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;
+  cv.width=W*dpr;cv.height=H*dpr;ov.width=W*dpr;ov.height=H*dpr;ov.style.width=W+"px";ov.style.height=H+"px";
+  gl.viewport(0,0,cv.width,cv.height);requestRender();
+}
+function bind(mesh){
+  gl.bindBuffer(gl.ARRAY_BUFFER,mesh.p);gl.enableVertexAttribArray(A.p);gl.vertexAttribPointer(A.p,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,mesh.n);gl.enableVertexAttribArray(A.n);gl.vertexAttribPointer(A.n,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,mesh.c);gl.enableVertexAttribArray(A.c);gl.vertexAttribPointer(A.c,3,gl.FLOAT,false,0,0);
+}
+function render(){
+  queued=false;
+  EYE=eyePos();
+  const near=Math.max(.2,Math.min(2,cam.D*.01));
+  MVP=mmul(persp(cam.fov,W/H,near,1800),lookAt(EYE,cam.T,[0,1,0]));
+  const sky=night?[.04,.07,.14]:[.72,.8,.87];
+  gl.clearColor(sky[0],sky[1],sky[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.uniformMatrix4fv(U.m,false,new Float32Array(MVP));
+  gl.uniform3fv(U.L,norm(night?[-.3,.8,.4]:[.45,.85,.35]));
+  gl.uniform3fv(U.eye,EYE);gl.uniform3fv(U.fog,sky);gl.uniform1f(U.fogk,night?.9:.75);
+  gl.uniform1f(U.amb,night?(showEvent?.15:.24):.72);gl.uniform1f(U.dif,night?.07:.55);gl.uniform1f(U.unlit,0);
+  const lights=night&&showEvent?Math.min(EVENT_LIGHTS.length,MAXL):0;
+  gl.uniform1f(U.nl,lights);if(lights){gl.uniform4fv(U.lp,LP);gl.uniform4fv(U.lc,LC);}
+  bind(meshM);gl.drawArrays(gl.TRIANGLES,0,meshM.count);
+  if(showEvent){bind(meshEM);gl.drawArrays(gl.TRIANGLES,0,meshEM.count);}
+  if(showBld){bind(meshB);gl.drawArrays(gl.TRIANGLES,0,meshB.count);}
+  gl.uniform1f(U.nl,0);
+  if(night){gl.uniform1f(U.unlit,1);bind(meshG);gl.drawArrays(gl.TRIANGLES,0,meshG.count);
+    if(showBld){bind(meshBG);gl.drawArrays(gl.TRIANGLES,0,meshBG.count);}}
+  if(showEvent){gl.uniform1f(U.unlit,night?1:0);bind(meshEG);gl.drawArrays(gl.TRIANGLES,0,meshEG.count);}
+  updateLabels();drawOverlay();
+}
+
+/* ================================================================
+   Input
+   ================================================================ */
+let drag=null;
+const ptrs=new Map();
+cv.addEventListener("contextmenu",e=>e.preventDefault());
+cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  drag={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,pan:e.button===2||e.shiftKey,moved:0};});
+cv.addEventListener("pointermove",e=>{
+  if(!ptrs.has(e.pointerId)||!drag)return;
+  const prev=ptrs.get(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  if(ptrs.size===2){                                   // pinch zoom
+    const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+    if(drag.pd) cam.D=Math.max(3,Math.min(700,cam.D*drag.pd/d)); drag.pd=d; drag.moved=99; requestRender(); return;
+  }
+  const dx=e.clientX-prev[0],dy=e.clientY-prev[1];drag.moved+=Math.abs(dx)+Math.abs(dy);
+  if(drag.moved>6){tip.style.display="none";}
+  if(drag.pan){const f=norm([Math.sin(cam.yaw),0,Math.cos(cam.yaw)]),r=[f[2],0,-f[0]],k=cam.D*.0016;
+    cam.T=add(cam.T,add(mulS(r,-dx*k),mulS(f,-dy*k)));}
+  else{cam.yaw-=dx*.005;cam.pitch=Math.max(.02,Math.min(1.55,cam.pitch+dy*.005));}
+  requestRender();
+});
+cv.addEventListener("pointerup",e=>{
+  ptrs.delete(e.pointerId);
+  if(drag&&!measuring&&drag.moved<6) tapPick(e);
+  if(drag&&measuring&&drag.moved<6){const hit=groundHit(e.clientX,e.clientY);if(hit){mpts.push(hit);updateMeas();requestRender();}}
+  if(ptrs.size===0)drag=null;
+});
+cv.addEventListener("wheel",e=>{e.preventDefault();cam.D=Math.max(3,Math.min(700,cam.D*Math.exp(e.deltaY*.0012)));requestRender();},{passive:false});
+function groundHit(px,py){
+  const rect=cv.getBoundingClientRect(),x=(px-rect.left)/W*2-1,y=1-(py-rect.top)/H*2;
+  const f=norm(sub(cam.T,EYE)),r=norm(cross(f,[0,1,0])),u=cross(r,f),t=Math.tan(cam.fov/2);
+  const d=norm(add(f,add(mulS(r,x*t*W/H),mulS(u,y*t))));
+  if(d[1]>=-1e-4)return null;const k=-EYE[1]/d[1];return[EYE[0]+d[0]*k,0.15,EYE[2]+d[2]*k];
+}
+function updateMeas(){
+  const el=document.getElementById("meas");
+  if(!measuring&&!mpts.length){el.textContent="";return;}
+  let tot=0;for(let i=1;i<mpts.length;i++)tot+=Math.hypot(mpts[i][0]-mpts[i-1][0],mpts[i][2]-mpts[i-1][2]);
+  el.textContent=mpts.length<2?"Click points on the ground to measure…":`Total ${tot.toFixed(1)} m over ${mpts.length-1} segment(s)`;
+}
+function anim(target){
+  const s={...cam,T:[...cam.T]},t0=performance.now(),dur=650;
+  let dy=target.yaw-s.yaw;dy=((dy+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+  (function step(now){const k=Math.min(1,(now-t0)/dur),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    cam.T=s.T.map((v,i)=>v+(target.T[i]-v)*e);cam.D=s.D+(target.D-s.D)*e;cam.yaw=s.yaw+dy*e;cam.pitch=s.pitch+(target.pitch-s.pitch)*e;
+    render();if(k<1)requestAnimationFrame(step);})(t0);
+}
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>anim(VIEWS[b.dataset.view]));
+const tog=(id,fn)=>{const b=document.getElementById(id);b.onclick=()=>{fn(b);requestRender();};};
+tog("tLabels",b=>{showLabels=!showLabels;b.classList.toggle("on",showLabels);});
+tog("tDims",b=>{showDims=!showDims;b.classList.toggle("on",showDims);});
+tog("tNight",b=>{night=!night;b.classList.toggle("on",night);});
+tog("tEvent",b=>{showEvent=!showEvent;b.classList.toggle("on",showEvent);});
+tog("tBld",b=>{showBld=!showBld;b.classList.toggle("on",showBld);});
+tog("tMeasure",b=>{measuring=!measuring;b.classList.toggle("on",measuring);cv.classList.toggle("measuring",measuring);updateMeas();});
+tog("tClear",()=>{mpts=[];updateMeas();});
+document.getElementById("hide").onclick=()=>{const p=document.getElementById("panel");p.style.display=p.style.display==="none"?"":"none";};
+if(window.innerWidth<900){document.querySelectorAll("details.sec").forEach(d=>d.open=false);Object.assign(cam,{T:[0,0,-8],D:62,yaw:.5,pitch:.75});VIEWS.event={T:[0,0,-8],D:62,yaw:.5,pitch:.75};}
+(function(){const hs=location.hash.slice(1).split(",");
+  hs.forEach(k=>{if(VIEWS[k])Object.assign(cam,VIEWS[k],{T:[...VIEWS[k].T]});
+    if(k==="night"){night=true;document.getElementById("tNight").classList.add("on");}});})();
+(function(){
+  const kW=(COUNT.edison*4+EV.archN*2*25+COUNT.wash*150+COUNT.uplight*36+120*3+COUNT.tables*3)/1000;
+  const rows=[
+    ["Stage décor","12 m × 4.6 m backdrop, 5.7 m back from the stage front; 2.2 m sofa; ~6 m backstage behind"],
+    ["Aisle","1.8 m white carpet, "+(22.5-STEPS_Z).toFixed(0)+" m from lawn entrance to stage steps, floral borders"],
+    ["Light arches",EV.archN+" pointed arches, 3.6 m wide × 3.6 m high, every 2.5 m"],
+    ["Ceremony seating",COUNT.chairsC+" chiavari chairs: "+EV.rows+" rows × "+(2*EV.seatsPerSide)+" ("+EV.seatsPerSide+" each side), row pitch "+EV.rowPitch+" m, seat pitch "+EV.seatPitch+" m, first row 3 m from the steps"],
+    ["Cross-aisle","2 m clear between seating and dining"],
+    ["Dining",COUNT.tables+" round tables, 1.5 m (5 ft) × 8 chairs = "+COUNT.chairsD+" seats, staggered, ≥ 1.1 m between chair backs"],
+    ["Canopy",(EV.poleZ.length*2)+" poles × "+EV.poleH+" m (3 m bays over seating, 6 m over dining); fabric swags + crossing diagonals over the seating, low point ≈ 4.2 m; arches stay below"],
+    ["Buffet",STALLS.length+" covered stalls (3 m × ≈4 m) filling the 42 m side walkway, counters facing the lawn; ≈ 2 m queue lane; refills from the clubhouse side; drinks at the entrance end, desserts & tea by the seating"],
+    ["Edison bulbs",COUNT.edison+" warm filament LEDs (≈ 4 W each)"],
+    ["Stage lighting",COUNT.wash+" PARs on 2 towers + "+COUNT.uplight+" backdrop uplights + chandeliers"],
+    ["Lighting load","≈ "+kW.toFixed(1)+" kW lights only; with sound, catering & fans plan a 30–40 kVA silent DG + standby"],
+  ];
+  document.getElementById("evTable").innerHTML=rows.map(([a,b])=>`<tr><td>${a}</td><td style="text-align:right">${b}</td></tr>`).join("");
+  document.getElementById("evCap").innerHTML=`<b>Capacity check:</b> ${COUNT.chairsC} ceremony seats + ${COUNT.chairsD} dining seats. For 700–1,500 guests, serve dinner in 3–4 batches or extend dining onto the red-earth ground (room for ~40 more tables).`;
+})();
+window.addEventListener("resize",resize);
+resize();
+</script>
+</body>
+</html>
