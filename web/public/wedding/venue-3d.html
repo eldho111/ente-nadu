@@ -33,6 +33,30 @@
   .note{color:#9fb0c2;font-size:11.5px;line-height:1.5}
   #meas{margin-top:6px;color:#ffd166;font-size:12px;min-height:16px}
   #hide{position:absolute;top:10px;right:10px}
+  #hud,#cross,#joy,#whelp,#thud{display:none}
+  body.topview #thud{display:block;position:absolute;top:10px;left:50%;transform:translateX(-50%);width:min(640px,calc(100% - 20px));
+     background:rgba(10,14,22,.9);border:1px solid #33425a;border-radius:10px;padding:9px 11px;font-size:12px;z-index:15}
+  body.topview #hide,body.topview #help{display:none}
+  .tnote{color:#9fb0c2;margin-top:6px;line-height:1.45}
+  #tpMeas{color:#ffd166;margin-top:4px}
+  #thud button.on{background:#2b4a6f;border-color:#6d9bd1}
+  body.walking #hud{display:block;position:absolute;top:10px;left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 20px));
+     background:rgba(10,14,22,.9);border:1px solid #33425a;border-radius:10px;padding:9px 11px;font-size:12px;z-index:15}
+  body.walking #hide{display:none}
+  .hrow{display:flex;gap:6px;align-items:center}
+  .hrow select{flex:1;min-width:0;background:#1c2633;color:#e7ebf0;border:1px solid #33425a;border-radius:6px;padding:6px;font-size:12.5px;font-family:inherit}
+  #hDesc{color:#c9d5e2;margin-top:7px;line-height:1.45}
+  #hRead{color:#7fd4ff;margin-top:6px;font-variant-numeric:tabular-nums;line-height:1.45}
+  #hLook{color:#ffd166;margin-top:4px;line-height:1.45}
+  body.walking #cross{display:block;position:absolute;left:50%;top:50%;width:18px;height:18px;transform:translate(-50%,-50%);pointer-events:none;z-index:12;
+     background:linear-gradient(#ffd166,#ffd166) center/2px 100% no-repeat,linear-gradient(#ffd166,#ffd166) center/100% 2px no-repeat;opacity:.85}
+  body.walking #whelp{display:block;position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-size:11px;color:#9fb0c2;
+     background:rgba(13,17,23,.75);padding:5px 10px;border-radius:6px;white-space:nowrap;z-index:12}
+  body.walking #help{display:none}
+  #joy{position:absolute;left:18px;bottom:22px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.08);
+       border:1px solid rgba(255,255,255,.25);touch-action:none;z-index:14}
+  #joyK{position:absolute;left:50%;top:50%;width:46px;height:46px;border-radius:50%;background:rgba(255,209,102,.55);transform:translate(-50%,-50%)}
+  @media (pointer:coarse){ body.walking #joy{display:block} body.walking #whelp{display:none} }
   #tip{position:fixed;display:none;max-width:290px;pointer-events:none;z-index:20;background:rgba(10,14,22,.94);
        border:1px solid #ffd166;border-radius:7px;padding:8px 10px;font-size:12px;line-height:1.45;box-shadow:0 6px 20px rgba(0,0,0,.45)}
   #tip b{display:block;color:#ffd166;font-size:12.5px;margin-bottom:3px}
@@ -52,6 +76,8 @@
 
   <h2>Event views</h2>
   <div class="row">
+    <button id="tWalk" style="background:#2b4a6f;border-color:#6d9bd1">🚶 Walk through</button>
+    <button id="tTop" style="background:#2b4a6f;border-color:#6d9bd1">🗺 Top view (plan)</button>
     <button data-view="event">Event overview</button>
     <button data-view="aisle">Guest walk-in</button>
     <button data-view="stage">Stage close-up</button>
@@ -69,12 +95,14 @@
   <h2>Show</h2>
   <div class="row">
     <button id="tEvent" class="on">Event set-up</button>
+    <button id="tGlow" class="on">Glow</button>
     <button id="tNight" class="on">Night</button>
     <button id="tBld">Clubhouse &amp; pool</button>
     <button id="tLabels">All labels</button>
     <button id="tDims">Dimensions</button>
     <button id="tMeasure">📏 Measure</button>
     <button id="tClear">Clear</button>
+    <button id="tSave">⬇ Save image</button>
   </div>
   <div id="meas"></div>
 
@@ -146,6 +174,33 @@
   </details>
 </div>
 <button id="hide" title="Hide panel">☰</button>
+<div id="hud">
+  <div class="hrow">
+    <button id="hPrev" title="Previous stop (P)">◀</button>
+    <select id="hSel" aria-label="Walk-through stop"></select>
+    <button id="hNext" title="Next stop (N)">▶</button>
+    <button id="hSeat">Sit down</button>
+    <button id="hExit" title="Exit (Esc)">✕ Exit</button>
+  </div>
+  <div id="hDesc"></div>
+  <div id="hRead"></div>
+  <div id="hLook"></div>
+</div>
+<div id="cross"></div>
+<div id="thud">
+  <div class="hrow">
+    <b style="white-space:nowrap">🗺 Top view</b>
+    <button id="tpCanopy">Show canopy</button>
+    <button id="tpMeasure">📏 Measure</button>
+    <button id="tpFit">Fit</button>
+    <button id="tpSave">⬇ Save image</button>
+    <button id="tpExit">✕ Exit</button>
+  </div>
+  <div class="tnote">North up · 1 m grid, bold every 5 m · blue = metres from the stage front, gold = from the lawn's west edge · drag to pan · scroll / pinch to zoom · hover anything for its size</div>
+  <div id="tpMeas"></div>
+</div>
+<div id="joy"><div id="joyK"></div></div>
+<div id="whelp">W A S D or arrows to walk · drag to look · Shift = faster · N / P = next / previous stop · Esc = exit</div>
 <div id="help">Hover (or tap) anything for details · Drag: rotate · Right-drag / Shift-drag: pan · Wheel / pinch: zoom</div>
 
 <script>
@@ -304,7 +359,7 @@ for(let i=0;i<palmZ.length-1;i++) bench(-9.6,(palmZ[i]+palmZ[i+1])/2);
 const STG={x0:-7.25,x1:7.25,zBack:-31.5,zFront:-19.5,h:1.2};   // front edge level with the first (northmost) palm
 box(STG.x0,0,STG.zBack,STG.x1,STG.h,STG.zFront,[.78,.78,.76],[.84,.84,.82]);
 for(let i=0;i<3;i++)                                         // three 30 cm steps across the full front
-  box(STG.x0,0,STG.zFront,STG.x1,STG.h-.3*(i+1),STG.zFront+.35*(3-i),[.94,.94,.92]);
+  box(STG.x0,0,STG.zFront,STG.x1,STG.h-.3*(i+1),STG.zFront+.35*(i+1),[.94,.94,.92]);   // 0.9 / 0.6 / 0.3 m, 35 cm treads
 
 /* Hedge strip + paved walkway between lawn and clubhouse (photos 1 & 4) */
 box(14.5,0,-24,15.6,.45,40,COL.hedgeG);                       // planter strip on the clubhouse side (photos 1 & 4)
@@ -614,6 +669,7 @@ for(let i=0;i<5;i++){
 }
 TABLES.forEach(([x,z])=>roundTable(x,z));
 
+const EC={p:[],n:[],c:[]}, ECG={p:[],n:[],c:[]}; const _evM=M,_evG=G; M=EC; G=ECG;   // canopy kept separate so plan view can hide it
 /* ================================================================
    5. CANOPY — after reference image 2. 20 white-wrapped poles (10 each
    side). Over the seating: wide white fabric swags gathered at the poles
@@ -669,6 +725,8 @@ for(let i=CZ.length-1;i<EV.poleZ.length-1;i++){
 /* perimeter runs along both long sides, pole to pole */
 for(const s of [-1,1]) for(let i=0;i<EV.poleZ.length-1;i++)
   festoon([s*X,TOP-.1,EV.poleZ[i]],[s*X,TOP-.1,EV.poleZ[i+1]],.45,.8,.1,.25);
+
+M=_evM; G=_evG;
 
 /* ================================================================
    5b. BUFFET — the whole side walkway is filled with covered stalls.
@@ -778,11 +836,20 @@ precision mediump float;
 varying vec3 vc;varying vec3 wp;varying vec3 wn;varying float vf;
 uniform vec3 L;uniform float amb;uniform float dif;uniform float unlit;uniform vec3 fog;uniform float fogk;
 uniform float nl;uniform vec4 lp[MAXL];uniform vec4 lc[MAXL];
+uniform float tone;uniform float blk;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+  return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),f.x),mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),f.x),f.y);}
 void main(){
+  if(blk>0.5){gl_FragColor=vec4(0.0,0.0,0.0,1.0);return;}
   vec3 nn=normalize(wn);
+  vec3 bc=vc;
+  float grass=step(vc.r*1.12,vc.g)*step(vc.b*1.25,vc.g)*step(0.6,nn.y)*(1.0-unlit);
+  float nz=vnoise(wp.xz*0.8)*0.55+vnoise(wp.xz*3.7)*0.3+vnoise(wp.xz*11.0)*0.15;
+  bc*=mix(0.96+0.08*vnoise(wp.xz*2.3+wp.y*1.7),0.8+0.36*nz,grass);
   float d=max(dot(nn,L),0.0)*0.85+abs(dot(nn,L))*0.15;
   float hemi=0.62+0.38*nn.y;
-  vec3 col=vc*(amb*hemi+dif*d);
+  vec3 col=bc*(amb*hemi+dif*d);
   vec3 acc=vec3(0.0);
   for(int i=0;i<MAXL;i++){
     if(float(i)>=nl) break;
@@ -792,14 +859,64 @@ void main(){
     float att=clamp(1.0-dd/lc[i].w,0.0,1.0)/(1.0+dd*dd/(lp[i].w*lp[i].w));
     acc+=lc[i].rgb*att*(0.35+0.65*abs(dot(nn,dv/max(dd,0.001))));
   }
-  col+=vc*acc;
-  col=mix(col,vc,unlit);
+  col+=bc*acc;
+  col=mix(col,bc,unlit);
+  col=mix(col,vec3(1.0)-exp(-col*1.45),tone);
   gl_FragColor=vec4(mix(col,fog,vf*fogk),1.0);}`;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
 const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
 const A={p:gl.getAttribLocation(prog,"p"),n:gl.getAttribLocation(prog,"n"),c:gl.getAttribLocation(prog,"c")};
-const U={};["m","L","eye","amb","dif","unlit","fog","fogk","nl","lp","lc"].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
-const meshM=upload(M), meshG=upload(G), meshEM=upload(EM), meshEG=upload(EG), meshB=upload(SB), meshBG=upload(SBG);
+const U={};["m","L","eye","amb","dif","unlit","fog","fogk","nl","lp","lc","tone","blk"].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
+
+/* ---- Sky gradient (+ stars at night) and bloom for the bulbs ---- */
+function mkProg(vs,fs){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
+const QUAD=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,QUAD);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+const QVS=`attribute vec2 q;varying vec2 uv;void main(){uv=q*0.5+0.5;gl_Position=vec4(q,0.0,1.0);}`;
+const skyProg=mkProg(QVS,`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec2 uv;
+uniform vec3 cf,cr,cu,hz,zn;uniform float th,asp,stars;
+float h3(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}
+void main(){vec2 s=uv*2.0-1.0;vec3 d=normalize(cf+cr*s.x*th*asp+cu*s.y*th);
+  float t=smoothstep(-0.04,0.55,d.y);vec3 c=mix(hz,zn,t);
+  if(stars>0.5&&d.y>0.06){vec3 g=floor(d*260.0);float r=h3(g);if(r>0.9972)c+=vec3(0.75,0.8,0.95)*(r-0.9972)/0.0028*smoothstep(0.06,0.3,d.y);}
+  gl_FragColor=vec4(c,1.0);}`);
+const blurProg=mkProg(QVS,`precision mediump float;varying vec2 uv;uniform sampler2D tx;uniform vec2 dir;
+void main(){vec3 c=texture2D(tx,uv).rgb*0.227;
+  c+=(texture2D(tx,uv+dir*1.384).rgb+texture2D(tx,uv-dir*1.384).rgb)*0.316;
+  c+=(texture2D(tx,uv+dir*3.230).rgb+texture2D(tx,uv-dir*3.230).rgb)*0.070;
+  gl_FragColor=vec4(c,1.0);}`);
+const compProg=mkProg(QVS,`precision mediump float;varying vec2 uv;uniform sampler2D tx;uniform float k;
+void main(){gl_FragColor=vec4(texture2D(tx,uv).rgb*k,1.0);}`);
+const SU={},BU={},CU={};
+["cf","cr","cu","hz","zn","th","asp","stars"].forEach(n=>SU[n]=gl.getUniformLocation(skyProg,n));
+["tx","dir"].forEach(n=>BU[n]=gl.getUniformLocation(blurProg,n));
+["tx","k"].forEach(n=>CU[n]=gl.getUniformLocation(compProg,n));
+function drawQuad(prog){const loc=gl.getAttribLocation(prog,"q");
+  for(let i=0;i<4;i++) if(i!==loc) gl.disableVertexAttribArray(i);
+  gl.bindBuffer(gl.ARRAY_BUFFER,QUAD);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
+  gl.drawArrays(gl.TRIANGLES,0,3);}
+let FB=null, bloomOn=true;
+function mkTarget(w,h,depth){
+  const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+  for(const [k,v] of [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D,k,v);
+  const f=gl.createFramebuffer();gl.bindFramebuffer(gl.FRAMEBUFFER,f);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,t,0);
+  if(depth){const r=gl.createRenderbuffer();gl.bindRenderbuffer(gl.RENDERBUFFER,r);gl.renderbufferStorage(gl.RENDERBUFFER,gl.DEPTH_COMPONENT16,w,h);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.RENDERBUFFER,r);}
+  const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);return ok?{t,f,w,h}:null;
+}
+function makeFBOs(){
+  const w=Math.max(64,Math.floor(cv.width/2)),h=Math.max(64,Math.floor(cv.height/2));
+  const g=mkTarget(w,h,true),a=mkTarget(w,h,false),b=mkTarget(w,h,false);
+  FB=g&&a&&b?{g,a,b,w,h}:null;
+}
+const meshM=upload(M), meshG=upload(G), meshEM=upload(EM), meshEG=upload(EG), meshB=upload(SB), meshBG=upload(SBG), meshEC=upload(EC), meshECG=upload(ECG);
 const LP=new Float32Array(MAXL*4), LC=new Float32Array(MAXL*4);
 EVENT_LIGHTS.slice(0,MAXL).forEach(([pos,k,c,I,r],i)=>{LP.set([pos[0],pos[1],pos[2],k],i*4);LC.set([c[0]*I,c[1]*I,c[2]*I,r],i*4);});
 gl.enable(gl.DEPTH_TEST);
@@ -824,7 +941,67 @@ function persp(f,a,n,F){const t=1/Math.tan(f/2);return[t/a,0,0,0,0,t,0,0,0,0,(F+
 function lookAt(e,c,u){const z=norm(sub(e,c)),x=norm(cross(u,z)),y=cross(z,x);
   return[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,e),-dot(y,e),-dot(z,e),1];}
 function mmul(a,b){const o=new Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s;}return o;}
-let MVP, EYE, W=1, H=1;
+let MVP, EYE, W=1, H=1, TGT=[0,0,0], FOV=50*Math.PI/180, mode="orbit";
+/* Plan view: orthographic, looking straight down, north up. hh = half the visible height in metres. */
+const plan={cx:2,cz:-4.5,hh:31}, topOpts={canopy:false};
+const canopyOn=()=>!(mode==="top"&&!topOpts.canopy);
+function ortho(l,r,b,t,n,f){return[2/(r-l),0,0,0,0,2/(t-b),0,0,0,0,-2/(f-n),0,-(r+l)/(r-l),-(t+b)/(t-b),-(f+n)/(f-n),1];}
+
+/* ================================================================
+   Walk-through (first person). Eye 1.6 m standing / 1.15 m seated.
+   Floor follows the lawn, the three stage steps and the stage top;
+   tables, stall counters, the backdrop, sofa, poles and palm trunks
+   block movement. Chairs don't, so rows can be walked through.
+   ================================================================ */
+const walk={x:0,z:24.5,y:0,yaw:0,pitch:0,eyeH:1.6,fov:72*Math.PI/180};
+function walkDir(){const cp=Math.cos(walk.pitch);return [-Math.sin(walk.yaw)*cp,Math.sin(walk.pitch),-Math.cos(walk.yaw)*cp];}
+function floorAt(x,z){
+  if(Math.abs(x)<=STG.x1){
+    if(z>=STG.zBack&&z<=STG.zFront) return ST;
+    const d=z-STG.zFront;
+    if(d>0&&d<.35) return ST-.3; if(d>=.35&&d<.7) return ST-.6; if(d>=.7&&d<1.05) return ST-.9;
+  }
+  return 0;
+}
+const OBST=[];                                              // [x0,z0,x1,z1, floor, eventOnly]
+TABLES.forEach(([x,z])=>OBST.push([x-.8,z-.8,x+.8,z+.8,0,1]));
+STALL_Z.forEach(([z0,z1])=>OBST.push([CNT0,z0+.15,CNT1,z1-.15,0,1],[BT0,z0+.3,BT1,z1-.3,0,1],[SX1+.03,z0,SX1+.12,z1,0,1]));
+for(const s of [-1,1]){ for(const z of EV.poleZ) OBST.push([s*X-.1,z-.1,s*X+.1,z+.1,0,1]); OBST.push([s*9.6-.2,CER_END+.8,s*9.6+.2,CER_END+1.2,0,1]); }
+OBST.push([-6.15,BD-.2,6.15,BD+.85,ST,1],[-1.32,-22.52,1.32,-21.72,ST,1],[-2.45,-22.62,-1.45,-21.93,ST,1],[1.45,-22.62,2.45,-21.93,ST,1]);
+OBST.push([14.5,-24,15.6,40,0,0],[-16.85,-3.9,-15.15,-.1,0,0]);
+palmZ.forEach(z=>OBST.push([-11.32,z-.32,-10.68,z+.32,0,0]));
+const inRect=(o,x,z,m)=>x>o[0]-m&&x<o[2]+m&&z>o[1]-m&&z<o[3]+m;
+function blocked(x,z){
+  if(x<-46||x>32||z<-34||z>60) return true;
+  const fy=floorAt(x,z); if(Math.abs(fy-walk.y)>.45) return true;          // no climbing the stage sides
+  for(const o of OBST){
+    if(o[5]&&!showEvent) continue; if(Math.abs(o[4]-fy)>.5) continue;
+    if(inRect(o,walk.x,walk.z,.22)) continue;                                // already inside → let them out
+    if(inRect(o,x,z,.22)) return true;
+  }
+  return false;
+}
+function tryMove(nx,nz){
+  if(!blocked(nx,walk.z)){walk.x=nx;walk.y=floorAt(walk.x,walk.z);}
+  if(!blocked(walk.x,nz)){walk.z=nz;walk.y=floorAt(walk.x,walk.z);}
+}
+const lastRowZ=ROW1+(EV.rows-1)*EV.rowPitch;
+const T5=TABLES[4];
+const TOUR=[
+  {n:"Arrival — lawn entrance",d:`South end of the aisle. The white carpet runs ${(22.5-STEPS_Z).toFixed(1)} m to the stage steps; the first light arch is 1 m ahead.`,x:0,z:24.5,yaw:0,p:-.02,h:1.6},
+  {n:"Under the light arches",d:`Arches 3.6 m wide × 3.6 m high, every ${EV.archStep} m · carpet ${EV.carpetW} m · dining tables either side.`,x:0,z:9,yaw:0,p:.03,h:1.6},
+  {n:"Seated at dining table 5",d:"Eye height 1.15 m (seated) — how much of the stage a dinner guest sees over the seating and arches.",x:T5[0]+1.08,z:T5[1],yaw:.15,p:.03,h:1.15},
+  {n:`Buffet queue — ${STALLS[5][0]} stall`,d:`Standing in the queue lane, 0.85 m from the counter. The lane is ≈ 2 m back to the nearest dining chairs.`,x:10.35,z:(STALL_Z[5][0]+STALL_Z[5][1])/2,yaw:-Math.PI/2,p:-.12,h:1.6},
+  {n:"Cross-aisle",d:"2 m clear between the last ceremony row and the first dining tables · the stage wash towers stand at either end.",x:-6,z:CER_END+1,yaw:-Math.PI/2,p:0,h:1.6},
+  {n:"Last row, aisle seat",d:`Seated in row ${EV.rows}: ${(lastRowZ-STG.zFront).toFixed(1)} m from the stage front edge.`,x:-EV.seatX0,z:lastRowZ+.05,yaw:0,p:.05,h:1.15},
+  {n:"Front row, aisle seat",d:`Seated in row 1: ${EV.frontGap} m to the steps, ${(ROW1-STG.zFront).toFixed(1)} m to the stage edge · the stage top is 1.2 m up.`,x:-EV.seatX0,z:ROW1+.05,yaw:0,p:.12,h:1.15},
+  {n:"On stage — the couple's view",d:"Seated on the sofa (eye 1.15 m above the 1.2 m stage), looking out over the aisle, canopy and dining.",x:0,z:-21.95,yaw:Math.PI,p:-.07,h:1.15},
+  {n:"Stage front edge",d:"Standing at the front of the stage, 1.2 m up — the speaker's and photographer's angle.",x:3.5,z:STG.zFront-.4,yaw:Math.PI,p:-.1,h:1.6},
+  {n:"Backstage",d:"Behind the 12 m backdrop: ≈ 6 m of stage depth for décor crew, sound and storage · ≈ 1.1 m gaps either side of the backdrop.",x:0,z:-28.6,yaw:Math.PI,p:.05,h:1.6},
+  {n:"Palm row — west edge",d:"From the parking side looking across the lawn: palms and benches, the buffet stalls ≈ 21 m away on the far side.",x:-11.9,z:-3,yaw:-Math.PI/2,p:0,h:1.6},
+];
+let tourI=0;
+
 function eyePos(){const cp=Math.cos(cam.pitch);return add(cam.T,[cam.D*cp*Math.sin(cam.yaw),cam.D*Math.sin(cam.pitch),cam.D*cp*Math.cos(cam.yaw)]);}
 function project(v){
   const x=v[0],y=v[1],z=v[2],m=MVP;
@@ -892,6 +1069,7 @@ function drawOverlay(){
       const w=oc.measureText(txt).width+10;oc.fillStyle="rgba(10,14,22,.85)";oc.fillRect(mx-w/2,my-9,w,18);
       oc.fillStyle=color;oc.textAlign="center";oc.textBaseline="middle";oc.fillText(txt,mx,my);}
   };
+  if(mode==="top") drawPlanGrid();
   drawHover();
   if(showDims) DIMS.forEach(([a,b,t,e])=>{if(!e||(e===1&&showEvent)||(e===3&&showBld))seg(a,b,t,e===1?"#ffcf7a":"#7fd4ff");});
   for(let i=0;i<mpts.length;i++){
@@ -899,7 +1077,8 @@ function drawOverlay(){
     if(i>0) seg(mpts[i-1],mpts[i],Math.hypot(mpts[i][0]-mpts[i-1][0],mpts[i][2]-mpts[i-1][2]).toFixed(1)+" m","#ffd166");
   }
   // compass — north is −Z
-  const c0=project(cam.T), c1=project(add(cam.T,[0,0,-5]));
+  const cpt=mode==="walk"?add([EYE[0],0,EYE[2]],mulS(norm([TGT[0]-EYE[0],0,TGT[2]-EYE[2]]),6)):(mode==="top"?TGT:cam.T);
+  const c0=project(cpt), c1=project(add(cpt,[0,0,-2]));
   if(c0&&c1){const a=Math.atan2(c1[1]-c0[1],c1[0]-c0[0]);const cx=W-38,cy=H-70;
     oc.save();oc.translate(cx,cy);oc.fillStyle="rgba(13,17,23,.8)";oc.beginPath();oc.arc(0,0,22,0,7);oc.fill();
     oc.rotate(a+Math.PI/2);oc.fillStyle="#ff6b6b";oc.beginPath();oc.moveTo(0,-16);oc.lineTo(6,2);oc.lineTo(-6,2);oc.fill();
@@ -907,6 +1086,25 @@ function drawOverlay(){
     oc.rotate(-(a+Math.PI/2));oc.fillStyle="#fff";oc.font="bold 11px sans-serif";oc.textAlign="center";oc.textBaseline="middle";
     oc.fillText("N",Math.cos(a)*30,Math.sin(a)*30);oc.restore();}
   oc.restore();
+}
+
+function drawPlanGrid(){
+  const Z0=STG.zFront;                                         // distances are measured from the stage front
+  const line=(a,b,c,w)=>{const p=project(a),q=project(b);if(!p||!q)return;oc.strokeStyle=c;oc.lineWidth=w;oc.beginPath();oc.moveTo(p[0],p[1]);oc.lineTo(q[0],q[1]);oc.stroke();};
+  const pxPerM=H/(2*plan.hh), fine=pxPerM>=7;
+  for(let x=-12;x<=16;x++){ if(x%5&&!fine) continue; line([x,.2,-32],[x,.2,24],x%5?"rgba(255,255,255,.10)":"rgba(255,255,255,.28)",x%5?.6:1); }
+  for(let z=Math.ceil(-32-Z0);z<=24-Z0;z++){ if(z%5&&!fine) continue; line([-12,.2,Z0+z],[16,.2,Z0+z],z%5?"rgba(255,255,255,.10)":"rgba(255,255,255,.28)",z%5?.6:1); }
+  oc.font="bold 11px Segoe UI, sans-serif";oc.textBaseline="middle";
+  const tag=(t,v,al,c)=>{const p=project(v);if(!p)return;oc.textAlign=al;const w=oc.measureText(t).width+8;
+    oc.fillStyle="rgba(10,14,22,.85)";oc.fillRect(al==="right"?p[0]-w:al==="center"?p[0]-w/2:p[0],p[1]-8,w,16);oc.fillStyle=c;oc.fillText(t,al==="right"?p[0]-4:al==="center"?p[0]:p[0]+4,p[1]);};
+  for(let z=0;z<=42;z+=5) tag(z===0?"stage front 0 m":z+" m",[-12.2,.2,Z0+z],"right","#7fd4ff");
+  tag("42 m · lawn end",[-12.2,.2,Z0+42],"right","#7fd4ff");
+  for(let z=-5;z>=-12;z-=5) tag(z+" m",[-12.2,.2,Z0+z],"right","#9fb0c2");
+  for(let x=-10;x<=15;x+=5) tag((x+10)+" m",[x,.2,25],"center","#ffcf7a");
+  tag("← from the lawn's west edge",[-10,.2,26.6],"left","#ffcf7a");
+  // scale bar
+  const L=5*pxPerM,x0=18,y0=H-24;oc.strokeStyle="#fff";oc.lineWidth=2;oc.beginPath();oc.moveTo(x0,y0);oc.lineTo(x0+L,y0);oc.moveTo(x0,y0-5);oc.lineTo(x0,y0+5);oc.moveTo(x0+L,y0-5);oc.lineTo(x0+L,y0+5);oc.stroke();
+  oc.fillStyle="#fff";oc.textAlign="left";oc.fillText("5 m",x0+L+6,y0);
 }
 function updateLabels(){
   LABELS.forEach((L,i)=>{const d=labelDivs[i],p=showLabels&&project(L[2]);
@@ -948,11 +1146,12 @@ hv("Swimming pool","≈ 12 × 20 m water, deck around",[36.5,0,2,52,.2,28],"bld"
 hv("Cottages / rooms","5 units · type unverified (may now be tents)",[52.6,0,-5.6,69.4,4,31.6],"bld");
 
 const tip=document.createElement("div");tip.id="tip";document.body.appendChild(tip);
-let hovered=null;
-function rayAt(px,py){
+let hovered=null, PICK_T=Infinity;
+function rayAt(px,py){                               // → [origin, direction]
   const rect=cv.getBoundingClientRect(),x=(px-rect.left)/W*2-1,y=1-(py-rect.top)/H*2;
-  const f=norm(sub(cam.T,EYE)),r=norm(cross(f,[0,1,0])),u=cross(r,f),t=Math.tan(cam.fov/2);
-  return norm(add(f,add(mulS(r,x*t*W/H),mulS(u,y*t))));
+  if(mode==="top") return [[plan.cx+x*plan.hh*W/H,150,plan.cz-y*plan.hh],[0,-1,0]];
+  const f=norm(sub(TGT,EYE)),r=norm(cross(f,[0,1,0])),u=cross(r,f),t=Math.tan(FOV/2);
+  return [EYE,norm(add(f,add(mulS(r,x*t*W/H),mulS(u,y*t))))];
 }
 function boxHit(o,d,b){
   let t0=0,t1=1e9;
@@ -964,12 +1163,13 @@ function boxHit(o,d,b){
 }
 function pick(px,py){
   if(!EYE) return null;
-  const d=rayAt(px,py); let best=null,bt=Infinity;
+  const [o,d]=rayAt(px,py); let best=null,bt=Infinity;
   for(const h of HOVER){
     if((h.g==="ev"&&!showEvent)||(h.g==="bld"&&!showBld)) continue;
-    const t=boxHit(EYE,d,h.b); if(t<bt){bt=t;best=h;}
+    if(!canopyOn()&&(h.t==="Fabric canopy"||h.t==="Edison festoons")) continue;
+    const t=boxHit(o,d,h.b); if(t<bt){bt=t;best=h;}
   }
-  return best;
+  PICK_T=bt; return best;
 }
 function showTip(h,px,py){
   if(!h){tip.style.display="none";return;}
@@ -1003,34 +1203,76 @@ function requestRender(){if(!queued){queued=true;requestAnimationFrame(render);}
 function resize(){
   const dpr=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;
   cv.width=W*dpr;cv.height=H*dpr;ov.width=W*dpr;ov.height=H*dpr;ov.style.width=W+"px";ov.style.height=H+"px";
-  gl.viewport(0,0,cv.width,cv.height);requestRender();
+  gl.viewport(0,0,cv.width,cv.height);makeFBOs();requestRender();
 }
 function bind(mesh){
   gl.bindBuffer(gl.ARRAY_BUFFER,mesh.p);gl.enableVertexAttribArray(A.p);gl.vertexAttribPointer(A.p,3,gl.FLOAT,false,0,0);
   gl.bindBuffer(gl.ARRAY_BUFFER,mesh.n);gl.enableVertexAttribArray(A.n);gl.vertexAttribPointer(A.n,3,gl.FLOAT,false,0,0);
   gl.bindBuffer(gl.ARRAY_BUFFER,mesh.c);gl.enableVertexAttribArray(A.c);gl.vertexAttribPointer(A.c,3,gl.FLOAT,false,0,0);
 }
-function render(){
-  queued=false;
-  EYE=eyePos();
-  const near=Math.max(.2,Math.min(2,cam.D*.01));
-  MVP=mmul(persp(cam.fov,W/H,near,1800),lookAt(EYE,cam.T,[0,1,0]));
-  const sky=night?[.04,.07,.14]:[.72,.8,.87];
-  gl.clearColor(sky[0],sky[1],sky[2],1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  gl.uniformMatrix4fv(U.m,false,new Float32Array(MVP));
-  gl.uniform3fv(U.L,norm(night?[-.3,.8,.4]:[.45,.85,.35]));
-  gl.uniform3fv(U.eye,EYE);gl.uniform3fv(U.fog,sky);gl.uniform1f(U.fogk,night?.9:.75);
-  gl.uniform1f(U.amb,night?(showEvent?.15:.24):.72);gl.uniform1f(U.dif,night?.07:.55);gl.uniform1f(U.unlit,0);
-  const lights=night&&showEvent?Math.min(EVENT_LIGHTS.length,MAXL):0;
-  gl.uniform1f(U.nl,lights);if(lights){gl.uniform4fv(U.lp,LP);gl.uniform4fv(U.lc,LC);}
+function drawLit(){
   bind(meshM);gl.drawArrays(gl.TRIANGLES,0,meshM.count);
   if(showEvent){bind(meshEM);gl.drawArrays(gl.TRIANGLES,0,meshEM.count);}
+  if(showEvent&&canopyOn()){bind(meshEC);gl.drawArrays(gl.TRIANGLES,0,meshEC.count);}
   if(showBld){bind(meshB);gl.drawArrays(gl.TRIANGLES,0,meshB.count);}
-  gl.uniform1f(U.nl,0);
-  if(night){gl.uniform1f(U.unlit,1);bind(meshG);gl.drawArrays(gl.TRIANGLES,0,meshG.count);
-    if(showBld){bind(meshBG);gl.drawArrays(gl.TRIANGLES,0,meshBG.count);}}
-  if(showEvent){gl.uniform1f(U.unlit,night?1:0);bind(meshEG);gl.drawArrays(gl.TRIANGLES,0,meshEG.count);}
+}
+function drawGlowMeshes(dayLit){
+  if(night){bind(meshG);gl.drawArrays(gl.TRIANGLES,0,meshG.count);if(showBld){bind(meshBG);gl.drawArrays(gl.TRIANGLES,0,meshBG.count);}}
+  if(showEvent){gl.uniform1f(U.unlit,dayLit?0:1);bind(meshEG);gl.drawArrays(gl.TRIANGLES,0,meshEG.count);
+    if(canopyOn()){bind(meshECG);gl.drawArrays(gl.TRIANGLES,0,meshECG.count);}gl.uniform1f(U.unlit,1);}
+}
+function render(){
+  queued=false;
+  let near;
+  if(mode==="walk"){
+    walk.y=floorAt(walk.x,walk.z);
+    EYE=[walk.x,walk.y+walk.eyeH,walk.z]; TGT=add(EYE,walkDir()); FOV=walk.fov; near=.05;
+  } else if(mode==="top"){
+    EYE=[plan.cx,150,plan.cz]; TGT=[plan.cx,0,plan.cz];
+  } else { EYE=eyePos(); TGT=cam.T; FOV=cam.fov; near=Math.max(.2,Math.min(2,cam.D*.01)); }
+  if(mode==="top"){const hw=plan.hh*W/H; MVP=mmul(ortho(-hw,hw,-plan.hh,plan.hh,1,400),lookAt(EYE,TGT,[0,0,-1]));}
+  else MVP=mmul(persp(FOV,W/H,near,1800),lookAt(EYE,TGT,[0,1,0]));
+  const hz=night?[.07,.10,.19]:[.80,.86,.92], zn=night?[.008,.018,.055]:[.40,.60,.86];
+
+  gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,cv.width,cv.height);
+  gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  /* sky */
+  gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.useProgram(skyProg);
+  const f=norm(sub(TGT,EYE)),r=norm(cross(f,[0,1,0])),u=cross(r,f);
+  gl.uniform3fv(SU.cf,f);gl.uniform3fv(SU.cr,r);gl.uniform3fv(SU.cu,u);gl.uniform3fv(SU.hz,hz);gl.uniform3fv(SU.zn,zn);
+  gl.uniform1f(SU.th,Math.tan(FOV/2));gl.uniform1f(SU.asp,W/H);gl.uniform1f(SU.stars,night?1:0);
+  drawQuad(skyProg);
+  gl.enable(gl.DEPTH_TEST);gl.depthMask(true);gl.useProgram(prog);
+
+  /* scene */
+  gl.uniformMatrix4fv(U.m,false,new Float32Array(MVP));
+  gl.uniform3fv(U.L,norm(night?[-.3,.8,.4]:[.45,.85,.35]));
+  gl.uniform3fv(U.eye,EYE);gl.uniform3fv(U.fog,hz);gl.uniform1f(U.fogk,mode==="top"?0:(night?.9:.75));
+  gl.uniform1f(U.amb,night?(showEvent?(mode==="top"?.3:.15):.24):.72);gl.uniform1f(U.dif,night?.07:.55);
+  gl.uniform1f(U.tone,night?1:0);gl.uniform1f(U.blk,0);gl.uniform1f(U.unlit,0);
+  const lights=night&&showEvent?Math.min(EVENT_LIGHTS.length,MAXL):0;
+  gl.uniform1f(U.nl,lights);if(lights){gl.uniform4fv(U.lp,LP);gl.uniform4fv(U.lc,LC);}
+  drawLit();
+  gl.uniform1f(U.nl,0);gl.uniform1f(U.unlit,1);
+  drawGlowMeshes(!night);
+
+  /* bloom: glow-only pass at half resolution, blurred, added on top */
+  if(night&&bloomOn&&FB){
+    gl.bindFramebuffer(gl.FRAMEBUFFER,FB.g.f);gl.viewport(0,0,FB.w,FB.h);
+    gl.clearColor(0,0,0,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+    gl.uniform1f(U.blk,1);drawLit();
+    gl.uniform1f(U.blk,0);gl.uniform1f(U.unlit,1);gl.uniform1f(U.tone,0);drawGlowMeshes(false);
+    gl.disable(gl.DEPTH_TEST);
+    gl.useProgram(blurProg);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(BU.tx,0);
+    const pass=(src,dst,dx,dy)=>{gl.bindFramebuffer(gl.FRAMEBUFFER,dst.f);gl.bindTexture(gl.TEXTURE_2D,src.t);gl.uniform2f(BU.dir,dx/FB.w,dy/FB.h);drawQuad(blurProg);};
+    pass(FB.g,FB.a,1,0);pass(FB.a,FB.b,0,1);pass(FB.b,FB.a,2.4,0);pass(FB.a,FB.b,0,2.4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,cv.width,cv.height);
+    gl.useProgram(compProg);gl.bindTexture(gl.TEXTURE_2D,FB.b.t);gl.uniform1i(CU.tx,0);gl.uniform1f(CU.k,1.5);
+    gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);drawQuad(compProg);gl.disable(gl.BLEND);
+    gl.enable(gl.DEPTH_TEST);gl.useProgram(prog);
+  }
   updateLabels();drawOverlay();
+  if(mode==="walk") updateHud();
 }
 
 /* ================================================================
@@ -1044,6 +1286,19 @@ cv.addEventListener("pointerdown",e=>{cv.setPointerCapture(e.pointerId);ptrs.set
 cv.addEventListener("pointermove",e=>{
   if(!ptrs.has(e.pointerId)||!drag)return;
   const prev=ptrs.get(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  if(mode==="top"){
+    if(ptrs.size===2){const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+      if(drag.pd) plan.hh=Math.max(5,Math.min(120,plan.hh*drag.pd/d)); drag.pd=d; drag.moved=99; requestRender(); return;}
+    const dx=e.clientX-prev[0],dy=e.clientY-prev[1];drag.moved+=Math.abs(dx)+Math.abs(dy);
+    if(drag.moved>6) tip.style.display="none";
+    const mpp=2*plan.hh/H; plan.cx-=dx*mpp; plan.cz-=dy*mpp; requestRender(); return;
+  }
+  if(mode==="walk"){
+    const dx=e.clientX-prev[0],dy=e.clientY-prev[1];drag.moved+=Math.abs(dx)+Math.abs(dy);
+    if(drag.moved>6) tip.style.display="none";
+    walk.yaw-=dx*.0045; walk.pitch=Math.max(-1.25,Math.min(1.25,walk.pitch-dy*.0045));
+    requestRender(); return;
+  }
   if(ptrs.size===2){                                   // pinch zoom
     const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
     if(drag.pd) cam.D=Math.max(3,Math.min(700,cam.D*drag.pd/d)); drag.pd=d; drag.moved=99; requestRender(); return;
@@ -1061,18 +1316,21 @@ cv.addEventListener("pointerup",e=>{
   if(drag&&measuring&&drag.moved<6){const hit=groundHit(e.clientX,e.clientY);if(hit){mpts.push(hit);updateMeas();requestRender();}}
   if(ptrs.size===0)drag=null;
 });
-cv.addEventListener("wheel",e=>{e.preventDefault();cam.D=Math.max(3,Math.min(700,cam.D*Math.exp(e.deltaY*.0012)));requestRender();},{passive:false});
+cv.addEventListener("wheel",e=>{e.preventDefault();if(mode==="top"){plan.hh=Math.max(5,Math.min(120,plan.hh*Math.exp(e.deltaY*.0012)));requestRender();return;}if(mode==="walk"){const f=walkDir(),s=-e.deltaY*.004,l=Math.hypot(f[0],f[2])||1;tryMove(walk.x+f[0]/l*s,walk.z+f[2]/l*s);requestRender();return;}cam.D=Math.max(3,Math.min(700,cam.D*Math.exp(e.deltaY*.0012)));requestRender();},{passive:false});
 function groundHit(px,py){
-  const rect=cv.getBoundingClientRect(),x=(px-rect.left)/W*2-1,y=1-(py-rect.top)/H*2;
-  const f=norm(sub(cam.T,EYE)),r=norm(cross(f,[0,1,0])),u=cross(r,f),t=Math.tan(cam.fov/2);
-  const d=norm(add(f,add(mulS(r,x*t*W/H),mulS(u,y*t))));
-  if(d[1]>=-1e-4)return null;const k=-EYE[1]/d[1];return[EYE[0]+d[0]*k,0.15,EYE[2]+d[2]*k];
+  const [o,d]=rayAt(px,py);
+  if(d[1]>=-1e-4)return null;
+  let k=-o[1]/d[1], p=[o[0]+d[0]*k,0.15,o[2]+d[2]*k];
+  if(o[1]>ST){const k2=(ST-o[1])/d[1],q=[o[0]+d[0]*k2,ST+.15,o[2]+d[2]*k2];       // landing on the stage top
+    if(Math.abs(q[0])<=STG.x1&&q[2]>=STG.zBack&&q[2]<=STG.zFront) p=q;}
+  return p;
 }
 function updateMeas(){
   const el=document.getElementById("meas");
   if(!measuring&&!mpts.length){el.textContent="";return;}
   let tot=0;for(let i=1;i<mpts.length;i++)tot+=Math.hypot(mpts[i][0]-mpts[i-1][0],mpts[i][2]-mpts[i-1][2]);
   el.textContent=mpts.length<2?"Click points on the ground to measure…":`Total ${tot.toFixed(1)} m over ${mpts.length-1} segment(s)`;
+  const tm=document.getElementById("tpMeas"); if(tm&&mode==="top") tm.textContent=el.textContent;
 }
 function anim(target){
   const s={...cam,T:[...cam.T]},t0=performance.now(),dur=650;
@@ -1081,7 +1339,140 @@ function anim(target){
     cam.T=s.T.map((v,i)=>v+(target.T[i]-v)*e);cam.D=s.D+(target.D-s.D)*e;cam.yaw=s.yaw+dy*e;cam.pitch=s.pitch+(target.pitch-s.pitch)*e;
     render();if(k<1)requestAnimationFrame(step);})(t0);
 }
-document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>anim(VIEWS[b.dataset.view]));
+
+/* ================================================================
+   Walk-through controls, guided stops and the live readout
+   ================================================================ */
+const keys={}, joy={x:0,y:0,active:false};
+let loopOn=false, lastT=0;
+const anyMoveKey=()=>["KeyW","KeyA","KeyS","KeyD","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].some(k=>keys[k]);
+function walkLoop(t){
+  const dt=Math.min(.05,Math.max(0,(t-lastT)/1000)); lastT=t;
+  let fx=0,sx=0,turn=0;
+  if(keys.KeyW||keys.ArrowUp) fx+=1; if(keys.KeyS||keys.ArrowDown) fx-=1;
+  if(keys.KeyA) sx-=1; if(keys.KeyD) sx+=1;
+  if(keys.ArrowLeft) turn+=1; if(keys.ArrowRight) turn-=1;
+  fx+=joy.y; sx+=joy.x;
+  walk.yaw+=turn*1.5*dt;
+  if(fx||sx){
+    const sp=(keys.ShiftLeft||keys.ShiftRight)?3.2:1.4, m=Math.max(1,Math.hypot(fx,sx)), k=sp*dt/m;
+    const fw=[-Math.sin(walk.yaw),-Math.cos(walk.yaw)], rt=[Math.cos(walk.yaw),-Math.sin(walk.yaw)];
+    tryMove(walk.x+(fw[0]*fx+rt[0]*sx)*k, walk.z+(fw[1]*fx+rt[1]*sx)*k);
+  }
+  render();
+  if(mode==="walk"&&(anyMoveKey()||joy.active)) requestAnimationFrame(walkLoop); else loopOn=false;
+}
+function startLoop(){ if(!loopOn){loopOn=true;lastT=performance.now();requestAnimationFrame(walkLoop);} }
+addEventListener("keydown",e=>{
+  if(mode==="top"&&e.code==="Escape"){exitTop();return;}
+  if(mode!=="walk"||e.target.tagName==="SELECT") return;
+  keys[e.code]=true;
+  if(e.code.startsWith("Arrow")||e.code==="Space") e.preventDefault();
+  if(e.code==="KeyN") goStop(tourI+1); if(e.code==="KeyP") goStop(tourI-1);
+  if(e.code==="Escape") exitWalk();
+  startLoop();
+});
+addEventListener("keyup",e=>{keys[e.code]=false;});
+addEventListener("blur",()=>{for(const k in keys) keys[k]=false;});
+
+const joyEl=document.getElementById("joy"), joyK=document.getElementById("joyK");
+joyEl.addEventListener("pointerdown",e=>{joyEl.setPointerCapture(e.pointerId);joy.active=true;joyMove(e);startLoop();});
+joyEl.addEventListener("pointermove",e=>{if(joy.active) joyMove(e);});
+const joyEnd=()=>{joy.active=false;joy.x=joy.y=0;joyK.style.transform="translate(-50%,-50%)";};
+joyEl.addEventListener("pointerup",joyEnd); joyEl.addEventListener("pointercancel",joyEnd);
+function joyMove(e){
+  const r=joyEl.getBoundingClientRect(), dx=e.clientX-(r.left+r.width/2), dy=e.clientY-(r.top+r.height/2), R=r.width/2-18;
+  const l=Math.hypot(dx,dy)||1, s=Math.min(1,l/R);
+  joy.x=dx/l*s; joy.y=-dy/l*s;
+  joyK.style.transform=`translate(calc(-50% + ${dx/l*s*R}px), calc(-50% + ${dy/l*s*R}px))`;
+}
+
+const hSel=document.getElementById("hSel");
+TOUR.forEach((s,i)=>{const o=document.createElement("option");o.value=i;o.textContent=`${i+1}. ${s.n}`;hSel.appendChild(o);});
+hSel.onchange=()=>goStop(+hSel.value);
+document.getElementById("hPrev").onclick=()=>goStop(tourI-1);
+document.getElementById("hNext").onclick=()=>goStop(tourI+1);
+document.getElementById("hExit").onclick=()=>exitWalk();
+const hSeat=document.getElementById("hSeat");
+hSeat.onclick=()=>{walk.eyeH=walk.eyeH>1.4?1.15:1.6;hSeat.textContent=walk.eyeH>1.4?"Sit down":"Stand up";requestRender();};
+function goStop(i){
+  tourI=(i+TOUR.length)%TOUR.length; const s=TOUR[tourI];
+  hSel.value=tourI; document.getElementById("hDesc").textContent=s.d;
+  hSeat.textContent=s.h>1.4?"Sit down":"Stand up";
+  const a={x:walk.x,z:walk.z,yaw:walk.yaw,p:walk.pitch,h:walk.eyeH}, t0=performance.now(), dur=900;
+  let dy=s.yaw-a.yaw; dy=((dy+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+  (function step(now){const k=Math.min(1,(now-t0)/dur),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    walk.x=a.x+(s.x-a.x)*e; walk.z=a.z+(s.z-a.z)*e; walk.yaw=a.yaw+dy*e; walk.pitch=a.p+(s.p-a.p)*e; walk.eyeH=a.h+(s.h-a.h)*e;
+    render(); if(k<1) requestAnimationFrame(step);})(t0);
+}
+let panelWas="";
+function enterWalk(){
+  mode="walk"; document.body.classList.add("walking");
+  const pn=document.getElementById("panel"); panelWas=pn.style.display; pn.style.display="none";
+  const s=TOUR[0]; Object.assign(walk,{x:s.x,z:s.z,yaw:s.yaw,pitch:s.p,eyeH:s.h}); walk.y=floorAt(walk.x,walk.z);
+  goStop(0);
+}
+function exitWalk(){
+  mode="orbit"; document.body.classList.remove("walking");
+  document.getElementById("panel").style.display=panelWas; for(const k in keys) keys[k]=false; joyEnd(); requestRender();
+}
+function updateHud(){
+  const onStage=walk.y>=ST-.01, dF=walk.z-STG.zFront;
+  let s;
+  if(onStage) s=`On stage · ${(-dF).toFixed(1)} m behind the front edge`;
+  else if(dF>=0&&dF<=42) s=`${dF.toFixed(1)} m from the stage front`;
+  else if(dF>42) s=`${(dF-42).toFixed(1)} m south of the lawn`;
+  else s=`Beside / behind the stage`;
+  if(walk.x>=-10&&walk.x<=10) s+=` · west edge ${(walk.x+10).toFixed(1)} m · east edge ${(10-walk.x).toFixed(1)} m`;
+  else if(walk.x>10) s+=` · ${(walk.x-10).toFixed(1)} m east of the lawn`;
+  else s+=` · ${(-10-walk.x).toFixed(1)} m west of the lawn`;
+  s+=` · eye ${(walk.y+walk.eyeH).toFixed(2)} m above the lawn${walk.eyeH<1.4?" (seated)":""}`;
+  document.getElementById("hRead").textContent=s;
+  const r=cv.getBoundingClientRect(), cx=r.left+W/2, cy=r.top+H/2;
+  const hit=pick(cx,cy), t=PICK_T, g=groundHit(cx,cy);
+  let look=hit?`Looking at: ${hit.t} — ${t.toFixed(1)} m away`:"Looking at: open sky / lawn";
+  if(g){const gd=Math.hypot(g[0]-EYE[0],g[2]-EYE[2]); if(gd<80) look+=` · floor point under the crosshair ${gd.toFixed(1)} m ahead`;}
+  document.getElementById("hLook").textContent=look;
+}
+document.getElementById("tWalk").onclick=()=>enterWalk();
+document.getElementById("tGlow").onclick=e=>{bloomOn=!bloomOn;e.currentTarget.classList.toggle("on",bloomOn);requestRender();};
+
+
+let dimsWas=false, topPanelWas="";
+function fitTop(){                                   // frame stage → lawn end + labels, clear of the toolbar
+  const bar=(document.getElementById("thud").offsetHeight||120)+20, usable=Math.max(.4,(H-bar-30)/H);
+  const zTop=-33, zBot=27.8, xL=-14, xR=17.5;
+  plan.hh=Math.max((zBot-zTop)/2/usable, (xR-xL)/2*H/W);
+  plan.cx=(xL+xR)/2; plan.cz=zTop+plan.hh-2*plan.hh*bar/H;
+}
+function enterTop(){
+  if(mode==="walk") exitWalk();
+  mode="top"; document.body.classList.add("topview");
+  dimsWas=showDims; showDims=true; document.getElementById("tDims").classList.add("on");
+  const pn=document.getElementById("panel"); topPanelWas=pn.style.display; pn.style.display="none";
+  requestAnimationFrame(()=>{fitTop(); requestRender();});
+}
+function exitTop(){
+  mode="orbit"; document.body.classList.remove("topview");
+  showDims=dimsWas; document.getElementById("tDims").classList.toggle("on",showDims);
+  document.getElementById("panel").style.display=topPanelWas; requestRender();
+}
+function saveImage(){
+  render();
+  const c=document.createElement("canvas"); c.width=cv.width; c.height=cv.height;
+  const x=c.getContext("2d"); x.drawImage(cv,0,0); x.drawImage(ov,0,0);
+  const a=document.createElement("a"); a.download="kh-club-wedding-"+(mode==="top"?"plan":"view")+".png"; a.href=c.toDataURL("image/png"); a.click();
+}
+document.getElementById("tTop").onclick=()=>enterTop();
+document.getElementById("tpExit").onclick=()=>exitTop();
+document.getElementById("tpFit").onclick=()=>{fitTop();requestRender();};
+document.getElementById("tpSave").onclick=()=>saveImage();
+document.getElementById("tSave").onclick=()=>saveImage();
+const tpCan=document.getElementById("tpCanopy");
+tpCan.onclick=()=>{topOpts.canopy=!topOpts.canopy;tpCan.textContent=topOpts.canopy?"Hide canopy":"Show canopy";requestRender();};
+document.getElementById("tpMeasure").onclick=e=>{measuring=!measuring;e.currentTarget.classList.toggle("on",measuring);document.getElementById("tMeasure").classList.toggle("on",measuring);cv.classList.toggle("measuring",measuring);updateMeas();
+  document.getElementById("tpMeas").textContent=measuring?"Click points on the plan to measure":"";};
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{if(mode==="walk")exitWalk();if(mode==="top")exitTop();anim(VIEWS[b.dataset.view]);});
 const tog=(id,fn)=>{const b=document.getElementById(id);b.onclick=()=>{fn(b);requestRender();};};
 tog("tLabels",b=>{showLabels=!showLabels;b.classList.toggle("on",showLabels);});
 tog("tDims",b=>{showDims=!showDims;b.classList.toggle("on",showDims);});
