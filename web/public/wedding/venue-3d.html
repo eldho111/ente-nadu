@@ -111,6 +111,17 @@
   <div class="note" id="evCap" style="margin-top:6px"></div>
   </details>
 
+  <details class="sec" open><summary>Photoreal render (Blender)</summary>
+  <div class="note">
+    This in-browser model is for checking layout and dimensions. For true photo-quality images:<br>
+    <button id="tGlb" style="margin:6px 0">⬇ Export 3D (.glb)</button><br>
+    1. Install <b>Blender</b> (free, blender.org).<br>
+    2. <b>File → Import → glTF 2.0</b> and pick the downloaded <code>.glb</code> — the lawn, stage décor, canopy, arches, tables and buffet arrive to scale, with the event lights as real point lights and the bulbs glowing.<br>
+    3. Render engine <b>Cycles</b>, add a camera where you like (the walk-through stops are good spots), and render. A night render needs a dark-blue World colour (≈ 0.02 strength).<br>
+    Any 3D visualiser or décor vendor can also open the file directly.
+  </div>
+  </details>
+
   <details class="sec" open><summary>Night lighting checklist</summary>
   <div class="note">
     <b>Faces first.</b> Front-light the stage from the two wash towers at ~45°, 2700–3200 K, CRI ≥ 90 —
@@ -442,7 +453,9 @@ function coconut(x,z){
 function broadleaf(x,z){
   const y0=groundY(x,z), r=2.6+R()*3;
   cyl(x,z,y0,2.6,.25,[.35,.27,.2],6);
-  blob(x,y0+2.6+r*.7,z,r,[.13+R()*.06,.29+R()*.09,.11],.78,4,7);
+  const g=.25+R()*.1, col=[.12+R()*.06,g,.1+R()*.03];
+  blob(x,y0+2.6+r*.7,z,r,col,.78,5,8);
+  blob(x+(R()-.5)*r,y0+2.6+r*1.05,z+(R()-.5)*r,r*.62,[col[0]*1.15,col[1]*1.12,col[2]],.85,4,7);
 }
 function inClearing(x,z){
   if(x>-48&&x<109&&z>-36&&z<79) return true;
@@ -471,7 +484,7 @@ const EV={
   archHalf:1.8,           // arch legs at x = ±1.8 (3.6 m span)
   seatX0:2.4,             // first chair centre either side of the aisle
   seatPitch:.6,           // chair-to-chair along a row (0.15 m gap between chairs)
-  seatsPerSide:10,
+  seatsPerSide:5,            // 10 rows × 10 per row (5 each side) = 100
   rows:10, rowPitch:1.0,  // 0.5 m chair + 0.5 m knee room
   frontGap:3.0,           // stage steps → front of row 1
   poleX:10.3, poleH:6.0,       // east poles line up with the buffet stall fronts
@@ -664,9 +677,11 @@ function roundTable(x,z){
 }
 const DIN0=CER_END+2.0+1.55;                                   // 2 m cross-aisle, then table radius
 const TABLES=[];
-for(let i=0;i<5;i++){
-  TABLES.push([-4.1,DIN0+4.6*i],[4.1,DIN0+4.6*i],[-7.6,DIN0+2.3+4.6*i],[7.6,DIN0+2.3+4.6*i]);
+const DIN_P=5.4, DIN_X=[4.1,7.2];                              // 16 tables: 4 staggered rows, 5.4 m pitch
+for(let i=0;i<4;i++){
+  TABLES.push([-DIN_X[0],DIN0+DIN_P*i],[DIN_X[0],DIN0+DIN_P*i],[-DIN_X[1],DIN0+DIN_P/2+DIN_P*i],[DIN_X[1],DIN0+DIN_P/2+DIN_P*i]);
 }
+const CHAIR_GAP=Math.hypot(DIN_X[1]-DIN_X[0],DIN_P/2)-3.1;     // clear space between neighbouring chair backs
 TABLES.forEach(([x,z])=>roundTable(x,z));
 
 const EC={p:[],n:[],c:[]}, ECG={p:[],n:[],c:[]}; const _evM=M,_evG=G; M=EC; G=ECG;   // canopy kept separate so plan view can hide it
@@ -796,6 +811,51 @@ for(const s of [-1,1]){
   }
 }
 
+
+/* ================================================================
+   7. CONTACT SHADOWS — soft ambient occlusion baked into a ground
+   decal that is multiplied over the lawn, paving and stage top, so
+   tables, chairs, stalls, palms, poles and the stage décor sit on
+   the ground instead of floating.
+   ================================================================ */
+const AOD={p:[],n:[],c:[]};
+(function bakeAO(){
+  const occ=[];                                        // [x,z,rInner,rOuter,strength,level]
+  TABLES.forEach(([x,z])=>{occ.push([x,z,.62,1.3,.55,0]);
+    for(let k=0;k<8;k++){const th=k/8*Math.PI*2+Math.PI/8;occ.push([x+1.08*Math.sin(th),z+1.08*Math.cos(th),.1,.42,.34,0]);}});
+  for(let r=0;r<EV.rows;r++){const z=ROW1+r*EV.rowPitch;for(const s of [-1,1])for(let i=0;i<EV.seatsPerSide;i++)occ.push([s*(EV.seatX0+i*EV.seatPitch),z,.1,.42,.36,0]);}
+  palmZ.forEach(z=>occ.push([PALM_X,z,.3,1.7,.38,0]));
+  for(const s of [-1,1]){for(const z of EV.poleZ)occ.push([s*X,z,.12,.55,.4,0]);occ.push([s*9.6,CER_END+1,.2,.8,.45,0]);}
+  for(let i=0;i<EV.archN;i++){const z=EV.archZ0-i*EV.archStep;for(const s of [-1,1])occ.push([s*1.6,z,.2,.7,.3,0]);}
+  occ.push([0,-22.1,.95,1.8,.5,ST]);
+  for(const s of [-1,1]) occ.push([s*1.95,-22.27,.42,.95,.45,ST]);
+  const rects=[];                                      // [x0,z0,x1,z1,soft,strength,level]
+  STALL_Z.forEach(([z0,z1])=>rects.push([CNT0,z0+.15,CNT1,z1-.15,.5,.5,0],[BT0,z0+.3,BT1,z1-.3,.4,.4,0],[SX0,z0,SX1,z1,0,.22,0]));
+  rects.push([-6.05,BD-.15,6.05,BD+.85,.9,.5,ST],[STG.x0,STG.zBack,STG.x1,STG.zFront,1.1,.45,0]);
+  const sm=t=>t*t*(3-2*t);
+  function aoAt(x,z,lv){
+    let f=1;
+    for(const o of occ){ if(o[5]!==lv) continue; const d=Math.hypot(x-o[0],z-o[1]); if(d>=o[3]) continue;
+      f*=1-o[4]*sm(d<=o[2]?1:1-(d-o[2])/(o[3]-o[2])); }
+    for(const q of rects){ if(q[6]!==lv) continue; const dx=Math.max(q[0]-x,0,x-q[2]), dz=Math.max(q[1]-z,0,z-q[3]), d=Math.hypot(dx,dz);
+      if(d===0){f*=1-q[5];continue;} if(d>=q[4]) continue; f*=1-q[5]*sm(1-d/q[4]); }
+    return Math.max(.32,f);
+  }
+  function grid(x0,x1,z0,z1,step,y,lv){
+    const nx=Math.ceil((x1-x0)/step), nz=Math.ceil((z1-z0)/step), F=[];
+    for(let j=0;j<=nz;j++)for(let i=0;i<=nx;i++)F.push(aoAt(x0+i*step,z0+j*step,lv));
+    const v=(i,j)=>[x0+i*step,y,z0+j*step], c=(i,j)=>{const f=F[j*(nx+1)+i];return[f,f,f];};
+    for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){
+      const a=F[j*(nx+1)+i],b=F[j*(nx+1)+i+1],cc=F[(j+1)*(nx+1)+i+1],d=F[(j+1)*(nx+1)+i];
+      if(a>.995&&b>.995&&cc>.995&&d>.995) continue;
+      for(const [I,J] of [[i,j],[i+1,j],[i+1,j+1],[i,j],[i+1,j+1],[i,j+1]]){const p=v(I,J),col=c(I,J);
+        AOD.p.push(p[0],p[1],p[2]);AOD.n.push(0,1,0);AOD.c.push(col[0],col[1],col[2]);}
+    }
+  }
+  grid(-12,15,-33.5,23.5,.3,.068,0);                    // lawn, paving, ground round the stage
+  grid(STG.x0,STG.x1,STG.zBack,STG.zFront,.25,ST+.012,ST); // stage top
+})();
+
 /* ---- restore the base buffers ---- */
 M=baseM; G=baseG;
 
@@ -836,7 +896,7 @@ precision mediump float;
 varying vec3 vc;varying vec3 wp;varying vec3 wn;varying float vf;
 uniform vec3 L;uniform float amb;uniform float dif;uniform float unlit;uniform vec3 fog;uniform float fogk;
 uniform float nl;uniform vec4 lp[MAXL];uniform vec4 lc[MAXL];
-uniform float tone;uniform float blk;
+uniform float tone;uniform float blk;uniform float expo;uniform vec3 eye;
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
   return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),f.x),mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),f.x),f.y);}
@@ -846,7 +906,14 @@ void main(){
   vec3 bc=vc;
   float grass=step(vc.r*1.12,vc.g)*step(vc.b*1.25,vc.g)*step(0.6,nn.y)*(1.0-unlit);
   float nz=vnoise(wp.xz*0.8)*0.55+vnoise(wp.xz*3.7)*0.3+vnoise(wp.xz*11.0)*0.15;
+  float nearF=clamp(1.0-length(eye-wp)/22.0,0.0,1.0);
+  nz+=(vnoise(wp.xz*36.0)-0.5)*0.35*nearF;                       // blade-scale detail, faded with distance
   bc*=mix(0.96+0.08*vnoise(wp.xz*2.3+wp.y*1.7),0.8+0.36*nz,grass);
+  float gold=step(0.55,vc.r)*step(0.25,vc.r-vc.b)*step(0.7,vc.g/max(vc.r,0.01))*step(vc.g,vc.r)*step(vc.b,vc.g-0.08);
+  float silv=step(0.74,vc.r)*step(vc.r,0.9)*step(0.025,vc.b-vc.r)*step(abs(vc.r-vc.g),0.04);
+  float met=max(gold,silv)*(1.0-unlit);
+  vec3 V=normalize(eye-wp), spec=vec3(0.0);
+  if(met>0.5) spec+=vec3(dif)*pow(max(dot(nn,normalize(L+V)),0.0),48.0)*1.4;
   float d=max(dot(nn,L),0.0)*0.85+abs(dot(nn,L))*0.15;
   float hemi=0.62+0.38*nn.y;
   vec3 col=bc*(amb*hemi+dif*d);
@@ -857,16 +924,21 @@ void main(){
     if(abs(dv.x)>lc[i].w||abs(dv.z)>lc[i].w) continue;
     float dd=length(dv);
     float att=clamp(1.0-dd/lc[i].w,0.0,1.0)/(1.0+dd*dd/(lp[i].w*lp[i].w));
-    acc+=lc[i].rgb*att*(0.35+0.65*abs(dot(nn,dv/max(dd,0.001))));
+    vec3 Ld=dv/max(dd,0.001);
+    acc+=lc[i].rgb*att*(0.35+0.65*abs(dot(nn,Ld)));
+    if(met>0.5) spec+=lc[i].rgb*att*pow(max(dot(nn,normalize(Ld+V)),0.0),36.0)*2.2;
   }
   col+=bc*acc;
   col=mix(col,bc,unlit);
-  col=mix(col,vec3(1.0)-exp(-col*1.45),tone);
+  col+=spec*mix(vec3(1.0),vec3(1.0,0.82,0.5),gold);
+  vec3 x=col*expo; vec3 ac=clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14),0.0,1.0);   // ACES filmic
+  col=mix(col,ac,tone);
+  float lum=dot(col,vec3(0.299,0.587,0.114)); col=mix(vec3(lum),col,mix(1.0,1.08,tone));
   gl_FragColor=vec4(mix(col,fog,vf*fogk),1.0);}`;
 function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
 const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
 const A={p:gl.getAttribLocation(prog,"p"),n:gl.getAttribLocation(prog,"n"),c:gl.getAttribLocation(prog,"c")};
-const U={};["m","L","eye","amb","dif","unlit","fog","fogk","nl","lp","lc","tone","blk"].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
+const U={};["m","L","eye","amb","dif","unlit","fog","fogk","nl","lp","lc","tone","blk","expo"].forEach(k=>U[k]=gl.getUniformLocation(prog,k));
 
 /* ---- Sky gradient (+ stars at night) and bloom for the bulbs ---- */
 function mkProg(vs,fs){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
@@ -891,6 +963,8 @@ void main(){vec3 c=texture2D(tx,uv).rgb*0.227;
   gl_FragColor=vec4(c,1.0);}`);
 const compProg=mkProg(QVS,`precision mediump float;varying vec2 uv;uniform sampler2D tx;uniform float k;
 void main(){gl_FragColor=vec4(texture2D(tx,uv).rgb*k,1.0);}`);
+const vigProg=mkProg(QVS,`precision mediump float;varying vec2 uv;
+void main(){float r=length((uv-0.5)*vec2(1.15,1.0))*1.6;gl_FragColor=vec4(vec3(mix(1.0,0.7,smoothstep(0.55,1.25,r))),1.0);}`);
 const SU={},BU={},CU={};
 ["cf","cr","cu","hz","zn","th","asp","stars"].forEach(n=>SU[n]=gl.getUniformLocation(skyProg,n));
 ["tx","dir"].forEach(n=>BU[n]=gl.getUniformLocation(blurProg,n));
@@ -916,7 +990,7 @@ function makeFBOs(){
   const g=mkTarget(w,h,true),a=mkTarget(w,h,false),b=mkTarget(w,h,false);
   FB=g&&a&&b?{g,a,b,w,h}:null;
 }
-const meshM=upload(M), meshG=upload(G), meshEM=upload(EM), meshEG=upload(EG), meshB=upload(SB), meshBG=upload(SBG), meshEC=upload(EC), meshECG=upload(ECG);
+const meshM=upload(M), meshG=upload(G), meshEM=upload(EM), meshEG=upload(EG), meshB=upload(SB), meshBG=upload(SBG), meshEC=upload(EC), meshECG=upload(ECG), meshAO=upload(AOD);
 const LP=new Float32Array(MAXL*4), LC=new Float32Array(MAXL*4);
 EVENT_LIGHTS.slice(0,MAXL).forEach(([pos,k,c,I,r],i)=>{LP.set([pos[0],pos[1],pos[2],k],i*4);LC.set([c[0]*I,c[1]*I,c[2]*I,r],i*4);});
 gl.enable(gl.DEPTH_TEST);
@@ -991,7 +1065,7 @@ const TOUR=[
   {n:"Arrival — lawn entrance",d:`South end of the aisle. The white carpet runs ${(22.5-STEPS_Z).toFixed(1)} m to the stage steps; the first light arch is 1 m ahead.`,x:0,z:24.5,yaw:0,p:-.02,h:1.6},
   {n:"Under the light arches",d:`Arches 3.6 m wide × 3.6 m high, every ${EV.archStep} m · carpet ${EV.carpetW} m · dining tables either side.`,x:0,z:9,yaw:0,p:.03,h:1.6},
   {n:"Seated at dining table 5",d:"Eye height 1.15 m (seated) — how much of the stage a dinner guest sees over the seating and arches.",x:T5[0]+1.08,z:T5[1],yaw:.15,p:.03,h:1.15},
-  {n:`Buffet queue — ${STALLS[5][0]} stall`,d:`Standing in the queue lane, 0.85 m from the counter. The lane is ≈ 2 m back to the nearest dining chairs.`,x:10.35,z:(STALL_Z[5][0]+STALL_Z[5][1])/2,yaw:-Math.PI/2,p:-.12,h:1.6},
+  {n:`Buffet queue — ${STALLS[5][0]} stall`,d:`Standing in the queue lane, 0.85 m from the counter. The lane is ≈ ${(CNT0-DIN_X[1]-1.55).toFixed(1)} m back to the nearest dining chairs.`,x:10.35,z:(STALL_Z[5][0]+STALL_Z[5][1])/2,yaw:-Math.PI/2,p:-.12,h:1.6},
   {n:"Cross-aisle",d:"2 m clear between the last ceremony row and the first dining tables · the stage wash towers stand at either end.",x:-6,z:CER_END+1,yaw:-Math.PI/2,p:0,h:1.6},
   {n:"Last row, aisle seat",d:`Seated in row ${EV.rows}: ${(lastRowZ-STG.zFront).toFixed(1)} m from the stage front edge.`,x:-EV.seatX0,z:lastRowZ+.05,yaw:0,p:.05,h:1.15},
   {n:"Front row, aisle seat",d:`Seated in row 1: ${EV.frontGap} m to the steps, ${(ROW1-STG.zFront).toFixed(1)} m to the stage edge · the stage top is 1.2 m up.`,x:-EV.seatX0,z:ROW1+.05,yaw:0,p:.12,h:1.15},
@@ -1051,7 +1125,7 @@ const DIMS=[
   [[EV.seatX0-.22,.12,ROW1-.6],[EV.seatX0+(EV.seatsPerSide-1)*EV.seatPitch+.22,.12,ROW1-.6],EV.seatsPerSide+" seats · "+((EV.seatsPerSide-1)*EV.seatPitch+.44).toFixed(1)+" m",1],
   [[-1.8,.12,EV.archZ0+.6],[1.8,.12,EV.archZ0+.6],"arch 3.6 m",1],
   [[2.6,.12,EV.archZ0-EV.archStep],[2.6,.12,EV.archZ0],"2.5 m",1],
-  [[4.1,.12,DIN0],[4.1,.12,DIN0+4.6],"4.6 m",1],
+  [[DIN_X[0],.12,DIN0],[DIN_X[0],.12,DIN0+DIN_P],DIN_P+" m",1],
   [[-6,ST+4.95,BD],[6,ST+4.95,BD],"12 m backdrop",1],
 ];
 let showEvent=true, showBld=false, showLabels=false, showDims=false, night=true, measuring=false, mpts=[];
@@ -1127,13 +1201,13 @@ for(const s of [-1,1]) hv("Ceremony seating",`${COUNT.chairsC} gold chiavari cha
   s<0?[-seatW,0,ROW1-.25,-EV.seatX0+.25,1.0,CER_END]:[EV.seatX0-.25,0,ROW1-.25,seatW,1.0,CER_END],"ev");
 hv("Light-arch walkway",`${EV.carpetW} m white carpet, ${(22.5-STEPS_Z).toFixed(0)} m from the lawn entrance to the stage steps · ${EV.archN} pointed arches 3.6 m wide × 3.6 m high every ${EV.archStep} m, veiled in warm micro-lights · floral borders both sides`,[-1.95,0,STEPS_Z,1.95,3.7,22.5],"ev");
 hv("Cross-aisle","2 m clear walkway between the ceremony seating and dining — keep it lit at ground level",[-10,0,CER_END,10,.15,CER_END+2],"ev");
-TABLES.forEach(([x,z],i)=>hv(`Dining table ${i+1} of ${TABLES.length}`,"1.5 m (5 ft) round, white skirt with gold band · 8 white chairs · floral centrepiece with candles · ≥ 1.1 m between neighbouring chair backs",[x-1.5,0,z-1.5,x+1.5,1.25,z+1.5],"ev"));
+TABLES.forEach(([x,z],i)=>hv(`Dining table ${i+1} of ${TABLES.length}`,`1.5 m (5 ft) round, white skirt with gold band · 8 white chairs · floral centrepiece with candles · ≥ ${CHAIR_GAP.toFixed(1)} m between neighbouring chair backs`,[x-1.5,0,z-1.5,x+1.5,1.25,z+1.5],"ev"));
 hv("Fabric canopy",`White fabric swags over the seating, gathered at the poles: one across every 3 m bay plus crossing diagonals · low point ≈ 4.2 m, above the 3.6 m arches · Edison bulbs on long drops underneath`,[-X,3.9,CZ[0]-.6,X,EV.poleH+.3,CZ[CZ.length-1]+.6],"ev");
 hv("Edison festoons",`${COUNT.edison} warm filament bulbs in total · criss-cross runs over dining plus perimeter runs on both sides · plan 2200–2700 K, dimmable`,[-X,4.3,CZ[CZ.length-1]+.6,X,EV.poleH+.3,22.6],"ev");
 for(const s of [-1,1]) hv("Stage wash tower","5.6 m truss with 4 LED PARs aimed at the stage — front light for faces in photos and video",[s*9.6-.7,0,CER_END+.6,s*9.6+.7,5.7,CER_END+1.4],"ev");
 for(const s of [-1,1]) for(const z of EV.poleZ) hv("Canopy pole",`${EV.poleH} m white-wrapped pole on a weighted base · ${EV.poleZ.length*2} poles in total`,[s*X-.3,0,z-.3,s*X+.3,EV.poleH,z+.3],"ev");
 STALLS.forEach(([n,d],i)=>hv(`Buffet ${i+1}/${STALLS.length} — ${n}`,`${d} · covered stall 3 m × ≈4 m, counter set 1.1 m back from the lawn edge`,[SX0-.12,0,STALL_Z[i][0],SX1+.1,3.75,STALL_Z[i][1]],"ev"));
-hv("Buffet queue lane","≈ 2 m between the counters and the nearest dining chairs (1.1 m paving + lawn strip) · the canopy poles stand on the stall-front line",[9.15,0,-19.5,CNT0,.15,22.5],"ev");
+hv("Buffet queue lane",`≈ ${(CNT0-DIN_X[1]-1.55).toFixed(1)} m between the counters and the nearest dining chairs · the canopy poles stand on the stall-front line`,[DIN_X[1]+1.55,0,-19.5,CNT0,.15,22.5],"ev");
 hv("Wedding lawn","≈ 20 × 42 m ≈ 840 m² · starts at the stage front, level with the first palm",[-10,0,-19.5,10,.1,22.5],"site");
 hv("Paved side walkway","≈ 4.3 m paved path running straight off the lawn's east edge, lamp posts every 9 m · planter strip on the clubhouse side",[10.1,0,-24,14.4,.9,44],"site");
 hv("Palm row","8 date palms ≈ 5.5 m apart on the lawn's west edge, wrapped in fairy lights, park benches between",[-11.8,0,-21,-9.3,4.2,21],"site");
@@ -1249,11 +1323,19 @@ function render(){
   gl.uniform3fv(U.L,norm(night?[-.3,.8,.4]:[.45,.85,.35]));
   gl.uniform3fv(U.eye,EYE);gl.uniform3fv(U.fog,hz);gl.uniform1f(U.fogk,mode==="top"?0:(night?.9:.75));
   gl.uniform1f(U.amb,night?(showEvent?(mode==="top"?.3:.15):.24):.72);gl.uniform1f(U.dif,night?.07:.55);
-  gl.uniform1f(U.tone,night?1:0);gl.uniform1f(U.blk,0);gl.uniform1f(U.unlit,0);
+  gl.uniform1f(U.tone,1);gl.uniform1f(U.expo,night?1.55:1.08);gl.uniform1f(U.blk,0);gl.uniform1f(U.unlit,0);
   const lights=night&&showEvent?Math.min(EVENT_LIGHTS.length,MAXL):0;
   gl.uniform1f(U.nl,lights);if(lights){gl.uniform4fv(U.lp,LP);gl.uniform4fv(U.lc,LC);}
   drawLit();
-  gl.uniform1f(U.nl,0);gl.uniform1f(U.unlit,1);
+  gl.uniform1f(U.nl,0);
+  if(showEvent&&meshAO.count){                          // contact shadows: multiply the decal over what's drawn
+    gl.uniform1f(U.unlit,1);gl.uniform1f(U.tone,0);gl.uniform1f(U.fogk,0);
+    gl.enable(gl.BLEND);gl.blendFunc(gl.DST_COLOR,gl.ZERO);gl.depthMask(false);
+    bind(meshAO);gl.drawArrays(gl.TRIANGLES,0,meshAO.count);
+    gl.depthMask(true);gl.disable(gl.BLEND);
+    gl.uniform1f(U.tone,1);gl.uniform1f(U.fogk,mode==="top"?0:(night?.9:.75));
+  }
+  gl.uniform1f(U.unlit,1);
   drawGlowMeshes(!night);
 
   /* bloom: glow-only pass at half resolution, blurred, added on top */
@@ -1270,6 +1352,10 @@ function render(){
     gl.useProgram(compProg);gl.bindTexture(gl.TEXTURE_2D,FB.b.t);gl.uniform1i(CU.tx,0);gl.uniform1f(CU.k,1.5);
     gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE);drawQuad(compProg);gl.disable(gl.BLEND);
     gl.enable(gl.DEPTH_TEST);gl.useProgram(prog);
+  }
+  if(mode!=="top"){                                      // gentle lens vignette
+    gl.disable(gl.DEPTH_TEST);gl.useProgram(vigProg);gl.enable(gl.BLEND);gl.blendFunc(gl.DST_COLOR,gl.ZERO);
+    drawQuad(vigProg);gl.disable(gl.BLEND);gl.enable(gl.DEPTH_TEST);gl.useProgram(prog);
   }
   updateLabels();drawOverlay();
   if(mode==="walk") updateHud();
@@ -1438,6 +1524,68 @@ document.getElementById("tWalk").onclick=()=>enterWalk();
 document.getElementById("tGlow").onclick=e=>{bloomOn=!bloomOn;e.currentTarget.classList.toggle("on",bloomOn);requestRender();};
 
 
+
+/* ================================================================
+   Export 3D (.glb) — the venue as glTF 2.0 for a photoreal render in
+   Blender (Cycles) or any 3D tool. Vertex colours carry the materials,
+   bulbs export as emissive, and the event lights as real point lights.
+   ================================================================ */
+function exportGLB(){
+  const groups=[["Site",M,0],["Event",EM,0],["Canopy",EC,0],["Contact shadows (optional)",null,0],
+                ["Site lights",G,1],["Event lights",EG,1],["Canopy lights",ECG,1]];
+  if(showBld) groups.push(["Buildings",SB,0],["Building lights",SBG,1]);
+  const json={asset:{version:"2.0",generator:"KH Club Kodanchery venue model"},scene:0,scenes:[{name:"KH Club wedding lawn",nodes:[]}],
+    nodes:[],meshes:[],accessors:[],bufferViews:[],buffers:[],
+    materials:[
+      {name:"Surface",pbrMetallicRoughness:{baseColorFactor:[1,1,1,1],metallicFactor:0,roughnessFactor:.8},doubleSided:true},
+      {name:"Bulb",pbrMetallicRoughness:{baseColorFactor:[1,1,1,1],metallicFactor:0,roughnessFactor:.4},emissiveFactor:[1,.8,.5],
+       extensions:{KHR_materials_emissive_strength:{emissiveStrength:10}},doubleSided:true}],
+    extensionsUsed:["KHR_lights_punctual","KHR_materials_emissive_strength"],
+    extensions:{KHR_lights_punctual:{lights:[]}}};
+  const bins=[]; let off=0;
+  const view=(u8)=>{const pad=(4-u8.byteLength%4)%4;bins.push(u8);if(pad)bins.push(new Uint8Array(pad));
+    json.bufferViews.push({buffer:0,byteOffset:off,byteLength:u8.byteLength,target:34962});off+=u8.byteLength+pad;return json.bufferViews.length-1;};
+  for(const [name,B,glow] of groups){
+    if(!B) continue;
+    const P=[],Nn=[],C=[];
+    for(let i=0;i<B.p.length;i+=9){
+      const cx=(B.p[i]+B.p[i+3]+B.p[i+6])/3, cz=(B.p[i+2]+B.p[i+5]+B.p[i+8])/3;
+      if(cx<-60||cx>(showBld?75:40)||cz<-60||cz>75) continue;               // keep the venue, drop far forest
+      for(let k=0;k<9;k++){P.push(B.p[i+k]);Nn.push(B.n[i+k]);}
+      for(let v=0;v<3;v++){const j=i+v*3;C.push(Math.round(Math.min(1,B.c[j])*255),Math.round(Math.min(1,B.c[j+1])*255),Math.round(Math.min(1,B.c[j+2])*255),255);}
+    }
+    if(!P.length) continue;
+    const pa=new Float32Array(P), na=new Float32Array(Nn), ca=new Uint8Array(C);
+    for(let i=0;i<na.length;i+=3){const l=Math.hypot(na[i],na[i+1],na[i+2])||1;na[i]/=l;na[i+1]/=l;na[i+2]/=l;}
+    const mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];
+    for(let i=0;i<pa.length;i+=3)for(let k=0;k<3;k++){mn[k]=Math.min(mn[k],pa[i+k]);mx[k]=Math.max(mx[k],pa[i+k]);}
+    const n=pa.length/3, a0=json.accessors.length;
+    json.accessors.push({bufferView:view(new Uint8Array(pa.buffer)),componentType:5126,count:n,type:"VEC3",min:mn,max:mx},
+                        {bufferView:view(new Uint8Array(na.buffer)),componentType:5126,count:n,type:"VEC3"},
+                        {bufferView:view(ca),componentType:5121,normalized:true,count:n,type:"VEC4"});
+    json.meshes.push({name,primitives:[{attributes:{POSITION:a0,NORMAL:a0+1,COLOR_0:a0+2},material:glow,mode:4}]});
+    json.nodes.push({name,mesh:json.meshes.length-1}); json.scenes[0].nodes.push(json.nodes.length-1);
+  }
+  EVENT_LIGHTS.forEach(([pos,k,c,I,r],i)=>{
+    json.extensions.KHR_lights_punctual.lights.push({name:"Event light "+(i+1),type:"point",color:c,intensity:Math.round(I*150),range:r*1.6});
+    json.nodes.push({name:"Event light "+(i+1),translation:pos,extensions:{KHR_lights_punctual:{light:i}}});
+    json.scenes[0].nodes.push(json.nodes.length-1);
+  });
+  json.buffers.push({byteLength:off});
+  let js=new TextEncoder().encode(JSON.stringify(json));
+  const jpad=(4-js.byteLength%4)%4; if(jpad){const t=new Uint8Array(js.byteLength+jpad);t.set(js);t.fill(32,js.byteLength);js=t;}
+  const total=12+8+js.byteLength+8+off, hdr=new DataView(new ArrayBuffer(12)), jh=new DataView(new ArrayBuffer(8)), bh=new DataView(new ArrayBuffer(8));
+  hdr.setUint32(0,0x46546C67,true);hdr.setUint32(4,2,true);hdr.setUint32(8,total,true);
+  jh.setUint32(0,js.byteLength,true);jh.setUint32(4,0x4E4F534A,true);
+  bh.setUint32(0,off,true);bh.setUint32(4,0x004E4942,true);
+  const blob=new Blob([hdr.buffer,jh.buffer,js,bh.buffer,...bins],{type:"model/gltf-binary"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kh-club-wedding-venue.glb";a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+  return {bytes:total,meshes:json.meshes.length,lights:EVENT_LIGHTS.length};
+}
+document.getElementById("tGlb").onclick=()=>{const b=document.getElementById("tGlb");b.textContent="Preparing…";
+  setTimeout(()=>{const r=exportGLB();b.textContent="⬇ Export 3D (.glb) — "+(r.bytes/1048576).toFixed(1)+" MB";},30);};
+
 let dimsWas=false, topPanelWas="";
 function fitTop(){                                   // frame stage → lawn end + labels, clear of the toolbar
   const bar=(document.getElementById("thud").offsetHeight||120)+20, usable=Math.max(.4,(H-bar-30)/H);
@@ -1494,9 +1642,9 @@ if(window.innerWidth<900){document.querySelectorAll("details.sec").forEach(d=>d.
     ["Light arches",EV.archN+" pointed arches, 3.6 m wide × 3.6 m high, every 2.5 m"],
     ["Ceremony seating",COUNT.chairsC+" chiavari chairs: "+EV.rows+" rows × "+(2*EV.seatsPerSide)+" ("+EV.seatsPerSide+" each side), row pitch "+EV.rowPitch+" m, seat pitch "+EV.seatPitch+" m, first row 3 m from the steps"],
     ["Cross-aisle","2 m clear between seating and dining"],
-    ["Dining",COUNT.tables+" round tables, 1.5 m (5 ft) × 8 chairs = "+COUNT.chairsD+" seats, staggered, ≥ 1.1 m between chair backs"],
+    ["Dining",COUNT.tables+" round tables, 1.5 m (5 ft) × 8 chairs = "+COUNT.chairsD+" seats, 4 staggered rows "+DIN_P+" m apart, ≥ "+CHAIR_GAP.toFixed(1)+" m between chair backs"],
     ["Canopy",(EV.poleZ.length*2)+" poles × "+EV.poleH+" m (3 m bays over seating, 6 m over dining); fabric swags + crossing diagonals over the seating, low point ≈ 4.2 m; arches stay below"],
-    ["Buffet",STALLS.length+" covered stalls (3 m × ≈4 m) filling the 42 m side walkway, counters facing the lawn; ≈ 2 m queue lane; refills from the clubhouse side; drinks at the entrance end, desserts & tea by the seating"],
+    ["Buffet",STALLS.length+" covered stalls (3 m × ≈4 m) filling the 42 m side walkway, counters facing the lawn; ≈ "+(CNT0-DIN_X[1]-1.55).toFixed(1)+" m queue lane; refills from the clubhouse side; drinks at the entrance end, desserts & tea by the seating"],
     ["Edison bulbs",COUNT.edison+" warm filament LEDs (≈ 4 W each)"],
     ["Stage lighting",COUNT.wash+" PARs on 2 towers + "+COUNT.uplight+" backdrop uplights + chandeliers"],
     ["Lighting load","≈ "+kW.toFixed(1)+" kW lights only; with sound, catering & fans plan a 30–40 kVA silent DG + standby"],
